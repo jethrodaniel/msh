@@ -1,0 +1,7 @@
+- https://www.gnu.org/software/bash/manual/html_node/Conditional-Constructs.html#Conditional-Constructs
+- https://www.gnu.org/software/bash/manual/html_node/Lists.html#Lists
+- https://www.gnu.org/software/bash/manual/html_node/Command-Grouping.html#Command-Grouping
+- add https://github.com/lsegal/yard
+- answer https://stackoverflow.com/questions/37970478/create-a-completely-new-template-for-yard
+- answer
+  - https://blog.andrewray.me/dealing-with-compiled-files-in-git/

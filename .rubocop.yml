@@ -1,0 +1,25 @@
+inherit_from:
+  - https://raw.githubusercontent.com/jethrodaniel/dotfiles/master/home/.config/rubocop/config.yml
+
+AllCops:
+  Exclude:
+    - 'lib/msh/parse.y'
+    - 'lib/msh/parse.l'
+    - 'lib/msh/parser.rb'
+    - 'lib/msh/lexer.rb'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/msh/*_spec.rb'
+
+Security/Eval:
+  Exclude:
+    - 'spec/msh/*_spec.rb'
+
+Style/MixinUsage:
+  Exclude:
+    - 'spec/examples.rb'
+
+Naming/MethodName:
+  Exclude:
+    - 'lib/msh/interpreter.rb'

@@ -1,0 +1,27 @@
+exe/msh
+{lib,app}/**/*.rb
+ext/**/*.{c,cc,cxx,cpp,rb}
+
+--markup-provider redcarpet
+--markup markdown
+
+--exclude lib/msh/parser.rb
+--exclude lib/msh/lexer.rb
+--exclude rakefile
+
+--output-dir docs
+
+--main readme.md
+
+--template-path ./templates/
+--template msh
+
+--verbose
+--debug
+
+--no-cache
+
+-
+
+license.txt
+readme.md

@@ -1,0 +1,80 @@
+# frozen_string_literal: true
+
+require "erb"
+
+require "bundler/gem_tasks"
+require "rake/clean"
+require "rspec/core/rake_task"
+require "rubocop/rake_task"
+require "yard"
+
+require_relative "spec/examples"
+
+RSpec::Core::RakeTask.new :spec
+task :spec => %i[build stubs]
+task :spec => :install # needed for CLI tests of the `msh` command
+task :rspec => :spec
+task :test => :spec
+
+task :stubs do
+  Examples.create_examples!
+end
+
+RuboCop::RakeTask.new :lint do |t|
+  t.options = %w[
+    --display-cop-names
+    -c.rubocop.yml
+  ]
+end
+
+CLEAN.include \
+  FileList["lib/msh/*.output"],
+  FileList["pkg"],
+  FileList["spec/fixtures/{good,bad}"],
+  %w[
+    lib/msh/lexer.rb
+    lib/msh/parser.rb
+    docs
+    readme
+    templates/msh/fulldoc/html/dist
+    templates/msh/fulldoc/html/index.html
+    templates/msh/fulldoc/html/node_modules
+  ]
+
+task :default => %i[clean install msh]
+
+desc "build everything and run msh"
+task :run => :msh do
+  sh "bundle exec ruby exe/msh"
+end
+
+desc "build everything"
+task :msh => %w[lib/msh/lexer.rb lib/msh/parser.rb readme]
+
+file "lib/msh/lexer.rb" => "lib/msh/parse.l" do
+  sh "bundle exec rex lib/msh/parse.l"
+  sh "mv lib/msh/parse.l.rb lib/msh/lexer.rb"
+end
+
+file "lib/msh/parser.rb" => "lib/msh/parse.y" do
+  sh "bundle exec racc --verbose -o lib/msh/parser.rb lib/msh/parse.y"
+end
+
+task :readme do
+  puts "=== rendering templates ==="
+  puts "-> readme.md"
+  File.open "readme.md", "w" do |f|
+    # trim mode of `<>` removes newlines and blank lines
+    erb = ERB.new(File.read("readme.erb.md"), :trim_mode => "<>")
+    f.puts erb.result
+  end
+  puts "=== done ==="
+end
+
+desc "generate the docs/"
+task :docs => :msh do
+  sh "bundle exec yard doc --format html"
+  # sh "bundle exec yard doc --format text"
+end
+
+

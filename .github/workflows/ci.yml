@@ -1,0 +1,30 @@
+name: ci
+
+on: [push]
+
+jobs:
+  ruby:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby: [ '2.5.x', '2.6.x', '2.7.x']
+
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: true
+
+    - name: set up ruby
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+
+    - name: setup gems
+      run: |
+        gem install bundler
+        bundle update --bundler
+        bundle install
+
+    - name: run specs
+      run: |
+        bundle exec rake spec

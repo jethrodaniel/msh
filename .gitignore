@@ -1,0 +1,40 @@
+/.bundle/
+/.yardoc
+/_yardoc/
+/coverage/
+/pkg/
+/spec/reports/
+/tmp/
+
+# rspec failure tracking
+.rspec_status
+
+# rubocop
+.rubocop-https---*
+
+.ruby-version
+
+*.output
+
+spec/fixtures/good/*.msh
+spec/fixtures/bad/*.msh
+
+/public/packs
+/public/packs-test
+/node_modules
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity
+
+templates/msh/fulldoc/html/node_modules
+
+Makefile
+
+docs/
+templates/msh/fulldoc/html/app.js
+# readme.md
+
+lib/msh/lexer.rb
+lib/msh/parser.rb
+
+*bundle.js*
