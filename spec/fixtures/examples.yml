@@ -443,6 +443,65 @@
           s(:COMMAND,
             s(:WORD, "c"))))
 
+  "{a}|(b)>out&&c||d>t;a;{b;c}>wow":
+    :valid: true
+    :tokens: |
+      [[:LEFT_BRACE, "{"],
+       [:WORD, "a"],
+       [:RIGHT_BRACE, "}"],
+       [:PIPE, "|"],
+       [:LEFT_PAREN, "("],
+       [:WORD, "b"],
+       [:RIGHT_PAREN, ")"],
+       [:REDIRECT_RIGHT, ">"],
+       [:WORD, "out"],
+       [:AND_AND, "&&"],
+       [:WORD, "c"],
+       [:OR, "||"],
+       [:WORD, "d"],
+       [:REDIRECT_RIGHT, ">"],
+       [:WORD, "t"],
+       [:SEMI, ";"],
+       [:WORD, "a"],
+       [:SEMI, ";"],
+       [:LEFT_BRACE, "{"],
+       [:WORD, "b"],
+       [:SEMI, ";"],
+       [:WORD, "c"],
+       [:RIGHT_BRACE, "}"],
+       [:REDIRECT_RIGHT, ">"],
+       [:WORD, "wow"]]
+    :ast: |
+      s(:EXPR,
+        s(:LIST,
+          s(:AND,
+            s(:PIPELINE,
+              s(:GROUP,
+                s(:COMMAND,
+                  s(:WORD, "a"))),
+              s(:SUBSHELL,
+                s(:COMMAND,
+                  s(:WORD, "b")),
+                s(:REDIRECTIONS,
+                  s(:REDIRECT_OUT, "out")))),
+            s(:OR,
+              s(:COMMAND,
+                s(:WORD, "c")),
+              s(:COMMAND,
+                s(:WORD, "d"),
+                s(:REDIRECTIONS,
+                  s(:REDIRECT_OUT, "t"))))),
+          s(:COMMAND,
+            s(:WORD, "a")),
+          s(:GROUP,
+            s(:LIST,
+              s(:COMMAND,
+                s(:WORD, "b")),
+              s(:COMMAND,
+                s(:WORD, "c"))),
+            s(:REDIRECTIONS,
+              s(:REDIRECT_OUT, "wow")))))
+
 
   #"{a || b}":
   # :valid: true
