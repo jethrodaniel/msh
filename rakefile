@@ -17,7 +17,6 @@
 # ```
 
 require "bundler/gem_tasks"
-require "rake/clean"
 require "rspec/core/rake_task"
 require "rubocop/rake_task"
 require "yard"
@@ -89,21 +88,6 @@ end
 RuboCop::RakeTask.new :lint do |t|
   t.options = %w[--display-cop-names -c.rubocop.yml]
 end
-
-CLEAN.include \
-  FileList["lib/msh/*.output"],
-  FileList["spec/fixtures/{good,bad}"],
-  %w[
-    pkg
-    lib/msh/lexer.rb
-    lib/msh/parser.rb
-    docs
-    man/*.gz
-    man/*.[0-9]
-    man/*.adoc
-    readme.md
-    spec/msh/cli/msh_spec.txt
-  ]
 
 desc "build everything and run msh"
 task :run => :msh do
