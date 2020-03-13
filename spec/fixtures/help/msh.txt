@@ -31,7 +31,8 @@ DESCRIPTION
            echo "#{a}"
            cowsay #{IRB.start}
 
-       See msh-help(1), msh-history(1), msh-lexer(1), msh-parser(1).
+       See msh-design(1), msh-help(1), msh-history(1), msh-lexer(1),
+       msh-parser(1).
 
 OPTIONS
        -h, --help

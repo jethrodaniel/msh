@@ -27,7 +27,7 @@ Additionally, it preprocesses your input as ERB, evaluated in the context of the
     echo "#{a}"
     cowsay #{IRB.start}
 
-See msh-help(1), msh-history(1), msh-lexer(1), msh-parser(1).
+See <%= Msh.help_topics.reject { |t| t == "msh" }.sort.map { |topic| "msh-#{topic}(1)" }.join ", " %>.
 
 == options
 
