@@ -11,7 +11,22 @@ design - msh's design and goals
 
 == design and goals
 
-TODO
+=== grammar
+
+Notably horric things about typical shells
+
+- lexing, parsing, and interpretation are not distinct phases
+- parameter expansion _${expression}_
+- _case_ syntax
+- functions and parameters_$1_, etc
+- variables (global by default, no space before _=_, etc)
+
+Msh tries to keep things simple, and uses Ruby to do most of that
+
+- functions are just Ruby methods
+- variables are just Ruby variables
+
+To do this, Msh preprocesses all input as ERB, and provides the _repl_ builtin.
 
 == msh
 

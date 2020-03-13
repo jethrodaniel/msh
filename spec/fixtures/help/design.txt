@@ -1,0 +1,38 @@
+DESIGN(1)                         Msh Manual                         DESIGN(1)
+
+NAME
+       design - msh's design and goals
+
+SYNOPSIS
+       design
+
+DESIGN AND GOALS
+   grammar
+       Notably horric things about typical shells
+
+       ·   lexing, parsing, and interpretation are not distinct phases
+
+       ·   parameter expansion ${expression}
+
+       ·   case syntax
+
+       ·   functions and parameters_$1_, etc
+
+       ·   variables (global by default, no space before =, etc)
+
+       Msh tries to keep things simple, and uses Ruby to do most of that
+
+       ·   functions are just Ruby methods
+
+       ·   variables are just Ruby variables
+
+       To do this, Msh preprocesses all input as ERB, and provides the repl
+       builtin.
+
+MSH
+       Part of msh(1).
+
+AUTHOR
+       Copyright 2020, Mark Delk under the terms of the MIT license
+
+Msh v0.1.0                        2020-03-13                         DESIGN(1)

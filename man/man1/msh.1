@@ -113,15 +113,40 @@ Msh is a simple shell running inside a ruby interpreter. It supports a small sub
 \f(CR[ ]\fP redirection
 .RE
 .sp
-Additionally, it preprocesses your input as ERB, evaluated in the context of the shell, so you always have access to Ruby
+Additionally, does a bunch of things its own way
 .sp
-.if n .RS 4
-.nf
-#{a = Date.today}
-echo "#{a}"
-cowsay #{IRB.start}
-.fi
-.if n .RE
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\f(CR[ ]\fP preprocesses input as ERB (the \fIrepl\fP builtin is a shortcut for this)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\f(CR[ ]\fP variables are just Ruby variables
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\f(CR[ ]\fP functions are just Ruby methods
+.RE
 .sp
 See msh\-design(1), msh\-help(1), msh\-history(1), msh\-lexer(1), msh\-parser(1).
 .SH "OPTIONS"

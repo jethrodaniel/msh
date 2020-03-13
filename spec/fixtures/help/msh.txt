@@ -24,12 +24,14 @@ DESCRIPTION
 
        ·   [ ] redirection
 
-       Additionally, it preprocesses your input as ERB, evaluated in the
-       context of the shell, so you always have access to Ruby
+       Additionally, does a bunch of things its own way
 
-           #{a = Date.today}
-           echo "#{a}"
-           cowsay #{IRB.start}
+       ·   [ ] preprocesses input as ERB (the repl builtin is a shortcut for
+           this)
+
+       ·   [ ] variables are just Ruby variables
+
+       ·   [ ] functions are just Ruby methods
 
        See msh-design(1), msh-help(1), msh-history(1), msh-lexer(1),
        msh-parser(1).

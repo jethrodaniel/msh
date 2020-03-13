@@ -33,8 +33,90 @@ design \- msh\(aqs design and goals
 .sp
 \fBdesign\fP
 .SH "DESIGN AND GOALS"
+.SS "grammar"
 .sp
-TODO
+Notably horric things about typical shells
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+lexing, parsing, and interpretation are not distinct phases
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+parameter expansion \fI${expression}\fP
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\fIcase\fP syntax
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+functions and parameters_$1_, etc
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+variables (global by default, no space before \fI=\fP, etc)
+.RE
+.sp
+Msh tries to keep things simple, and uses Ruby to do most of that
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+functions are just Ruby methods
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+variables are just Ruby variables
+.RE
+.sp
+To do this, Msh preprocesses all input as ERB, and provides the \fIrepl\fP builtin.
 .SH "MSH"
 .sp
 Part of msh(1).

@@ -21,11 +21,11 @@ Msh is a simple shell running inside a ruby interpreter. It supports a small sub
   - `[x]` simple commands
   - `[ ]` redirection
 
-Additionally, it preprocesses your input as ERB, evaluated in the context of the shell, so you always have access to Ruby
+Additionally, does a bunch of things its own way
 
-    #{a = Date.today}
-    echo "#{a}"
-    cowsay #{IRB.start}
+  - `[ ]` preprocesses input as ERB (the _repl_ builtin is a shortcut for this)
+  - `[ ]` variables are just Ruby variables
+  - `[ ]` functions are just Ruby methods
 
 See <%= Msh.help_topics.reject { |t| t == "msh" }.sort.map { |topic| "msh-#{topic}(1)" }.join ", " %>.
 
