@@ -1,0 +1,161 @@
+'\" t
+.\"     Title: msh
+.\"    Author: Copyright 2020, Mark Delk under the terms of the MIT license
+.\" Generator: Asciidoctor 2.0.10
+.\"      Date: 2020-03-13
+.\"    Manual: Msh Manual
+.\"    Source: Msh v0.1.0
+.\"  Language: English
+.\"
+.TH "MSH" "1" "2020-03-13" "Msh v0.1.0" "Msh Manual"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+msh \- a ruby shell
+.SH "SYNOPSIS"
+.sp
+\fBmsh\fP [\fIoptions\fP]... [\fIfile\fP]...
+.SH "DESCRIPTION"
+.sp
+Msh is a simple shell running inside a ruby interpreter. It supports a small subset of \f(CRsh\fP.
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\f(CR[x]\fP pipelines
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\f(CR[ ]\fP command grouping
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\f(CR[ ]\fP subshells
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\f(CR[ ]\fP conditionals
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\f(CR[ ]\fP multiple commands
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\f(CR[x]\fP simple commands
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\f(CR[ ]\fP redirection
+.RE
+.sp
+Additionally, it preprocesses your input as ERB, evaluated in the context of the shell, so you always have access to Ruby
+.sp
+.if n .RS 4
+.nf
+#{a = Date.today}
+echo "#{a}"
+cowsay #{IRB.start}
+.fi
+.if n .RE
+.sp
+See msh\-help(1), msh\-history(1), msh\-lexer(1), msh\-parser(1).
+.SH "OPTIONS"
+.sp
+\fB\-h, \-\-help\fP
+.RS 4
+Show usage information.
+.RE
+.sp
+\fB\-V, \-\-version\fP
+.RS 4
+Show the version.
+.RE
+.sp
+\fB\-\-copyright, \-\-license\fP
+.RS 4
+Show the copyright.
+.RE
+.sp
+\fB\-c <command>\fP
+.RS 4
+Run a command string as input.
+.RE
+.SH "RESOURCES"
+.sp
+\fBissue tracker\fP
+.RS 4
+.URL "https://github.com/jethrodaniel/msh/issues?q=is%3Aopen" "" "."
+.RE
+.sp
+\fBsource code\fP
+.RS 4
+.URL "https://github.com/jethrodaniel/msh" "" ""
+.RE
+.SH "AUTHOR"
+.sp
+Copyright 2020, Mark Delk under the terms of the MIT license

@@ -5,3 +5,11 @@
 - answer https://stackoverflow.com/questions/37970478/create-a-completely-new-template-for-yard
 - answer
   - https://blog.andrewray.me/dealing-with-compiled-files-in-git/
+
+## direction
+
+- [ ] 0.2 - add multi-command support with `;`
+- [ ] 0.3 - add conditionals
+- [ ] 0.4 - add redirections
+
+- `require "shellwords"`

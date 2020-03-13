@@ -9,17 +9,17 @@ class Msh::Parser
 
 rule
   code
-   : expr         { result = s(:EXPR, val[0]) }
-  #  | list         { result = s(:EXPR, val[0]) }
-  #  | simple_list  { result = s(:EXPR, val[0]) }
-  #  | and_or       { result = s(:EXPR, val[0]) }
-  #  | pipeline_cmd { result = s(:EXPR, val[0]) }
+   : expr             { result = s(:EXPR, val[0]) }
+   | and_or           { result = s(:EXPR, val[0]) }
+   | list             { result = s(:EXPR, val[0]) }
+   | simple_list      { result = s(:EXPR, val[0]) }
+   | pipeline_cmd     { result = s(:EXPR, val[0]) }
    | pipeline_cmd sep { result = s(:EXPR, val[0]) }
    | command      sep { result = s(:EXPR, val[0]) }
+   |              sep { result = s(:NOOP) } # nothing as input
 
-  # separator
   sep
-    : # epsilon
+    : /* epsilon */
     | newlines
 
   newlines
@@ -30,69 +30,27 @@ rule
   #  : list
   #  | list_expr expr { result = s(:LIST, *val[0].children, *val[1]) }
 
-  ## lists.
-  ##
-  ## source: https://www.gnu.org/software/bash/manual/html_node/Lists.html#Lists
-  ##
-  ## ```
-  ## A list is a sequence of one or more pipelines separated by one of the
-  ## operators ‘;’, ‘&’, ‘&&’, or ‘||’, and optionally terminated by one of ‘;’,
-  ## ‘&’, or a newline.  Of these list operators, ‘&&’ and ‘||’ have equal
-  ## precedence, followed by ‘;’ and ‘&’, which have equal precedence.
-  ##
-  ## A sequence of one or more newlines may appear in a list to delimit
-  ## commands, equivalent to a semicolon.
-  ##
-  ## If a command is terminated by the control operator ‘&’, the shell executes
-  ## the command asynchronously in a subshell. This is known as executing the
-  ## command in the background, and these are referred to as asynchronous
-  ## commands. The shell does not wait for the command to finish, and the return
-  ## status is 0 (true).  When job control is not active (see Job Control), the
-  ## standard input for asynchronous commands, in the absence of any explicit
-  ## redirections, is redirected from /dev/null.
-  ##
-  ## Commands separated by a ‘;’ are executed sequentially; the shell waits for
-  ## each command to terminate in turn. The return status is the exit status of
-  ## the last command executed.
-  ##
-  ## AND and OR lists are sequences of one or more pipelines separated by the
-  ## control operators ‘&&’ and ‘||’, respectively. AND and OR lists are
-  ## executed with left associativity.
-  ## ```
-  #list
-  #  # combine adjacent lists into a single :LIST
-  #  : list SEMI list {
-  #                     left  = val[0].type == :LIST ? val[0].children : [val[0]]
-  #                     right = val[2].type == :LIST ? val[2].children : [val[2]]
-  #                     result = s(:LIST, *left, *right)
-  #                   }
-  #  | list SEMI
-  #  | subshell
-  #  | group
-  #  | simple_list
+  # source: https://www.gnu.org/software/bash/manual/html_node/Lists.html#Lists
+  list
+    # combine adjacent lists into a single :LIST
+    : list SEMI list {
+                       left  = val[0].type == :LIST ? val[0].children : [val[0]]
+                       right = val[2].type == :LIST ? val[2].children : [val[2]]
+                       result = s(:LIST, *left, *right)
+                     }
+    | list SEMI
+    | simple_list
 
-  #subshell
-  #  : LEFT_PAREN expr RIGHT_PAREN {
-  #                                  result = val[1].type == :SUBSHELL \
-  #                                    ? val[1]
-  #                                    : s(:SUBSHELL,  val[1])
-  #                                }
-  #group
-  #  : LEFT_BRACE expr RIGHT_BRACE {
-  #                                  result = val[1].type == :GROUP \
-  #                                    ? val[1]
-  #                                    : s(:GROUP,  val[1])
-  #                                }
-  #simple_list
-  #  : and_or
-  #  | pipeline_cmd
-  #  | command
+  simple_list
+    : and_or
+    | pipeline_cmd
+    | command
 
-  #and_or
-  #  : pipeline_cmd OR  and_or       { result = s(:OR,  val[0], val[2]) }
-  #  | pipeline_cmd AND and_or       { result = s(:AND, val[0], val[2]) }
-  #  | pipeline_cmd OR  pipeline_cmd { result = s(:OR,  val[0], val[2]) }
-  #  | pipeline_cmd AND pipeline_cmd { result = s(:AND, val[0], val[2]) }
+  and_or
+    : pipeline_cmd OR      and_or       { result = s(:OR,  val[0], val[2]) }
+    | pipeline_cmd AND_AND and_or       { result = s(:AND, val[0], val[2]) }
+    | pipeline_cmd OR      pipeline_cmd { result = s(:OR,  val[0], val[2]) }
+    | pipeline_cmd AND_AND pipeline_cmd { result = s(:AND, val[0], val[2]) }
 
   pipeline_cmd
     :          BANG pipeline { result = s(:NEG_PIPELINE, *val[1].children) }
@@ -116,13 +74,34 @@ rule
     | command  PIPE command      { result = s(:PIPELINE, val[0], val[2]) }
     | command
 
-  command
-    : command redirections { result = s(:COMMAND, *val[0].children, val[1]) }
-    | command WORD        {
-                            result = s(:COMMAND,
-                                       *(val.first.children + [s(:WORD, val.last)]))
-                          }
-    | WORD                 { result = s(:COMMAND, s(:WORD, val[0])) }
+  command:
+    : simple_command
+    | simple_command redirections { result = s(:COMMAND, *val[0].children, val[1]) }
+    | group
+    | group          redirections { result = s(:GROUP, *val[0].children, val[1]) }
+    | subshell
+    | subshell       redirections { result = s(:SUBSHELL, *val[0].children, val[1]) }
+
+  group
+    : LEFT_BRACE list RIGHT_BRACE {
+                                    result = val[1].type == :GROUP \
+                                      ? val[1]
+                                      : s(:GROUP,  val[1])
+                                  }
+
+  subshell
+    : LEFT_PAREN list RIGHT_PAREN {
+                                    result = val[1].type == :SUBSHELL \
+                                      ? val[1]
+                                      : s(:SUBSHELL,  val[1])
+                                  }
+
+  simple_command
+    : simple_command WORD         {
+                                    result = s(:COMMAND,
+                                               *(val.first.children + [s(:WORD, val.last)]))
+                                  }
+    | WORD                        { result = s(:COMMAND, s(:WORD, val[0])) }
 
   redirections
     : redirections redirection { result = s(:REDIRECTIONS, *val[0].children, val[1]) }
@@ -165,6 +144,9 @@ require "msh/lexer"
 
   def initialize
     @lexer = Msh::Lexer.new
+
+    # Use with conjunction with racc's `--debug` option
+    @yydebug = true
   end
 
   def parse(code)
@@ -223,7 +205,7 @@ require "msh/lexer"
 
 class Msh::Parser
   def self.interactive
-    while line = Reline.readline("parser> ", true)&.chomp
+    while line = Readline.readline("parser> ", true)&.chomp
       case line
       when "q", "quit", "exit"
         puts "goodbye! <3"
@@ -249,9 +231,9 @@ class Msh::Parser
   end
 
   # Parse each file passed as input (if any), or run interactively
-  def self.start
-    if ARGV.size.positive?
-      ARGV.each do |file|
+  def self.start args = ARGV
+    if args.size.positive?
+      args.each do |file|
         abort "#{file} is not a file!" unless File.file?(file)
         parser = Msh::Parser.new
         p parser.parse(File.read(file))

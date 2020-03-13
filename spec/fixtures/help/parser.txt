@@ -1,0 +1,18 @@
+PARSER(1)                         Msh Manual                         PARSER(1)
+
+NAME
+       parser - msh's parser
+
+SYNOPSIS
+       parser [file]...
+
+DESCRIPTION
+       Run the parser.
+
+MSH
+       Part of msh(1).
+
+AUTHOR
+       Copyright 2020, Mark Delk under the terms of the MIT license
+
+Msh v0.1.0                        2020-03-13                         PARSER(1)

@@ -2,16 +2,47 @@
 
 ![](https://github.com/jethrodaniel/msh/workflows/ci/badge.svg)
 ![](https://img.shields.io/github/license/jethrodaniel/msh.svg)
-[![docs](https://img.shields.io/badge/docs-1f425f.svg)](https://jethrodaniel.com/msh)
 ![](https://img.shields.io/github/stars/jethrodaniel/msh?style=social)
 
 msh is a ruby shell.
 
-Its goal is the same as Ruby
+Its goal is the same as that of Ruby
 
 > Ruby is designed to make programmers happy.
 >
 > Yukihiro 'Matz' Matsumoto
+
+---
+
+**note**:
+
+- msh is still in the design stage, and will be subject to breaking changes until a `v1.0.0` release.
+
+- this readme is only intended for basic installation and development. See the `help` builtin, the main manpage ([erb](man/msh.1.adoc.erb), [text](spec/fixtures/help/msh.txt)), and the [man directory](./man) for more information.
+
+---
+
+## supported rubies
+
+- [x] CRuby >= 2.4.1
+- [ ] JRuby
+
+## dependencies
+
+Msh has the following runtime dependencies
+
+- `man`, `less`, or `cat` for the `help` builtin (todo: implement in ruby)
+- ~~[reline](https://github.com/ruby/reline) (requires 1 C dependency on [io-console](https://github.com/ruby/io-console))~~
+- [readline](https://github.com/ruby/readline-ext/) (C, comes with CRuby)
+- [ast](https://github.com/whitequark/ast/) (Ruby, no dependencies)
+
+To build the lexer, parser, and manpages
+
+- [racc](https://github.com/ruby/racc)
+- [rexical](https://github.com/tenderlove/rexical)
+- [asciidoctor](https://github.com/asciidoctor/asciidoctor)
+
+Msh ships with the generated files, though, so these are just build time dependencies.
 
 ## installation
 
@@ -20,36 +51,16 @@ Assuming you have Ruby installed:
 ```
 $ gem install msh
 $ msh -h
-Usage: msh <command> [options]... [file]...
+a ruby shell
 
-msh is a ruby shell
+Usage:
+    msh [options]... [file]...
 
-To file issues or contribute, see https://github.com/jethrodaniel/msh.
-
-commands:
-    lexer                            run the lexer
-    parser                           run the parser
-    <blank>                          run the interpreter
-
-options:
+Options:
     -h, --help                       print this help
-    -V, --version                    show the version
-        --copyright, --license       show the copyright
-```
-
-## what it do
-
-```msh
-echo "#{Time.now}" | cowsay
-```
-
-Configuration is in `~/.config/msh/config.rb`
-
-```ruby
-Msh.configure do |c|
-  c.color = true
-  c.history = {:size => 10.megabytes}
-end
+    -V, --version                    show the version   (0.1.0)
+        --copyright, --license       show the copyright (MIT)
+    -c  <cmd_string>                 runs <cmd_string> as shell input
 ```
 
 ## development
@@ -61,16 +72,22 @@ $ bundle exec rake -T
 rake build              # Build msh-0.1.0.gem into the pkg directory
 rake clean              # Remove any temporary products
 rake clobber            # Remove any generated files
-rake docs               # generate the docs/
 rake install            # Build and install msh-0.1.0.gem into system gems
 rake install:local      # Build and install msh-0.1.0.gem into system gems without network access
 rake lint               # Run RuboCop
 rake lint:auto_correct  # Auto-correct RuboCop offenses
+rake man                # generate the man pages
+rake man:check          # verify man pages are in sync
 rake msh                # build everything
-rake release[remote]    # Create tag v0.1.0 and build and push msh-0.1.0.gem to TODO: Set to 'http://mygemserver.com'
+rake readme             # generates readme.md from ERB
+rake release[remote]    # Create tag v0.1.0 and build and push msh-0.1.0.gem to TODO: Set to 'https://rubygems.org'
 rake run                # build everything and run msh
 rake spec               # Run RSpec code examples
+rake spec:examples      # create sample msh scripts from spec/examples.yaml
+rake spec:help          # dump results from `help` builtin to text files for specs
 ```
+
+run `./bin/console` to load up msh in a REPL.
 
 ### testing
 
@@ -80,23 +97,23 @@ Most of these come from a [single YAML file](./spec/fixtures/examples.yml)...
 
 ```yml
 :examples:
-  #
-  # pipes
-  #
-  "fortune | cowsay":
+  # words, filenames, options, etc
+
+  "echo such wow":
     :valid: true
     :tokens: |
-      [[:WORD, "fortune"],
-       [:PIPE, "|"],
-       [:WORD, "cowsay"]]
+      [[:WORD, "echo"],
+       [:WORD, "such"],
+       [:WORD, "wow"]]
     :ast: |
       s(:EXPR,
-        s(:PIPELINE,
-          s(:COMMAND,
-            s(:WORD, "fortune")),
-          s(:COMMAND,
-            s(:WORD, "cowsay"))))
+        s(:COMMAND,
+          s(:WORD, "echo"),
+          s(:WORD, "such"),
+          s(:WORD, "wow")))
 
+  "echo so scare":
+    :valid: true
 ...
 ```
 
@@ -108,16 +125,13 @@ $ bundle exec rake spec
 
 You can also check out [the CI](https://github.com/jethrodaniel/msh/actions/) to see the specs' last executions 🔪.
 
-## docs
-
-Documentation is available at https://jethrodaniel.com/msh/Msh.html.
-
 ## contributing
 
 Bug reports and pull requests are welcome on [GitHub](https://github.com/jethrodaniel/msh).
 
 ```sh
 git clone https://github.com/jethrodaniel/msh
+cd msh && bundle exec rake
 ```
 
 ## license
@@ -148,11 +162,6 @@ THE SOFTWARE.
 
 ## references
 
-- [ruby](https://github.com/ruby/ruby/)
-- [racc](https://github.com/ruby/racc)
-- [rexical](https://github.com/tenderlove/rexical)
-- [reline](https://github.com/ruby/reline)
-- [yard](https://github.com/lsegal/yard)
 - [POSIX specifications](https://pubs.opengroup.org/onlinepubs/9699919799/)
 - [shell intro (1978)](https://web.archive.org/web/20170207130846/http://porkmail.org/era/unix/shell.html)
 - [bashish BNF](https://github.com/jalanb/jab/blob/master/src/bash/bash.bnf)

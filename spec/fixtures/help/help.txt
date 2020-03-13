@@ -1,0 +1,33 @@
+HELP(1)                           Msh Manual                           HELP(1)
+
+NAME
+       help - msh man pages
+
+SYNOPSIS
+       help [topic]...
+
+DESCRIPTION
+       Msh’s help builtin is just a wrapper around the man command, such that
+       topics are prefixed with msh-.
+
+           msh> help help   #=> same as `man msh-help`
+           msh> help        #=> same as `man msh`
+           msh> help wtf    #=> No manual entry for msh-wtf
+
+       Msh modifies your $MANPATH so these are available. To install them
+       outside of msh, either add msh’s man directory to your $MANPATH, or
+       install it’s manpages on your system the traditional way.
+
+           MANPATH="$MANPATH:`dirname \`gem which msh\``/../man" man msh
+
+           cp -r `dirname \`gem which msh\``/../man/man1/ /usr/local/share/man/man1/
+           mandb
+           man msh
+
+MSH
+       Part of msh(1).
+
+AUTHOR
+       Copyright 2020, Mark Delk under the terms of the MIT license
+
+Msh v0.1.0                        2020-03-13                           HELP(1)

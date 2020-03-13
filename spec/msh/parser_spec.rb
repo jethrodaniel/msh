@@ -3,9 +3,16 @@
 RSpec.describe Msh::Parser do
   subject { Msh::Parser.new }
 
+  let(:ruby_version) { RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01 }
+
   Examples.passing.each do |code, data|
     it code do
-      ast = eval(data[:ast], binding, __FILE__, __LINE__)
+      ast = if ruby_version < 2.6
+              binding.eval(data[:ast], __FILE__, __LINE__)
+            else
+              binding.eval(data[:ast], *binding.source_location)
+            end
+
       expect(subject.parse(code)).to eq ast
     end
   end

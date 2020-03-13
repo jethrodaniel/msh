@@ -3,66 +3,48 @@
 require "msh/version"
 require "msh/error"
 require "msh/configuration"
+require "msh/gemspec"
+require "msh/documentation"
 
 require "msh/lexer"
 require "msh/parser"
 require "msh/interpreter"
+
+ruby_version = RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01
+require "msh/extensions" if ruby_version < 2.5
 
 # msh is a happy little ruby shell.
 #
 # It's goal is to enable you to write less shell, and more Ruby.
 #
 module Msh
-  # Lazy way to not type all the stuff from the gemspec.
-  #
-  # @return [Gem::Specification] this gem's gemspec
-  def self.gemspec
-    @gemspec ||= Gem::Specification.find_by_name "msh"
-  end
-
   # Entry point for msh.
   #
   # Parses options/commands, then runs either interactively or on files.
   #
+  # @todo: make Msh.start _only_ run the basic interactive, like Pry.start
+  # @todo: cli, command classes
+  #
   # @return [void]
   def self.start
+    setup_manpath
     handle_options!
-    handle_args!
 
     if ARGV.size.positive?
       handle_files!
     else
-      puts LOGO
       Msh::Interpreter.interactive
     end
   end
 
-  # `msh --help`
-  BANNER = <<~MSG
-    Usage: msh <command> [options]... [file]...
-
+  BANNER = <<~B
     #{gemspec.summary}
 
-    To file issues or contribute, see #{gemspec.homepage}.
+    Usage:
+        msh [options]... [file]...
 
-    commands:
-        lexer                            run the lexer
-        parser                           run the parser
-        <blank>                          run the interpreter
-
-    options:
-  MSG
-
-  LOGO = <<~P
-
-    ______________________________________________________________________
-        ^__^                               __                  ^__^
-        (oo)\\_______      .--------.-----.|  |--.      _______/(oo)
-       (__)\\       )\\/\\   |        |__ --||     |  /\\/(        /(__)
-           ||----w |      |__|__|__|_____||__|__|      | w----||
-    _______||_____||___________________________________||_____||__________
-
-  P
+    Options:
+  B
 
   class << self
     private
@@ -77,51 +59,53 @@ module Msh
       end
     end
 
-    # handle `msh COMMAND`, then exit
-    # @return [void]
-    def handle_args!
-      case ARGV.first
-      when "lexer"
-        ARGV.shift
-        Msh::Lexer.start
-        exit
-      when "parser"
-        ARGV.shift
-        Msh::Parser.start
-        exit
-      end
-    end
-
     # Handle `-h`, `--help`, etc
     #
     # @todo configure Msh::Configuration here, if needed
     # @return [void]
     def handle_options!
       option_parser.parse!
+    rescue OptionParser::MissingArgument => e
+      abort e.message
     rescue OptionParser::InvalidOption => e
       abort e.message
     end
 
     # @return [OptionParser] the option parser for the `msh` command
-    def option_parser
+    def option_parser # rubocop:disable Metrics/AbcSize
       OptionParser.new do |opts|
         opts.banner = BANNER
 
         opts.on "-h", "--help", "print this help" do
           puts opts
-          exit
+          exit 2
         end
 
-        opts.on "-V", "--version", "show the version" do
+        opts.on "-V", "--version", "show the version   (#{Msh::VERSION})" do
           puts "msh version #{Msh::VERSION}"
-          exit
+          exit 2
         end
 
-        opts.on "--copyright", "--license", "show the copyright" do
+        opts.on "--copyright", "--license", "show the copyright (MIT)" do
           puts File.read(Pathname.new(__dir__) + "../license.txt")
-          exit
+          exit 2
+        end
+
+        opts.on "-c  <cmd_string>", String, "runs <cmd_string> as shell input" do |cmd_string| # # rubocop:disable Metrics/LineLength
+          cmd_string = ARGV.prepend(cmd_string).join " "
+          ast = Msh::Parser.new.parse cmd_string
+          exit Msh::Interpreter.new.process(ast).exitstatus
         end
       end
+    end
+
+    # Add this gem's manpages to the current MANPATH
+    #
+    # @todo: what the "::" means (need it to work)
+    def setup_manpath
+      manpaths = ENV["MANPATH"].to_s.split(File::PATH_SEPARATOR)
+      manpaths << Msh.man_dir.realpath.to_s
+      ENV["MANPATH"] = manpaths.compact.join(File::PATH_SEPARATOR) + "::"
     end
   end
 end

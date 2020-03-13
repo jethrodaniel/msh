@@ -8,9 +8,33 @@
 
 # TODO: optional readline
 begin
-  require "reline"
+  require "readline"
 rescue
-  abort "can't require 'reline'!"
+  abort "can't require 'readline'!"
+end
+
+module Msh
+  def self.help_topics
+    Msh.man_dir.glob("*.adoc.erb").map do |erb|
+      File.basename(erb)
+          .match(/msh\-(?<topic>\w+).1.adoc.erb/)&.[](:topic) || "msh"
+    end
+  end
+end
+
+Readline.completion_append_character = " "
+Readline.completion_proc = proc do |str|
+  if str.start_with? "help"
+    Msh.help_topics.map do |topic|
+      if topic == "msh"
+        "help"
+      else
+        "help #{topic}"
+      end
+    end
+  else
+    Dir[str + "*"].grep(/^#{Regexp.escape(str)}/)
+  end
 end
 
 module Msh
@@ -30,7 +54,7 @@ module Msh
       ENV["MSH_TESTING"]
     end
 
-    # Configure Msh like RSPec
+    # Configure Msh like RSpec
     #
     # ```
     # Msh.configure do |c|

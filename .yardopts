@@ -2,8 +2,8 @@ exe/msh
 {lib,app}/**/*.rb
 ext/**/*.{c,cc,cxx,cpp,rb}
 
---markup-provider redcarpet
---markup markdown
+--markup asciidoc
+--markup-provider asciidoctor
 
 --exclude lib/msh/parser.rb
 --exclude lib/msh/lexer.rb
@@ -12,9 +12,6 @@ ext/**/*.{c,cc,cxx,cpp,rb}
 --output-dir docs
 
 --main readme.md
-
---template-path ./templates/
---template msh
 
 --verbose
 --debug

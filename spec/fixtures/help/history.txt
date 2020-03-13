@@ -1,0 +1,20 @@
+HISTORY(1)                        Msh Manual                        HISTORY(1)
+
+NAME
+       history - shell history
+
+SYNOPSIS
+       history
+
+       hist
+
+DESCRIPTION
+       Shows shell history with line numbers.
+
+MSH
+       Part of msh(1).
+
+AUTHOR
+       Copyright 2020, Mark Delk under the terms of the MIT license
+
+Msh v0.1.0                        2020-03-13                        HISTORY(1)

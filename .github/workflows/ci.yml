@@ -7,7 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby: [ '2.5.x', '2.6.x', '2.7.x']
+        # Github doesn't support all the minor versions, just 2.4 and up
+        ruby: ['2.4.x', '2.5.x', '2.6.x', '2.7.x']
+    env:
+      CI: true
 
     steps:
     - uses: actions/checkout@v1
@@ -19,7 +22,7 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
 
-    - name: setup gems
+    - name: setup bundler, gems
       run: |
         gem install bundler
         bundle update --bundler
@@ -27,4 +30,4 @@ jobs:
 
     - name: run specs
       run: |
-        bundle exec rake spec
+        bundle exec rake

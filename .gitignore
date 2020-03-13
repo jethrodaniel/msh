@@ -1,40 +1,22 @@
+# standard bundle/gem things
 /.bundle/
+/pkg/
+
+# yard doc
 /.yardoc
 /_yardoc/
-/coverage/
-/pkg/
-/spec/reports/
-/tmp/
-
-# rspec failure tracking
-.rspec_status
+/doc/
 
 # rubocop
 .rubocop-https---*
 
+# the gemspec is for this
 .ruby-version
 
+# racc generates `parser.output` files on error
 *.output
 
+# generated msh stuff
 spec/fixtures/good/*.msh
 spec/fixtures/bad/*.msh
-
-/public/packs
-/public/packs-test
-/node_modules
-/yarn-error.log
-yarn-debug.log*
-.yarn-integrity
-
-templates/msh/fulldoc/html/node_modules
-
-Makefile
-
-docs/
-templates/msh/fulldoc/html/app.js
-# readme.md
-
-lib/msh/lexer.rb
-lib/msh/parser.rb
-
-*bundle.js*
+man/msh*.adoc

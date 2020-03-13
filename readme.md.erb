@@ -1,0 +1,107 @@
+# msh
+
+![](https://github.com/jethrodaniel/msh/workflows/ci/badge.svg)
+![](https://img.shields.io/github/license/jethrodaniel/msh.svg)
+<%# [![docs](https://img.shields.io/badge/docs-1f425f.svg)](https://jethrodaniel.com/msh) %>
+![](https://img.shields.io/github/stars/jethrodaniel/msh?style=social)
+
+msh is a ruby shell.
+
+Its goal is the same as that of Ruby
+
+> Ruby is designed to make programmers happy.
+>
+> Yukihiro 'Matz' Matsumoto
+
+---
+
+**note**:
+
+- msh is still in the design stage, and will be subject to breaking changes until a `v1.0.0` release.
+
+- this readme is only intended for basic installation and development. See the `help` builtin, the main manpage ([erb](man/msh.1.adoc.erb), [text](spec/fixtures/help/msh.txt)), and the [man directory](./man) for more information.
+
+---
+
+## supported rubies
+
+- [x] CRuby >= 2.4.1
+- [ ] JRuby
+
+## dependencies
+
+Msh has the following runtime dependencies
+
+- `man`, `less`, or `cat` for the `help` builtin (todo: implement in ruby)
+- ~~[reline](https://github.com/ruby/reline) (requires 1 C dependency on [io-console](https://github.com/ruby/io-console))~~
+- [readline](https://github.com/ruby/readline-ext/) (C, comes with CRuby)
+- [ast](https://github.com/whitequark/ast/) (Ruby, no dependencies)
+
+To build the lexer, parser, and manpages
+
+- [racc](https://github.com/ruby/racc)
+- [rexical](https://github.com/tenderlove/rexical)
+- [asciidoctor](https://github.com/asciidoctor/asciidoctor)
+
+Msh ships with the generated files, though, so these are just build time dependencies.
+
+## installation
+
+Assuming you have Ruby installed:
+
+```
+$ gem install msh
+$ msh -h
+<%= `msh -h` %>
+```
+
+## development
+
+see the rakefile
+
+```sh
+$ bundle exec rake -T
+<%= `bundle exec rake -T` %>
+```
+
+run `./bin/console` to load up msh in a REPL.
+
+### testing
+
+msh has more tests than you can shake a stick at.
+
+Most of these come from a [single YAML file](./spec/fixtures/examples.yml)...
+
+```yml
+<%= `sed -n '5,22p' spec/fixtures/examples.yml` %>
+...
+```
+
+and are `eval`'d during the specs.
+
+```sh
+$ bundle exec rake spec
+```
+
+You can also check out [the CI](https://github.com/jethrodaniel/msh/actions/) to see the specs' last executions 🔪.
+
+## contributing
+
+Bug reports and pull requests are welcome on [GitHub](https://github.com/jethrodaniel/msh).
+
+```sh
+git clone https://github.com/jethrodaniel/msh
+cd msh && bundle exec rake
+```
+
+## license
+
+```sh
+<%= `msh --copyright` %>
+```
+
+## references
+
+- [POSIX specifications](https://pubs.opengroup.org/onlinepubs/9699919799/)
+- [shell intro (1978)](https://web.archive.org/web/20170207130846/http://porkmail.org/era/unix/shell.html)
+- [bashish BNF](https://github.com/jalanb/jab/blob/master/src/bash/bash.bnf)

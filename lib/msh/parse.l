@@ -16,15 +16,36 @@ macro
   BLANK         [\ \t]+
   NEWLINE       [\n]+
 
+  # This accepts the following:
+  #
+  #   - anything that's not a _special_ character
+  #
+  # or
+  #
+  #   - anything following an `\` (escape character)
+  #
+  # Special characters are:
+  #
+  #   - ` ` (space)
+  #   - `;`
+  #   - `&`
+  #   - `|`
+  #   - `<>`
+  #   - `{}`
+  #   - `()`
+  #
+  WORD          ((\\[\s;&\|<>\{\}\(\)]|[^\s\n&\|;<>\{\}\(\)])+)
+
 rule
-  {BLANK}       # no action
-  # todo: \n\r ?
+  {BLANK}               # no action
+  \#[^\n]*[\n]*         # ignore comments until a newline
   {NEWLINE}             {
                           @line += 1
                           @column = 1
                           [:NEWLINE, text]
                         }
   time                  { [:TIME, text] }
+  ;                     { [:SEMI, text] }
   \-p                   { [:TIME_OPT, text] }
   \{                    { [:LEFT_BRACE, text] }
   \}                    { [:RIGHT_BRACE, text] }
@@ -32,29 +53,23 @@ rule
   \)                    { [:RIGHT_PAREN, text] }
   !                     { [:BANG, text] }
   \d+                   { [:DIGIT, text.to_i] }
-  \<\>                  { [:DIAMOND, text] }
-  \<\&                  { [:DUP_IN, text] }
-  \>\&                  { [:DUP_OUT, text] }
+  {WORD}                { [:WORD, text] }
+  <>                    { [:DIAMOND, text] }
+  <\&                   { [:DUP_IN, text] }
+  >\&                   { [:DUP_OUT, text] }
   >>                    { [:D_REDIRECT_RIGHT, text] }
   >                     { [:REDIRECT_RIGHT, text] }
   <<                    { [:D_REDIRECT_LEFT, text] }
   <                     { [:REDIRECT_LEFT, text] }
   \|\|                  { [:OR, text] }
-  \|\&                  { [:PIPE_AND, text] }
+  \|&                   { [:PIPE_AND, text] }
   \|                    { [:PIPE, text] }
-  \&\&                  { [:AND_AND, text] }
-  \&                    { [:AND, text] }
-  \&\>                  { [:AND_REDIRECT_RIGHT, text] }
-  \&\>\>                { [:AND_D_REDIRECT_RIGHT, text] }
-  # https://unix.stackexchange.com/a/164394/354783
-  [\w_\-.]+[\w\d_\-.]*  { [:WORD, text] }
-  \{\}                  { [:WORD, text] } # this is stupid, like `find`
+  &&                    { [:AND_AND, text] }
+  &                     { [:AND, text] }
+  &\>                   { [:AND_REDIRECT_RIGHT, text] }
+  &\>\>                 { [:AND_D_REDIRECT_RIGHT, text] }
   \".*\"                { [:DOUBLE_QUOTE_STR, text.gsub(/^"|"$/, '')] }
   \'.*\'                { [:SINGLE_QUOTE_STR, text.gsub(/^'|'$/, '')] }
-  \\.+                  { [:LITERAL, text.delete('\\')] }
-  #.                    { state = :NONDEF ; [text, text] }
-
-# "
 
 inner
   attr_reader :line, :column
@@ -143,7 +158,7 @@ class Msh::Lexer
   end
 
   def self.interactive
-    while line = Reline.readline("lexer> ", true)&.chomp
+    while line = Readline.readline("lexer> ", true)&.chomp
       case line
       when "q", "quit", "exit"
         puts "goodbye! <3"
@@ -174,10 +189,10 @@ class Msh::Lexer
     raise e.class.new, e.pretty_message(rex)
   end
 
-  def self.start
+  def self.start args = ARGV
     # Lex each file passed as input
-    if ARGV.size.positive?
-      ARGV.each do |file|
+    if args.size.positive?
+      args.each do |file|
         abort "#{file} is not a file!" unless File.file?(file)
 
         begin

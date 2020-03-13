@@ -1,0 +1,49 @@
+= msh(1)
+<%= Msh::Documentation.prelude %>
+
+== name
+
+msh - <%= Msh.gemspec.summary %>
+
+== synopsis
+
+*msh* [_options_]... [_file_]...
+
+== description
+
+Msh is a simple shell running inside a ruby interpreter. It supports a small subset of `sh`.
+
+  - `[x]` pipelines
+  - `[ ]` command grouping
+  - `[ ]` subshells
+  - `[ ]` conditionals
+  - `[ ]` multiple commands
+  - `[x]` simple commands
+  - `[ ]` redirection
+
+Additionally, it preprocesses your input as ERB, evaluated in the context of the shell, so you always have access to Ruby
+
+    #{a = Date.today}
+    echo "#{a}"
+    cowsay #{IRB.start}
+
+See msh-help(1), msh-history(1), msh-lexer(1), msh-parser(1).
+
+== options
+
+*-h, --help*::
+  Show usage information.
+
+*-V, --version*::
+  Show the version.
+
+*--copyright, --license*::
+  Show the copyright.
+
+*-c <command>*::
+  Run a command string as input.
+
+== resources
+
+*issue tracker*:: https://github.com/jethrodaniel/msh/issues?q=is%3Aopen.
+*source code*:: <%= Msh.gemspec.homepage %>

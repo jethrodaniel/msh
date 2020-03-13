@@ -5,6 +5,7 @@ require "English" # for $CHILD_STATUS
 require "msh/lexer"
 require "msh/parser"
 require "msh/ast"
+require "msh/gemspec"
 
 module Racc
   class ParseError
@@ -49,7 +50,12 @@ module Msh
     def self.interactive # rubocop:disable Metrics/AbcSize
       interpreter = Msh::Interpreter.new
 
-      while line = Reline.readline("interpreter> ", true)&.chomp
+      while line = Readline.readline("interpreter> ", true)&.chomp
+        # don't add blank lines or duplicates to history
+        if /\A\s*\z/ =~ line || Readline::HISTORY.to_a.dig(-2) == line
+          Readline::HISTORY.pop
+        end
+
         case line
         when "q", "quit", "exit"
           puts "goodbye! <3"
@@ -67,9 +73,10 @@ module Msh
           end
         end
       end
-    rescue Interrupt
-      system %w[stty sane]
-      system %w[tput rs1]
+    rescue Interrupt => e
+      puts "^C"
+      run *%w[stty sane]
+      # run *%w[tput rs1] # clear
     end
 
     # Execute a command via `fork`, wait for the command to finish
@@ -78,20 +85,30 @@ module Msh
     #
     # @param args [Array<String>] args to execute
     # @return [Void]
-    def run *args
+    def self.run *args
       unless args.all? { |a| a.is_a? String }
         abort "expected Array<String>, got `#{args.class}:#{args.inspect}`"
       end
 
       pid = fork do
-        exec *args
-      rescue Errno::ENOENT => e
-        puts e.message
+        begin
+          exec *args
+        rescue Errno::ENOENT => e
+          puts e.message
+        end
       end
 
       Process.wait pid
 
       $CHILD_STATUS
+    end
+
+    def run *args
+      self.class.run *args
+    end
+
+    def on_NOOP _node
+      0
     end
 
     def on_EXPR node
@@ -114,11 +131,36 @@ module Msh
 
         run(*and_expr.right.words)
       when :COMMAND
-        # TODO: rm hack
-        if process(node).words == ["help"]
-          exec %[vim ./docs/msh.txt]
+        words = process(node).words
+
+        # handle `help [topic]...`
+        help_topics = words.drop 1
+        cmd = if help_topics.empty?
+                %w[man msh]
+              else
+                %w[man] + help_topics.map { |t| "msh-#{t}" }
+              end
+        return run(*cmd) if words.first == "help"
+
+        # history builtin
+        if %(history hist).include? words.first
+          size = 3
+          Readline::HISTORY.to_a.tap do |h|
+            size = h.size.to_s.chars.size
+          end.each.with_index(1) do |e, i|
+            puts "#{i.to_s.ljust(size, ' ')} #{e}"
+          end
+          return 0
         end
-        run *process(node).words
+
+        case words.first
+        when "lexer"
+          return Msh::Lexer.start(words.drop(1))
+        when "parser"
+          return Msh::Parser.start(words.drop(1))
+        end
+
+        run *words
       else
         abort "expected one of :PIPELINE, :AND, :OR, :COMMAND"
       end
@@ -186,7 +228,8 @@ module Msh
         piped.status = $CHILD_STATUS.exitstatus
       end
 
-      # p pipeline.last.status
+      # pipeline.last.status
+      $CHILD_STATUS
     end
 
     # @param node [AST::Node] an :OR or :AND node

@@ -1,0 +1,18 @@
+LEXER(1)                          Msh Manual                          LEXER(1)
+
+NAME
+       lexer - msh's lexer
+
+SYNOPSIS
+       lexer [file]...
+
+DESCRIPTION
+       Run the lexer.
+
+MSH
+       Part of msh(1).
+
+AUTHOR
+       Copyright 2020, Mark Delk under the terms of the MIT license
+
+Msh v0.1.0                        2020-03-13                          LEXER(1)

@@ -88,9 +88,16 @@
 RSpec.describe Msh::Lexer do
   subject { Msh::Lexer.new }
 
+  let(:ruby_version) { RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01 }
+
   Examples.passing.each do |code, data|
     it code do
-      tokens = eval(data[:tokens], binding, __FILE__, __LINE__)
+      tokens = if ruby_version < 2.6
+                 binding.eval(data[:tokens], __FILE__, __LINE__)
+               else
+                 binding.eval(data[:tokens], *binding.source_location)
+               end
+
       expect(subject.tokenize(code)).to eq tokens
     end
   end
