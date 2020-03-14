@@ -42,12 +42,44 @@ module Msh
       end
     end
 
+    # p = Preprocessor.new
+    # e = Env.new
+    #
+    #
+    class Preprocessor
+      def initialize; end
+    end
+
+    class Env # < BasicObject
+      def initialize; end
+
+      def respond_to? meth
+        # TODO: this is costly? hardcode these 8 methods or so?
+        # return false if BasicObject.new.respond_to?(meth)
+        return false if Object.new.respond_to?(meth)
+
+        super
+      end
+
+      # def run meth, *args, &block
+      #   instance_eval do
+      #     send meth, *args, &block
+      #   end
+      # end
+
+      def run input
+        t = binding.eval("\"#{input}\"", *binding.source_location) # rubocop:disable Style/EvalWithLocation, Security/Eval
+        t
+      end
+    end
+
     # Run the interpreter interactively.
     #
     # This is the main point of the shell, really.
     #
     # @return [Void]
     def self.interactive # rubocop:disable Metrics/AbcSize
+      env = Env.new
       interpreter = Msh::Interpreter.new
 
       while line = Readline.readline("interpreter> ", true)&.chomp
@@ -63,6 +95,14 @@ module Msh
         else
           begin
             parser = Msh::Parser.new
+
+            begin
+              line = env.run line
+              # puts "[line] #{line.inspect}"
+            rescue NoMethodError => e
+              puts e
+            end
+
             nodes = parser.parse line
 
             interpreter.process nodes
