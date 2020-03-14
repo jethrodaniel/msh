@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# require "English" # TODO: optional
 # require "abbrev" # TODO: use the std library for abbreviations, optional
 
 # require "pry" # TODO: optionally swapable with irb, or equivalent REPL

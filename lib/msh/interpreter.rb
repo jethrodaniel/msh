@@ -29,7 +29,7 @@ end
 # That being said, we have an `on_TOKEN` method for each of our tokens, and we
 # can go ahead and interpret as we go.
 #
-# Our entry point is the root of the grammar, i.e the `on_PIPELINE` method.
+# Our entry point is the root of the grammar
 #
 module Msh
   class Interpreter
