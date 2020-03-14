@@ -44,13 +44,13 @@ RSpec.describe Msh::Parser do
           s(:COMMAND,
             s(:WORD, "foo"),
             s(:REDIRECTIONS,
-              s(:N_DUP_OUT, 2, 1))),
+              s(:DUP, 2, 1))),
           s(:COMMAND,
             s(:WORD, "bar")))
     end
 
     it ":COMMAND <redirections> |& :COMMAND" do
-      a = s(:COMMAND, s(:WORD, "foo"), s(:REDIRECTIONS, s(:N_DUP_OUT, 3, 4)))
+      a = s(:COMMAND, s(:WORD, "foo"), s(:REDIRECTIONS, s(:DUP, 3, 4)))
       b = s(:COMMAND, s(:WORD, "bar"))
       p = Msh::Parser.new.send :expand_PIPE_AND, :left => a, :right => b
 
@@ -59,9 +59,10 @@ RSpec.describe Msh::Parser do
           s(:COMMAND,
             s(:WORD, "foo"),
             s(:REDIRECTIONS,
-              s(:N_DUP_OUT, 3, 4),
-              s(:N_DUP_OUT, 2, 1))), s(:COMMAND,
-                                       s(:WORD, "bar")))
+              s(:DUP, 3, 4),
+              s(:DUP, 2, 1))),
+          s(:COMMAND,
+            s(:WORD, "bar")))
     end
   end
 end

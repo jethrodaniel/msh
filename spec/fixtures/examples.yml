@@ -124,8 +124,8 @@
         s(:PIPELINE,
           s(:COMMAND,
             s(:WORD, "fortune"),
-              s(:REDIRECTIONS,
-                s(:N_DUP_OUT, 2, 1))),
+            s(:REDIRECTIONS,
+              s(:DUP, 2, 1))),
           s(:COMMAND,
             s(:WORD, "cowsay"))))
 
@@ -133,7 +133,7 @@
     :valid: true
     :tokens: |
       [[:WORD, "fortune"],
-       [:REDIRECT_RIGHT, ">"],
+       [:REDIRECT, "1>"],
        [:WORD, "out"],
        [:PIPE_AND, "|&"],
        [:WORD, "cowsay"]]
@@ -143,8 +143,8 @@
           s(:COMMAND,
             s(:WORD, "fortune"),
               s(:REDIRECTIONS,
-                s(:REDIRECT_OUT, "out"),
-                s(:N_DUP_OUT, 2, 1))),
+                s(:REDIRECT, 1, "out"),
+                s(:DUP, 2, 1))),
           s(:COMMAND,
             s(:WORD, "cowsay"))))
 
@@ -152,7 +152,7 @@
     :valid: true
     :tokens: |
       [[:WORD, "fortune"],
-       [:REDIRECT_RIGHT, ">"],
+       [:REDIRECT, "1>"],
        [:WORD, "out"],
        [:PIPE, "|"],
        [:WORD, "wow"],
@@ -164,11 +164,11 @@
           s(:COMMAND,
             s(:WORD, "fortune"),
             s(:REDIRECTIONS,
-              s(:REDIRECT_OUT, "out"))),
+              s(:REDIRECT, 1, "out"))),
           s(:COMMAND,
             s(:WORD, "wow"),
             s(:REDIRECTIONS,
-              s(:N_DUP_OUT, 2, 1))),
+              s(:DUP, 2, 1))),
           s(:COMMAND,
             s(:WORD, "cowsay"))))
 
@@ -176,7 +176,7 @@
     :valid: true
     :tokens: |
       [[:WORD, "fortune"],
-       [:REDIRECT_RIGHT, ">"],
+       [:REDIRECT, "1>"],
        [:WORD, "out"],
        [:PIPE, "|"],
        [:WORD, "wow"],
@@ -190,11 +190,11 @@
           s(:COMMAND,
             s(:WORD, "fortune"),
             s(:REDIRECTIONS,
-              s(:REDIRECT_OUT, "out"))),
+              s(:REDIRECT, 1, "out"))),
           s(:COMMAND,
             s(:WORD, "wow"),
             s(:REDIRECTIONS,
-              s(:N_DUP_OUT, 2, 1))),
+              s(:DUP, 2, 1))),
           s(:COMMAND,
             s(:WORD, "cowsay")),
           s(:COMMAND,
@@ -204,13 +204,13 @@
     :valid: true
     :tokens: |
       [[:WORD, "a"],
-       [:REDIRECT_RIGHT, ">"],
+       [:REDIRECT, "1>"],
        [:WORD, "out"],
        [:PIPE, "|"],
        [:WORD, "b"],
-       [:REDIRECT_LEFT, "<"],
+       [:REDIRECT, "0<"],
        [:WORD, "in"],
-       [:REDIRECT_RIGHT, ">"],
+       [:REDIRECT, "1>"],
        [:WORD, "out"],
        [:PIPE_AND, "|&"],
        [:WORD, "c"],
@@ -222,17 +222,17 @@
           s(:COMMAND,
             s(:WORD, "a"),
             s(:REDIRECTIONS,
-              s(:REDIRECT_OUT, "out"))),
+              s(:REDIRECT, 1, "out"))),
           s(:COMMAND,
             s(:WORD, "b"),
             s(:REDIRECTIONS,
-              s(:REDIRECT_IN, "in"),
-              s(:REDIRECT_OUT, "out"),
-              s(:N_DUP_OUT, 2, 1))),
+              s(:REDIRECT, 0, "in"),
+              s(:REDIRECT, 1, "out"),
+              s(:DUP, 2, 1))),
           s(:COMMAND,
             s(:WORD, "c"),
             s(:REDIRECTIONS,
-              s(:N_DUP_OUT, 2, 1))),
+              s(:DUP, 2, 1))),
           s(:COMMAND,
             s(:WORD, "d"))))
 
@@ -383,7 +383,7 @@
        [:SEMI, ";"],
        [:WORD, "b"],
        [:RIGHT_BRACE, "}"],
-       [:REDIRECT_RIGHT, ">"],
+       [:REDIRECT, "1>"],
        [:WORD, "out"],
        [:PIPE, "|"],
        [:WORD, "c"]]
@@ -397,7 +397,7 @@
               s(:COMMAND,
                 s(:WORD, "b"))),
             s(:REDIRECTIONS,
-              s(:REDIRECT_OUT, "out"))),
+              s(:REDIRECT, 1, "out"))),
           s(:COMMAND,
             s(:WORD, "c"))))
 
@@ -425,7 +425,7 @@
        [:SEMI, ";"],
        [:WORD, "b"],
        [:RIGHT_PAREN, ")"],
-       [:REDIRECT_RIGHT, ">"],
+       [:REDIRECT, "1>"],
        [:WORD, "out"],
        [:PIPE, "|"],
        [:WORD, "c"]]
@@ -439,7 +439,7 @@
               s(:COMMAND,
                 s(:WORD, "b"))),
             s(:REDIRECTIONS,
-              s(:REDIRECT_OUT, "out"))),
+              s(:REDIRECT, 1, "out"))),
           s(:COMMAND,
             s(:WORD, "c"))))
 
@@ -453,13 +453,13 @@
        [:LEFT_PAREN, "("],
        [:WORD, "b"],
        [:RIGHT_PAREN, ")"],
-       [:REDIRECT_RIGHT, ">"],
+       [:REDIRECT, "1>"],
        [:WORD, "out"],
        [:AND_AND, "&&"],
        [:WORD, "c"],
        [:OR, "||"],
        [:WORD, "d"],
-       [:REDIRECT_RIGHT, ">"],
+       [:REDIRECT, "1>"],
        [:WORD, "t"],
        [:SEMI, ";"],
        [:WORD, "a"],
@@ -469,7 +469,7 @@
        [:SEMI, ";"],
        [:WORD, "c"],
        [:RIGHT_BRACE, "}"],
-       [:REDIRECT_RIGHT, ">"],
+       [:REDIRECT, "1>"],
        [:WORD, "wow"]]
     :ast: |
       s(:EXPR,
@@ -483,14 +483,14 @@
                 s(:COMMAND,
                   s(:WORD, "b")),
                 s(:REDIRECTIONS,
-                  s(:REDIRECT_OUT, "out")))),
+                  s(:REDIRECT, 1, "out")))),
             s(:OR,
               s(:COMMAND,
                 s(:WORD, "c")),
               s(:COMMAND,
                 s(:WORD, "d"),
                 s(:REDIRECTIONS,
-                  s(:REDIRECT_OUT, "t"))))),
+                  s(:REDIRECT, 1, "t"))))),
           s(:COMMAND,
             s(:WORD, "a")),
           s(:GROUP,
@@ -500,7 +500,7 @@
               s(:COMMAND,
                 s(:WORD, "c"))),
             s(:REDIRECTIONS,
-              s(:REDIRECT_OUT, "wow")))))
+              s(:REDIRECT, 1, "wow")))))
 
 
   #"{a || b}":
@@ -535,74 +535,61 @@
   ## redirections
   ##
 
-  "ls a <in 1<in >out 2>out >>foo >|wow 3>|ouch &>un &>>mas 4<&1 <&4 >&5 2>&1 3>&- 6<>foo":
+  "ls a <in 1<in >out 2>out >>foo >|wow 3>|ouch &>un &>>mas 4<&1 <&4 >&5 2>&1 13>&2- 6<>foo":
    :valid: true
    :tokens: |
      [[:WORD, "ls"],
       [:WORD, "a"],
-      [:REDIRECT_LEFT, "<"],
+      [:REDIRECT, "0<"],
       [:WORD, "in"],
-      [:DIGIT, 1],
-      [:REDIRECT_LEFT, "<"],
+      [:REDIRECT, "1<"],
       [:WORD, "in"],
-      [:REDIRECT_RIGHT, ">"],
+      [:REDIRECT, "1>"],
       [:WORD, "out"],
-      [:DIGIT, 2],
-      [:REDIRECT_RIGHT, ">"],
+      [:REDIRECT, "2>"],
       [:WORD, "out"],
-      [:D_REDIRECT_RIGHT, ">>"],
+      [:APPEND, "1>>"],
       [:WORD, "foo"],
-      [:REDIRECT_RIGHT, ">"],
-      [:PIPE, "|"],
+      [:REDIRECT_NOCLOBBER, "1>|"],
       [:WORD, "wow"],
-      [:DIGIT, 3],
-      [:REDIRECT_RIGHT, ">"],
-      [:PIPE, "|"],
+      [:REDIRECT, "3>|"],
       [:WORD, "ouch"],
-      [:AND, "&"],
-      [:REDIRECT_RIGHT, ">"],
+      [:REDIRECT_BOTH, "&>"],
       [:WORD, "un"],
-      [:AND, "&"],
-      [:D_REDIRECT_RIGHT, ">>"],
+      [:APPEND_BOTH, "&>>"],
       [:WORD, "mas"],
-      [:DIGIT, 4],
-      [:DUP_IN, "<&"],
-      [:DIGIT, 1],
-      [:DUP_IN, "<&"],
-      [:DIGIT, 4],
-      [:DUP_OUT, ">&"],
-      [:DIGIT, 5],
-      [:DIGIT, 2],
-      [:DUP_OUT, ">&"],
-      [:DIGIT, 1],
-      [:DIGIT, 3],
-      [:DUP_OUT, ">&"],
-      [:WORD, "-"],
-      [:DIGIT, 6],
-      [:DIAMOND, "<>"],
+      [:DUP, "4<&"],
+      [:WORD, "1"],
+      [:DUP, "0<&"],
+      [:WORD, "4"],
+      [:REDIRECT_BOTH, ">&"],
+      [:WORD, "5"],
+      [:DUP, "2>&"],
+      [:WORD, "1"],
+      [:MOVE_FD, "13>&2-"],
+      [:OPEN_RW, "6<>"],
       [:WORD, "foo"]]
-
    :ast: |
      s(:EXPR,
        s(:COMMAND,
          s(:WORD, "ls"),
          s(:WORD, "a"),
          s(:REDIRECTIONS,
-           s(:REDIRECT_IN, "in"),
-           s(:N_REDIRECT_IN, 1, "in"),
-           s(:REDIRECT_OUT, "out"),
-           s(:N_REDIRECT_OUT, 2, "out"),
-           s(:D_REDIRECT_OUT, "foo"),
-           s(:REDIRECT_OUT_CLOBBER, "wow"),
-           s(:N_REDIRECT_OUT_CLOBBER, 3, "ouch"),
-           s(:AND_REDIRECT_OUT, "un"),
-           s(:AND_D_REDIRECT_OUT, "mas"),
-           s(:N_DUP_IN, 4, 1),
-           s(:DUP_IN, 4),
-           s(:DUP_OUT, 5),
-           s(:N_DUP_OUT, 2, 1),
-           s(:N_DUP_OUT, 3, "-"),
-           s(:DIAMOND, 6, "foo"))))
+           s(:REDIRECT, 0, "in"),
+           s(:REDIRECT, 1, "in"),
+           s(:REDIRECT, 1, "out"),
+           s(:REDIRECT, 2, "out"),
+           s(:APPEND, 1, "foo"),
+           s(:REDIRECT_NOCLOBBER, 1, "wow"),
+           s(:REDIRECT, 3, "ouch"),
+           s(:REDIRECT_BOTH, "un"),
+           s(:APPEND_BOTH, "mas"),
+           s(:DUP, 4, 1),
+           s(:DUP, 0, 4),
+           s(:REDIRECT_BOTH, "5"),
+           s(:DUP, 2, 1),
+           s(:MOVE_FD, 13, 2),
+           s(:OPEN_RW, 6, "foo"))))
 
   # comments
 
@@ -636,19 +623,17 @@
   #      [:BG, "&"]]
   #   :ast: |
 
-  "ls|wow 3>doggo 2>&1>/dev/null;wow&&wow||o>out&&goose|&duck":
+  "ls|wow 3>doggo 2>&1 >/dev/null;wow&&wow||o>out&&goose|&duck":
     :valid: true
     :tokens: |
       [[:WORD, "ls"],
        [:PIPE, "|"],
        [:WORD, "wow"],
-       [:DIGIT, 3],
-       [:REDIRECT_RIGHT, ">"],
+       [:REDIRECT, "3>"],
        [:WORD, "doggo"],
-       [:DIGIT, 2],
-       [:DUP_OUT, ">&"],
-       [:DIGIT, 1],
-       [:REDIRECT_RIGHT, ">"],
+       [:DUP, "2>&"],
+       [:WORD, "1"],
+       [:REDIRECT, "1>"],
        [:WORD, "/dev/null"],
        [:SEMI, ";"],
        [:WORD, "wow"],
@@ -656,7 +641,7 @@
        [:WORD, "wow"],
        [:OR, "||"],
        [:WORD, "o"],
-       [:REDIRECT_RIGHT, ">"],
+       [:REDIRECT, "1>"],
        [:WORD, "out"],
        [:AND_AND, "&&"],
        [:WORD, "goose"],
@@ -671,9 +656,9 @@
             s(:COMMAND,
               s(:WORD, "wow"),
               s(:REDIRECTIONS,
-                s(:N_REDIRECT_OUT, 3, "doggo"),
-                s(:N_DUP_OUT, 2, 1),
-                s(:REDIRECT_OUT, "/dev/null")))),
+                s(:REDIRECT, 3, "doggo"),
+                s(:DUP, 2, 1),
+                s(:REDIRECT, 1, "/dev/null")))),
           s(:AND,
             s(:COMMAND,
               s(:WORD, "wow")),
@@ -684,12 +669,12 @@
                 s(:COMMAND,
                   s(:WORD, "o"),
                   s(:REDIRECTIONS,
-                    s(:REDIRECT_OUT, "out"))),
+                    s(:REDIRECT, 1, "out"))),
                 s(:PIPELINE,
                   s(:COMMAND,
                     s(:WORD, "goose"),
                     s(:REDIRECTIONS,
-                      s(:N_DUP_OUT, 2, 1))),
+                      s(:DUP, 2, 1))),
                   s(:COMMAND,
                     s(:WORD, "duck"))))))))
 

@@ -70,18 +70,15 @@ class Msh::Lexer < Racc::Parser
           token = case @state
             when nil
           case
-                  when (text = @ss.scan(/[ \t]+/))
-                    ;
-
                   when (text = @ss.scan(/\#[^\n]*[\n]*/))
                     ;
 
                   when (text = @ss.scan(/[\n]+/))
                      action {
-                          @line += 1
-                          @column = 1
-                          [:NEWLINE, text]
-                        }
+                                    @line += 1
+                                    @column = 1
+                                    [:NEWLINE, text]
+                                  }
 
 
                   when (text = @ss.scan(/time/))
@@ -108,32 +105,101 @@ class Msh::Lexer < Racc::Parser
                   when (text = @ss.scan(/!/))
                      action { [:BANG, text] }
 
-                  when (text = @ss.scan(/\d+/))
-                     action { [:DIGIT, text.to_i] }
+                  when (text = @ss.scan(/[\d]*<&[\d]*\-/))
+                     action {
+                                    if text.match? /[\d]+<&[\d+]\-/
+                                      [:MOVE_FD, text]
+                                    else
+                                      [:MOVE_FD, "0#{text}"]
+                                    end
+                                  }
+
+
+                  when (text = @ss.scan(/[\d]*>&[\d]*\-/))
+                     action {
+                                    if text.match? /[\d]+>&[\d+]\-/
+                                      [:MOVE_FD, text]
+                                    else
+                                      [:MOVE_FD, "1#{text}"]
+                                    end
+                                  }
+
+
+                  when (text = @ss.scan(/[\d]*<>/))
+                     action {
+                                    if text.match? /[\d]+<>/
+                                      [:OPEN_RW, text]
+                                    else
+                                      [:OPEN_RW, "0#{text}"]
+                                    end
+                                  }
+
+
+                  when (text = @ss.scan(/[\d]*>>/))
+                     action {
+                                    if text.match?(/\d+>>/)
+                                      [:APPEND, text]
+                                    else
+                                      [:APPEND, "1#{text}"]
+                                    end
+                                  }
+
+
+                  when (text = @ss.scan(/&>>/))
+                     action { [:APPEND_BOTH, text] }
+
+                  when (text = @ss.scan(/(&>|>&)/))
+                     action { [:REDIRECT_BOTH, text] }
+
+                  when (text = @ss.scan(/[\d]*<&/))
+                     action {
+                                    if text.match? /[\d]+<&/
+                                      [:DUP, text]
+                                    else
+                                      [:DUP, "0#{text}"]
+                                    end
+                                  }
+
+
+                  when (text = @ss.scan(/[\d]*>&/))
+                     action {
+                                    if text.match? /[\d]+>&/
+                                      [:DUP, text]
+                                    else
+                                      [:DUP, "1#{text}"]
+                                    end
+                                  }
+
+
+                  when (text = @ss.scan(/[\d]*</))
+                     action {
+                                    if text.match?(/\d+</)
+                                      [:REDIRECT, text]
+                                    else
+                                      [:REDIRECT, "0#{text}"]
+                                    end
+                                  }
+
+
+                  when (text = @ss.scan(/[\d]*>[\|]*/))
+                     action {
+                                    if text.match?(/\d+>/)
+                                      [:REDIRECT, text]
+                                    elsif text.match?(/\d+>\|/)
+                                      [:REDIRECT_NOCLOBBER, text]
+                                    elsif text.match?(/>\|/)
+                                      [:REDIRECT_NOCLOBBER, "1#{text}"]
+                                    else
+                                      [:REDIRECT, "1#{text}"]
+                                    end
+                                  }
+
 
                   when (text = @ss.scan(/((\\[\s;&\|<>\{\}\(\)]|[^\s\n&\|;<>\{\}\(\)])+)/))
                      action { [:WORD, text] }
 
-                  when (text = @ss.scan(/<>/))
-                     action { [:DIAMOND, text] }
-
-                  when (text = @ss.scan(/<\&/))
-                     action { [:DUP_IN, text] }
-
-                  when (text = @ss.scan(/>\&/))
-                     action { [:DUP_OUT, text] }
-
-                  when (text = @ss.scan(/>>/))
-                     action { [:D_REDIRECT_RIGHT, text] }
-
-                  when (text = @ss.scan(/>/))
-                     action { [:REDIRECT_RIGHT, text] }
-
-                  when (text = @ss.scan(/<</))
-                     action { [:D_REDIRECT_LEFT, text] }
-
-                  when (text = @ss.scan(/</))
-                     action { [:REDIRECT_LEFT, text] }
+                  when (text = @ss.scan(/[ \t]+/))
+                    ;
 
                   when (text = @ss.scan(/\|\|/))
                      action { [:OR, text] }

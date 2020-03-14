@@ -6,9 +6,15 @@ NAME
 SYNOPSIS
        design
 
-DESIGN AND GOALS
-   grammar
-       Notably horric things about typical shells
+GOALS
+       ·   be simple
+
+       ·   be friendly
+
+DESIGN
+       Msh is, in some ways, a result of PTSD from shells like Bash or sh.
+
+       Notably horric things about those shells
 
        ·   lexing, parsing, and interpretation are not distinct phases
 
@@ -26,8 +32,25 @@ DESIGN AND GOALS
 
        ·   variables are just Ruby variables
 
-       To do this, Msh preprocesses all input as ERB, and provides the repl
-       builtin.
+   example
+       When Msh executes the following code
+
+           echo the time is #{Time.now} | cowsay
+
+       The following steps are performed
+
+   Preprocessing
+       The code is evaluated as a Ruby string, to allow for interpolation via
+       #{}.
+
+   Lexing
+       The input is converted into tokens.
+
+   Parsing
+       The tokens are converted into an abstract syntax tree (AST).
+
+   Interetation
+       The AST is executed by a tree-walking interpretor.
 
 MSH
        Part of msh(1).
@@ -35,4 +58,4 @@ MSH
 AUTHOR
        Copyright 2020, Mark Delk under the terms of the MIT license
 
-Msh v0.1.0                        2020-03-13                         DESIGN(1)
+Msh v0.1.0                        2020-03-15                         DESIGN(1)

@@ -9,11 +9,16 @@ design - msh's design and goals
 
 *design*
 
-== design and goals
+== goals
 
-=== grammar
+- be simple
+- be friendly
 
-Notably horric things about typical shells
+== design
+
+Msh is, in some ways, a result of PTSD from shells like Bash or _sh_.
+
+Notably horric things about _those_ shells
 
 - lexing, parsing, and interpretation are not distinct phases
 - parameter expansion _${expression}_
@@ -26,7 +31,29 @@ Msh tries to keep things simple, and uses Ruby to do most of that
 - functions are just Ruby methods
 - variables are just Ruby variables
 
-To do this, Msh preprocesses all input as ERB, and provides the _repl_ builtin.
+=== example
+
+When Msh executes the following code
+
+  echo the time is #{Time.now} | cowsay
+
+The following steps are performed
+
+==== Preprocessing
+
+The code is evaluated as a Ruby string, to allow for interpolation via _#{}_.
+
+==== Lexing
+
+The input is converted into tokens.
+
+==== Parsing
+
+The tokens are converted into an abstract syntax tree (AST).
+
+==== Interetation
+
+The AST is executed by a tree-walking interpretor.
 
 == msh
 

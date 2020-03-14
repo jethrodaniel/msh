@@ -109,26 +109,106 @@ rule
 
   # https://www.gnu.org/software/bash/manual/html_node/Redirections.html#Redirections
   redirection
-    : DIGIT D_REDIRECT_RIGHT io_word      { result = s(:N_D_REDIRECT_OUT, val[0], val[2]) }
-    |       D_REDIRECT_RIGHT io_word      { result = s(:D_REDIRECT_OUT, val[1]) }
-    | DIGIT   REDIRECT_RIGHT io_word      { result = s(:N_REDIRECT_OUT, val[0], val[2]) }
-    | DIGIT   REDIRECT_RIGHT PIPE io_word { result = s(:N_REDIRECT_OUT_CLOBBER, val[0], val[3]) }
-    |         REDIRECT_RIGHT PIPE io_word { result = s(:REDIRECT_OUT_CLOBBER, val[2]) }
-    | DIGIT   REDIRECT_LEFT  io_word      { result = s(:N_REDIRECT_IN, val[0], val[2]) }
-    |         REDIRECT_RIGHT io_word      { result = s(:REDIRECT_OUT, val[1]) }
-    |         REDIRECT_LEFT  io_word      { result = s(:REDIRECT_IN, val[1]) }
-    # the `DUP_*` ones can only be `[\d]+` or `-`
-    | DIGIT   DUP_IN         io_word      { result = s(:N_DUP_IN, val[0], val[2]) }
-    | DIGIT   DUP_OUT        io_word      { result = s(:N_DUP_OUT, val[0], val[2]) }
-    |         DUP_IN         io_word      { result = s(:DUP_IN, val[1]) }
-    |         DUP_OUT        io_word      { result = s(:DUP_OUT, val[1]) }
-    | AND     REDIRECT_RIGHT io_word      { result = s(:AND_REDIRECT_OUT, val[2]) }
-    | AND   D_REDIRECT_RIGHT io_word      { result = s(:AND_D_REDIRECT_OUT, val[2]) }
-    | DIGIT DIAMOND          io_word      { result = s(:DIAMOND, val[0], val[2]) }
+    # 3.6.9 Moving File Descriptors
+    #
+    #     [n]<&digit-
+    #     [n]>&digit-
+    #
+    : MOVE_FD     {
+                    unless match = val[0].match(/(\d+)[<>]&(\d+)\-/)
+                      abort "expected `[n]<&digit-`, but got `#{val[0]}`"
+                    end
 
-  io_word
-    : WORD
-    | DIGIT
+                    n, digit = match.captures.map(&:to_i)
+                    result = s(:MOVE_FD, n, digit)
+                  }
+
+    # 3.6.10 Opening File Descriptors for Reading and Writing
+    #
+    #     [n]<>word
+    #
+    | OPEN_RW WORD {
+                     unless match = val[0].match(/(\d+)<>/)
+                       abort "expected `[n]<>word`, but got `#{val[0]}`"
+                     end
+
+                     n = match.captures.first.to_i
+                     result = s(:OPEN_RW, n, val[1])
+                   }
+
+    # 3.6.8 Duplicating File Descriptors
+    #
+    #     [n]<&word      duplicate input file descriptors
+    #     [n]>&word      duplicate output file descriptors
+    #
+    # note: `word` must be a number or `-`
+    #
+    | DUP WORD     {
+                     unless match = val[0].match(/(\d+)[<>]&/)
+                       abort "expected `[n]<&word` or `[n]>&word`, but got `#{val[0]}`"
+                     end
+
+                     n = match.captures.first.to_i
+                     word = val[1]
+                     unless word == "-" || word.match?(/\d+/)
+                       abort "[n][<>]&word, expected `-` or a digit"
+                     end
+
+                     word = word.to_i if word.match?(/\d+/)
+
+                     result = s(:DUP, n, word)
+                   }
+
+    # 3.6.3 Appending Redirected Output
+    #
+    #     [n]>>word
+    #
+    | APPEND WORD  {
+                     unless match = val[0].match(/(\d+)[>>]/)
+                       abort "expected `[n]>>word`, but got `#{val[0]}`"
+                     end
+
+                     n = match.captures.first.to_i
+                     result = s(:APPEND, n, val[1])
+                   }
+
+    # 3.6.5 Appending Standard Output and Standard Error
+    #
+    #     &>>word
+    | APPEND_BOTH WORD  {
+                          result = s(:APPEND_BOTH, val[1])
+                        }
+
+    # 3.6.4 Redirecting Standard Output and Standard Error
+    #
+    #     &>word
+    | REDIRECT_BOTH WORD  {
+                            result = s(:REDIRECT_BOTH, val[1])
+                          }
+
+    # 3.6.1 Redirecting Input
+    # 3.6.2 Redirecting Output
+    #
+    #     [n]<word
+    #     [n]>[|]word
+    #
+    | REDIRECT WORD {
+                      unless match = val[0].match(/(\d+)[<>]/)
+                        abort "expected `[n]<word`, but got `#{val[0]}`"
+                      end
+
+                      n = match.captures.first.to_i
+                      result = s(:REDIRECT, n, val[1])
+                    }
+    | REDIRECT_NOCLOBBER WORD {
+                                unless match = val[0].match(/(\d+)[<>]/)
+                                  abort "expected `[n]>[|]word`, but got `#{val[0]}`"
+                                end
+
+                                n = match.captures.first.to_i
+                                result = s(:REDIRECT_NOCLOBBER, n, val[1])
+                              }
+
 end
 
 ---- header
@@ -180,10 +260,10 @@ require "msh/lexer"
     when :COMMAND
       if left.children.last.type == :REDIRECTIONS
         redirections = left.children.last.children
-        redirections = s(:REDIRECTIONS, *(redirections + [s(:N_DUP_OUT, 2, 1)]))
+        redirections = s(:REDIRECTIONS, *(redirections + [s(:DUP, 2, 1)]))
         left = s(left.type, *(left.children[0...-1] + [redirections]))
       else
-        left = s(left.type, *(left.children + [s(:REDIRECTIONS, s(:N_DUP_OUT, 2, 1))]))
+        left = s(left.type, *(left.children + [s(:REDIRECTIONS, s(:DUP, 2, 1))]))
       end
 
       case right.type

@@ -131,7 +131,7 @@ module Msh
       end
 
       pid = fork do
-        begin
+        begin # rubocop:disable Style/RedundantBegin
           exec *args
         rescue Errno::ENOENT => e
           puts e.message
