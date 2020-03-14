@@ -17,21 +17,16 @@ module Msh
   def self.help_topics
     Msh.man_dir.glob("*.adoc.erb").map do |erb|
       File.basename(erb)
-          .match(/msh\-(?<topic>\w+).1.adoc.erb/)&.[](:topic) || "msh"
-    end
+          .match(/msh\-(?<topic>\w+).1.adoc.erb/)
+          &.[](:topic)
+    end.compact # `msh.1.adoc.erb` makes a nil
   end
 end
 
 Readline.completion_append_character = " "
 Readline.completion_proc = proc do |str|
   if str.start_with? "help"
-    Msh.help_topics.map do |topic|
-      if topic == "msh"
-        "help"
-      else
-        "help #{topic}"
-      end
-    end
+    Msh.help_topics.map { |topic| "help #{topic}" } + ["help"]
   else
     Dir[str + "*"].grep(/^#{Regexp.escape(str)}/)
   end
