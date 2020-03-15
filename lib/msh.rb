@@ -10,8 +10,12 @@ require "msh/lexer"
 require "msh/parser"
 require "msh/interpreter"
 
-ruby_version = RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01
-require "msh/extensions" if ruby_version < 2.5
+module Msh
+  def self.ruby_2_4?
+    (RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01 - 2.4).abs < 0.1
+  end
+end
+require "msh/extensions" if Msh.ruby_2_4?
 
 # msh is a happy little ruby shell.
 #

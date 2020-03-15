@@ -26,3 +26,18 @@ class Array
     [element] + self
   end
 end
+
+class Pathname
+  def glob path
+    Dir.glob "#{self}/#{path}"
+  end
+end
+
+class Binding
+  def source_location
+    [
+      eval("__FILE__", binding, __FILE__, __LINE__),
+      eval("__LINE__", binding, __FILE__, __LINE__)
+    ]
+  end
+end
