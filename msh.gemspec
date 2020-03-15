@@ -45,10 +45,12 @@ Gem::Specification.new do |spec|
     lib/msh/interpreter.rb
     lib/msh/lexer.rb
     lib/msh/parser.rb
+    lib/msh/ruby_version.rb
     lib/msh/version.rb
     license.txt
     man/man1/msh-help.1
     man/man1/msh-history.1
+    man/man1/msh-design.1
     man/man1/msh-lexer.1
     man/man1/msh-parser.1
     man/man1/msh.1
