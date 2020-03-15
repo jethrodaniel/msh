@@ -101,6 +101,10 @@ rule
                                     result = s(:COMMAND,
                                                *(val.first.children + [s(:WORD, val.last)]))
                                   }
+    | simple_command TIME         {
+                                    result = s(:COMMAND,
+                                               *(val.first.children + [s(:WORD, val.last)]))
+                                  }
     | WORD                        { result = s(:COMMAND, s(:WORD, val[0])) }
 
   redirections

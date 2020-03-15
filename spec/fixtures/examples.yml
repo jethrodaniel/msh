@@ -251,6 +251,40 @@
           s(:COMMAND,
             s(:WORD, "cowsay"))))
 
+  "time echo":
+    :valid: true
+    :tokens: |
+      [[:TIME, "time"],
+       [:WORD, "echo"]]
+    :ast: |
+      s(:EXPR,
+        s(:PIPELINE,
+          s(:TIME),
+          s(:WORD, "echo")))
+
+  "time -p echo":
+    :valid: true
+    :tokens: |
+      [[:TIME, "time"],
+       [:TIME_OPT, "-p"],
+       [:WORD, "echo"]]
+    :ast: |
+      s(:EXPR,
+        s(:PIPELINE,
+          s(:TIME_P),
+          s(:WORD, "echo")))
+
+  "echo time":
+    :valid: true
+    :tokens: |
+      [[:WORD, "echo"],
+       [:TIME, "time"]]
+    :ast: |
+      s(:EXPR,
+        s(:COMMAND,
+         s(:WORD, "echo"),
+         s(:WORD, "time")))
+
   "time ! fortune | cowsay":
     :valid: true
     :tokens: |
