@@ -14,8 +14,12 @@ module Msh
   def self.ruby_2_4?
     (RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01 - 2.4).abs < 0.1
   end
+
+  def self.ruby_2_5?
+    (RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01 - 2.5).abs < 0.1
+  end
 end
-require "msh/extensions" if Msh.ruby_2_4?
+require "msh/extensions" if Msh.ruby_2_4? || Msh.ruby_2_5?
 
 # msh is a happy little ruby shell.
 #
