@@ -51,6 +51,7 @@ Gem::Specification.new do |spec|
     man/man1/msh-help.1
     man/man1/msh-history.1
     man/man1/msh-design.1
+    man/man1/msh-repl.1
     man/man1/msh-lexer.1
     man/man1/msh-parser.1
     man/man1/msh.1

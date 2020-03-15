@@ -7,6 +7,9 @@ require "msh/parser"
 require "msh/ast"
 require "msh/gemspec"
 
+require "msh/ruby_version"
+require "msh/extensions" if Msh.ruby_2_4? || Msh.ruby_2_5?
+
 module Racc
   class ParseError
     def pretty_message
@@ -42,35 +45,28 @@ module Msh
       end
     end
 
-    # p = Preprocessor.new
-    # e = Env.new
-    #
-    #
-    class Preprocessor
-      def initialize; end
-    end
-
-    class Env # < BasicObject
+    class Env
       def initialize; end
 
       def respond_to? meth
-        # TODO: this is costly? hardcode these 8 methods or so?
-        # return false if BasicObject.new.respond_to?(meth)
         return false if Object.new.respond_to?(meth)
 
         super
       end
 
-      # def run meth, *args, &block
-      #   instance_eval do
-      #     send meth, *args, &block
-      #   end
-      # end
-
       def run input
         t = binding.eval("\"#{input}\"", *binding.source_location) # rubocop:disable Style/EvalWithLocation, Security/Eval
         t
       end
+    end
+
+    def initialize
+      @env = Env.new
+      super
+    end
+
+    def preprocess input
+      @env.run input
     end
 
     # Run the interpreter interactively.
@@ -79,7 +75,6 @@ module Msh
     #
     # @return [Void]
     def self.interactive # rubocop:disable Metrics/AbcSize
-      env = Env.new
       interpreter = Msh::Interpreter.new
 
       while line = Readline.readline("interpreter> ", true)&.chomp
@@ -97,7 +92,7 @@ module Msh
             parser = Msh::Parser.new
 
             begin
-              line = env.run line
+              line = interpreter.preprocess line
               # puts "[line] #{line.inspect}"
             rescue NoMethodError => e
               puts e
@@ -187,7 +182,7 @@ module Msh
           size = 3
           Readline::HISTORY.to_a.tap do |h|
             size = h.size.to_s.chars.size
-          end.each.with_index(1) do |e, i|
+          end.each.with_index(1) do |e, i| # rubocop:disable Style/MultilineBlockChain
             puts "#{i.to_s.ljust(size, ' ')} #{e}"
           end
           return 0
@@ -198,6 +193,13 @@ module Msh
           return Msh::Lexer.start(words.drop(1))
         when "parser"
           return Msh::Parser.start(words.drop(1))
+        when "repl"
+          if require "pry"
+            return @env.run('#{binding.pry}') # rubocop:disable Lint/InterpolationCheck
+          end
+
+          require "irb"
+          return @env.run('#{IRB.start}') # rubocop:disable Lint/InterpolationCheck
         end
 
         run *words
