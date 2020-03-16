@@ -68,11 +68,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency "ast", "~> 2.4"
   # spec.add_dependency "reline", "~> 0.1.3"
 
-  # spec.add_dependency "activesupport", "~> 6.0"
-
   spec.add_development_dependency "asciidoctor", "~> 2.0"
   spec.add_development_dependency "bundler", "~> 2.1"
-  spec.add_development_dependency "pry-byebug", "~> 3.8"
   spec.add_development_dependency "racc", "~> 1.4"
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rexical", "~> 1.0"

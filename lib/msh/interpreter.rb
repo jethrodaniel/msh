@@ -46,16 +46,12 @@ module Msh
     end
 
     class Env
-      def initialize; end
-
-      def respond_to? meth
-        return false if Object.new.respond_to?(meth)
-
-        super
+      def initialize
+        @binding = binding
       end
 
       def run input
-        t = binding.eval("\"#{input}\"", *binding.source_location) # rubocop:disable Style/EvalWithLocation, Security/Eval
+        t = @binding.eval("\"#{input}\"", *binding.source_location)
         t
       end
     end
@@ -66,7 +62,11 @@ module Msh
     end
 
     def preprocess input
-      @env.run input
+      begin # rubocop:disable Style/RedundantBegin
+        @env.run input
+      rescue NoMethodError => e
+        puts e
+      end
     end
 
     # Run the interpreter interactively.
@@ -74,8 +74,9 @@ module Msh
     # This is the main point of the shell, really.
     #
     # @return [Void]
-    def self.interactive # rubocop:disable Metrics/AbcSize
+    def self.interactive
       interpreter = Msh::Interpreter.new
+      parser = Msh::Parser.new
 
       while line = Readline.readline("interpreter> ", true)&.chomp
         # don't add blank lines or duplicates to history
@@ -89,17 +90,8 @@ module Msh
           exit
         else
           begin
-            parser = Msh::Parser.new
-
-            begin
-              line = interpreter.preprocess line
-              # puts "[line] #{line.inspect}"
-            rescue NoMethodError => e
-              puts e
-            end
-
+            line = interpreter.preprocess line
             nodes = parser.parse line
-
             interpreter.process nodes
           rescue MissingCommandError, Racc::ParseError => e
             p e.pretty_message
@@ -194,12 +186,8 @@ module Msh
         when "parser"
           return Msh::Parser.start(words.drop(1))
         when "repl"
-          if require "pry"
-            return @env.run('#{binding.pry}') # rubocop:disable Lint/InterpolationCheck
-          end
-
           require "irb"
-          return @env.run('#{IRB.start}') # rubocop:disable Lint/InterpolationCheck
+          return @env.run('#{@binding.irb}') # rubocop:disable Lint/InterpolationCheck
         end
 
         run *words
