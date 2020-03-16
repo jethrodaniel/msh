@@ -34,7 +34,7 @@ DESCRIPTION
        ·   [ ] functions are just Ruby methods
 
        See msh-design(1), msh-help(1), msh-history(1), msh-lexer(1),
-       msh-parser(1).
+       msh-parser(1), msh-repl(1).
 
 OPTIONS
        -h, --help

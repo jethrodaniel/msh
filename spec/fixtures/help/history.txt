@@ -17,4 +17,4 @@ MSH
 AUTHOR
        Copyright 2020, Mark Delk under the terms of the MIT license
 
-Msh v0.1.0                        2020-03-15                        HISTORY(1)
+Msh v0.1.0                        2020-03-16                        HISTORY(1)

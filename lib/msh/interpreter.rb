@@ -10,10 +10,23 @@ require "msh/gemspec"
 require "msh/ruby_version"
 require "msh/extensions" if Msh.ruby_2_4? || Msh.ruby_2_5?
 
+require "msh/env"
+
 module Racc
   class ParseError
     def pretty_message
       "error: #{message.delete_suffix(' (error)')}"
+    end
+  end
+end
+
+module Msh
+  class Interpreter
+    class MissingCommandError < StandardError
+      def pretty_message
+        # did you mean?
+        message
+      end
     end
   end
 end
@@ -38,24 +51,6 @@ module Msh
   class Interpreter
     include ::AST::Processor::Mixin
 
-    class MissingCommandError < StandardError
-      def pretty_message
-        # did you mean?
-        message
-      end
-    end
-
-    class Env
-      def initialize
-        @binding = binding
-      end
-
-      def run input
-        t = @binding.eval("\"#{input}\"", *binding.source_location)
-        t
-      end
-    end
-
     def initialize
       @env = Env.new
       super
@@ -63,15 +58,17 @@ module Msh
 
     def preprocess input
       begin # rubocop:disable Style/RedundantBegin
-        @env.run input
+        @env.eval input
       rescue NoMethodError => e
         puts e
       end
     end
 
+    def run *args
+      @env.send :run, *args
+    end
+
     # Run the interpreter interactively.
-    #
-    # This is the main point of the shell, really.
     #
     # @return [Void]
     def self.interactive
@@ -84,54 +81,20 @@ module Msh
           Readline::HISTORY.pop
         end
 
-        case line
-        when "q", "quit", "exit"
-          puts "goodbye! <3"
-          exit
-        else
-          begin
-            line = interpreter.preprocess line
-            nodes = parser.parse line
-            interpreter.process nodes
-          rescue MissingCommandError, Racc::ParseError => e
-            p e.pretty_message
-          rescue Msh::Lexer::ScanError => e
-            p e.pretty_message(parser.lexer)
-          end
+        begin
+          line = interpreter.preprocess line
+          nodes = parser.parse line
+          interpreter.process nodes
+        rescue MissingCommandError, Racc::ParseError => e
+          p e.pretty_message
+        rescue Msh::Lexer::ScanError => e
+          p e.pretty_message(parser.lexer)
         end
       end
-    rescue Interrupt => e
+    rescue Interrupt
       puts "^C"
-      run *%w[stty sane]
+      exec *%w[stty sane]
       # run *%w[tput rs1] # clear
-    end
-
-    # Execute a command via `fork`, wait for the command to finish
-    #
-    # TODO: spawn, so this can be more platform-independent
-    #
-    # @param args [Array<String>] args to execute
-    # @return [Void]
-    def self.run *args
-      unless args.all? { |a| a.is_a? String }
-        abort "expected Array<String>, got `#{args.class}:#{args.inspect}`"
-      end
-
-      pid = fork do
-        begin # rubocop:disable Style/RedundantBegin
-          exec *args
-        rescue Errno::ENOENT => e
-          puts e.message
-        end
-      end
-
-      Process.wait pid
-
-      $CHILD_STATUS
-    end
-
-    def run *args
-      self.class.run *args
     end
 
     def on_NOOP _node
@@ -160,35 +123,7 @@ module Msh
       when :COMMAND
         words = process(node).words
 
-        # handle `help [topic]...`
-        help_topics = words.drop 1
-        cmd = if help_topics.empty?
-                %w[man msh]
-              else
-                %w[man] + help_topics.map { |t| "msh-#{t}" }
-              end
-        return run(*cmd) if words.first == "help"
-
-        # history builtin
-        if %(history hist).include? words.first
-          size = 3
-          Readline::HISTORY.to_a.tap do |h|
-            size = h.size.to_s.chars.size
-          end.each.with_index(1) do |e, i| # rubocop:disable Style/MultilineBlockChain
-            puts "#{i.to_s.ljust(size, ' ')} #{e}"
-          end
-          return 0
-        end
-
-        case words.first
-        when "lexer"
-          return Msh::Lexer.start(words.drop(1))
-        when "parser"
-          return Msh::Parser.start(words.drop(1))
-        when "repl"
-          require "irb"
-          return @env.run('#{@binding.irb}') # rubocop:disable Lint/InterpolationCheck
-        end
+        return @env.send(*words) if @env.respond_to?(words.first)
 
         run *words
       else
