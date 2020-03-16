@@ -41,12 +41,10 @@ Gem::Specification.new do |spec|
     lib/msh/documentation.rb
     lib/msh/error.rb
     lib/msh/env.rb
-    lib/msh/extensions.rb
     lib/msh/gemspec.rb
     lib/msh/interpreter.rb
     lib/msh/lexer.rb
     lib/msh/parser.rb
-    lib/msh/ruby_version.rb
     lib/msh/version.rb
     license.txt
     man/man1/msh-help.1
@@ -64,7 +62,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = ">= 2.4"
+  spec.required_ruby_version = ">= 2.5"
 
   spec.add_dependency "ast", "~> 2.4"
   # spec.add_dependency "reline", "~> 0.1.3"

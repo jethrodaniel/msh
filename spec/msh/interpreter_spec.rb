@@ -50,6 +50,8 @@ RSpec.describe Msh::Interpreter do
     describe "hist[ory]" do
       context "when interactive" do
         it "shows shell history" do
+          skip "intermittent failures on CI (TODO: fix this)" if ENV["CI"]
+
           PTY.spawn("msh") do |read, write, _pid|
             read.expect(/interpreter> /, 1) do |msg|
               expect(msg).to eq(["interpreter> "])
@@ -62,13 +64,8 @@ RSpec.describe Msh::Interpreter do
 
             write.puts "echo msh ftw"
             read.expect("msh ftw", 3) do |msg|
-              skip "intermittent failures on CI (TODO: fix this)" if ENV["CI"]
-
-              # if Msh.ruby_2_4?
-              #   expect(msg).to eq(["\r\necho msh ftw"])
-              # else
-                expect(msg).to eq(["\r\ninterpreter> echo msh ftw"])
-              # end
+              # expect(msg).to eq(["\r\necho msh ftw"])
+              expect(msg).to eq(["\r\ninterpreter> echo msh ftw"])
             end
           end
         end

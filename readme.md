@@ -24,7 +24,7 @@ Its goal is the same as that of Ruby
 
 ## supported rubies
 
-- [x] CRuby >= 2.4.1
+- [x] CRuby >= 2.5
 - [ ] JRuby
 
 ## dependencies

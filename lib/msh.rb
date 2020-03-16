@@ -10,9 +10,6 @@ require "msh/lexer"
 require "msh/parser"
 require "msh/interpreter"
 
-require "msh/ruby_version"
-require "msh/extensions" if Msh.ruby_2_4? || Msh.ruby_2_5?
-
 # msh is a happy little ruby shell.
 #
 # It's goal is to enable you to write less shell, and more Ruby.

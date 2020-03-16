@@ -20,14 +20,13 @@ module Msh
         size = 3
         Readline::HISTORY.to_a.tap do |h|
           size = h.size.to_s.chars.size
-        end.each.with_index(1) do |e, i|
+        end.each.with_index(1) do |e, i| # rubocop:disable Style/MultilineBlockChain
           puts "#{i.to_s.ljust(size, ' ')} #{e}"
         end
         0
       end
       alias hist history
 
-      # handle `help [topic]...`
       def help *topics
         cmd = if topics.empty?
                 %w[man msh]
@@ -46,7 +45,7 @@ module Msh
       end
 
       def repl
-        run '#{@binding.irb}'
+        run '#{@binding.irb}' # rubocop:disable Lint/InterpolationCheck
       end
 
       def exit
@@ -70,11 +69,9 @@ module Msh
         end
 
         pid = fork do
-          begin
-            exec *args
-          rescue Errno::ENOENT => e
-            puts e.message
-          end
+          exec *args
+        rescue Errno::ENOENT => e
+          puts e.message
         end
 
         Process.wait pid

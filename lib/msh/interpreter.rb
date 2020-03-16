@@ -7,9 +7,6 @@ require "msh/parser"
 require "msh/ast"
 require "msh/gemspec"
 
-require "msh/ruby_version"
-require "msh/extensions" if Msh.ruby_2_4? || Msh.ruby_2_5?
-
 require "msh/env"
 
 module Racc
