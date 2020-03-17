@@ -54,11 +54,9 @@ module Msh
     end
 
     def preprocess input
-      begin # rubocop:disable Style/RedundantBegin
-        @env.eval input
-      rescue NoMethodError => e
-        puts e
-      end
+      @env.evaluate input
+    rescue NoMethodError => e
+      puts e
     end
 
     def run *args
@@ -120,7 +118,12 @@ module Msh
       when :COMMAND
         words = process(node).words
 
-        return @env.send(*words) if @env.respond_to?(words.first)
+        begin
+          return @env.send(*words) if @env.respond_to?(words.first)
+        rescue ArgumentError => e
+          puts e
+          return 1
+        end
 
         run *words
       else

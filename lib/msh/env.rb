@@ -12,7 +12,7 @@ module Msh
         @binding = binding
       end
 
-      def eval input
+      def evaluate input
         @binding.eval("\"#{input}\"", *@binding.source_location)
       end
 
@@ -45,7 +45,7 @@ module Msh
       end
 
       def repl
-        run '#{@binding.irb}' # rubocop:disable Lint/InterpolationCheck
+        evaluate '#{@binding.irb}' # rubocop:disable Lint/InterpolationCheck
       end
 
       def exit
