@@ -50,7 +50,6 @@ module Msh
 
     def initialize
       @env = Env.new
-      super
     end
 
     def preprocess input
