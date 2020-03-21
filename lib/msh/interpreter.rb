@@ -13,7 +13,7 @@ require "msh/parser"
 Readline.completion_append_character = " "
 Readline.completion_proc = proc do |str|
   if str.start_with? "help"
-    Msh.help_topics.map { |topic| "help #{topic}" } + ["help"]
+    Msh::Documentation.help_topics.map { |topic| "help #{topic}" } + ["help"]
   else
     Dir[str + "*"].grep(/^#{Regexp.escape(str)}/)
   end

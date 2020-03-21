@@ -40,7 +40,8 @@ module Msh
         opts.on "-c  <cmd_string>", String, "runs <cmd_string> as shell input" do |cmd_string|
           cmd_string = ARGV.prepend(cmd_string).join " "
           ast = Msh::Parser.new.parse cmd_string
-          exit Msh::Interpreter.new.process(ast).exitstatus
+          result = Msh::Interpreter.new.process(ast)
+          exit result.is_a?(Process::Status) ? result.exitstatus : result
         end
       end
     end

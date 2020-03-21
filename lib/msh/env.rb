@@ -37,11 +37,13 @@ module Msh
       end
 
       def lexer *files
-        Msh::Lexer.start *files
+        Msh::Lexer.start files
+        0
       end
 
       def parser *files
-        Msh::Parser.start *files
+        Msh::Parser.start files
+        0
       end
 
       def repl
