@@ -37,6 +37,7 @@ Gem::Specification.new do |spec|
     gems.rb
     lib/msh.rb
     lib/msh/ast.rb
+    lib/msh/cli.rb
     lib/msh/configuration.rb
     lib/msh/documentation.rb
     lib/msh/error.rb

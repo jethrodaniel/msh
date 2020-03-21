@@ -4,7 +4,7 @@ require "readline"
 
 module Msh
   def self.help_topics
-    Msh.root.join('man').glob("*.adoc.erb").map do |erb|
+    Msh.root.join("man").glob("*.adoc.erb").map do |erb|
       File.basename(erb)
           .match(/msh\-(?<topic>\w+).1.adoc.erb/)
           &.[](:topic)
