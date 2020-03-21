@@ -2,10 +2,14 @@
 
 require "optparse"
 
+require "msh/gemspec"
+require "msh/parser"
+require "msh/interpreter"
+
 module Msh
   module CLI
     BANNER = <<~B
-      #{SUMMARY}
+      #{Msh::SUMMARY}
 
       Usage:
           msh [options]... [file]...

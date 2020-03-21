@@ -228,9 +228,6 @@ require "msh/lexer"
 
   def initialize
     @lexer = Msh::Lexer.new
-
-    # Use with conjunction with racc's `--debug` option
-    @yydebug = true
   end
 
   def parse(code)
@@ -238,7 +235,7 @@ require "msh/lexer"
     do_parse
   rescue Racc::ParseError => e
     # TODO: better error message
-    raise e.class.new "[#{line}][#{column}]: #{e.message.gsub "\n", ''}"
+    raise Racc::ParseError, "[#{line}][#{column}]: #{e.message.gsub "\n", ''}"
   end
 
   def next_token
@@ -287,43 +284,35 @@ require "msh/lexer"
 
 ---- footer
 
-class Msh::Parser
-  def self.interactive
-    while line = Readline.readline("parser> ", true)&.chomp
-      case line
-      when "q", "quit", "exit"
-        puts "goodbye! <3"
-        exit
-      else
-        begin
-          parser = Msh::Parser.new
-          p parser.parse(line)
-        rescue Racc::ParseError => e
-          # TODO: better error message
-          puts "[#{parser.line}][#{parser.column}]: #{e.message.gsub "\n", ''}"
+module Msh
+  class Parser
+    def self.interactive
+      while line = Readline.readline("parser> ", true)&.chomp
+        case line
+        when "q", "quit", "exit"
+          puts "goodbye! <3"
+          exit
+        else
+          begin
+            parser = Msh::Parser.new
+            p parser.parse(line)
+          rescue Racc::ParseError => e
+            # TODO: better error message
+            puts "[#{parser.line}][#{parser.column}]: #{e.message.gsub "\n", ''}"
+          end
         end
       end
     end
-  end
 
-  # Run the parser on a file
-  def self.parse_file filename
-    parser = Msh::Parser.new
-    p parser.parse(File.read(filename))
-  rescue ParseError
-    abort $ERROR_INFO
-  end
+    # Parse each file passed as input (if any), or run interactively
+    def self.start args = ARGV
+      return Msh::Parser.interactive if args.size.zero?
 
-  # Parse each file passed as input (if any), or run interactively
-  def self.start args = ARGV
-    if args.size.positive?
       args.each do |file|
         abort "#{file} is not a file!" unless File.file?(file)
         parser = Msh::Parser.new
         p parser.parse(File.read(file))
       end
-    else
-      Msh::Parser.interactive
     end
   end
 end

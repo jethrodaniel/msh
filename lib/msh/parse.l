@@ -192,47 +192,49 @@ inner
   end
 end
 
-class Msh::Lexer
-  def self.interactive
-    while line = Readline.readline("lexer> ", true)&.chomp
-      case line
-      when "q", "quit", "exit"
-        puts "goodbye! <3"
-        exit
-      else
-        begin
-          rex = Msh::Lexer.new
-          rex.instance_eval { scan_setup line }
-          while token = rex.next_token
-            p token
+module Msh
+  class Lexer
+    def self.interactive
+      while line = Readline.readline("lexer> ", true)&.chomp
+        case line
+        when "q", "quit", "exit"
+          puts "goodbye! <3"
+          exit
+        else
+          begin
+            rex = Msh::Lexer.new
+            rex.instance_eval { scan_setup line }
+            while token = rex.next_token
+              p token
+            end
+          rescue Msh::Lexer::ScanError => e
+            puts e.message
           end
-        rescue Msh::Lexer::ScanError => e
-          puts e.pretty_message(rex)
         end
       end
     end
-  end
 
-  # Run the lexer on a file
-  #
-  # @raises [Msh::Lexer::ScanError]
-  def self.lex_file filename
-    rex = Msh::Lexer.new
-    rex.load_file filename
-    while token = rex.next_token
-      p token
+    # Run the lexer on a file
+    #
+    # @raises [Msh::Lexer::ScanError]
+    def self.lex_file filename
+      rex = Msh::Lexer.new
+      rex.load_file filename
+      while token = rex.next_token
+        p token
+      end
     end
-  end
 
-  # Lex each file passed as input, or run interactively
-  def self.start args = ARGV
-    return Msh::Lexer.interactive if args.size.zero?
+    # Lex each file passed as input, or run interactively
+    def self.start args = ARGV
+      return Msh::Lexer.interactive if args.size.zero?
 
-    args.each do |file|
-      abort "#{file} is not a file!" unless File.file?(file)
-      Msh::Lexer.lex_file file
+      args.each do |file|
+        abort "#{file} is not a file!" unless File.file?(file)
+        Msh::Lexer.lex_file file
+      end
+    rescue Msh::Lexer::ScanError => e
+      abort e.message
     end
-  rescue Msh::Lexer::ScanError => e
-    abort e.message
   end
 end
