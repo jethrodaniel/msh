@@ -1,26 +1,5 @@
 # frozen_string_literal: true
 
-require "readline"
-
-module Msh
-  def self.help_topics
-    Msh.root.join("man").glob("*.adoc.erb").map do |erb|
-      File.basename(erb)
-          .match(/msh\-(?<topic>\w+).1.adoc.erb/)
-          &.[](:topic)
-    end.compact # `msh.1.adoc.erb` makes a nil
-  end
-end
-
-Readline.completion_append_character = " "
-Readline.completion_proc = proc do |str|
-  if str.start_with? "help"
-    Msh.help_topics.map { |topic| "help #{topic}" } + ["help"]
-  else
-    Dir[str + "*"].grep(/^#{Regexp.escape(str)}/)
-  end
-end
-
 module Msh
   class Configuration
     attr_accessor :color, :history, :prompt

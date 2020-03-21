@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "readline"
+
 require "msh/gemspec"
 require "msh/version"
 
@@ -25,6 +27,14 @@ module Msh
         :man source: Msh v#{Msh::VERSION}
         :page-layout: base
       SH
+    end
+
+    def self.help_topics
+      Msh.root.join("man").glob("*.adoc.erb").map do |erb|
+        File.basename(erb)
+            .match(/msh\-(?<topic>\w+).1.adoc.erb/)
+            &.[](:topic)
+      end.compact # `msh.1.adoc.erb` makes a nil
     end
   end
 end

@@ -222,7 +222,7 @@ require "msh/lexer"
 
 ---- inner
 
-  include AST::Sexp
+  include ::AST::Sexp
 
   attr_reader :lexer
 

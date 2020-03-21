@@ -1,16 +1,5 @@
 # vim: set ft=ruby:
 
-# msh's rex lexer.
-#
-# Racc uses tokens like this
-#
-# ```
-# # [:type, value]
-# [:number, "3.145"]
-# ```
-#
-# Scroll to the bottom to see usage, etc.
-
 class Msh::Lexer
 macro
   BLANK         [\ \t]+
@@ -19,10 +8,7 @@ macro
   # This accepts the following:
   #
   #   - anything that's not a _special_ character
-  #
-  # or
-  #
-  #   - anything following an `\` (escape character)
+  #   - a special character preceded by a `\`
   #
   # Special characters are:
   #
@@ -184,17 +170,18 @@ rule
             &                     { [:AND, text] }
             &\>                   { [:AND_REDIRECT_RIGHT, text] }
             &\>\>                 { [:AND_D_REDIRECT_RIGHT, text] }
-            \".*\"                { [:DOUBLE_QUOTE_STR, text.gsub(/^"|"$/, '')] }
-            \'.*\'                { [:SINGLE_QUOTE_STR, text.gsub(/^'|'$/, '')] }
+            # \".*\"                { [:DOUBLE_QUOTE_STR, text.gsub(/^"|"$/, '')] }
+            # \'.*\'                { [:SINGLE_QUOTE_STR, text.gsub(/^'|'$/, '')] }
 
 inner
   attr_reader :line, :column
 
   def initialize
-    @line = 1
+    @line   = 1
     @column = 1
   end
 
+  # @param code [String] input to be tokenized
   def tokenize code
     scan_setup code
     tokens = []
@@ -203,76 +190,9 @@ inner
     end
     tokens
   end
-
-  def next_token
-    return if @ss.eos?
-
-    # skips empty actions
-    until token = _next_token or @ss.eos?; end
-
-    case token
-    when :NEWLINE
-      @line += 1
-      @column = 1
-    else
-      @column += token&.last&.size || 1
-    end
-
-    token
-  rescue ScanError => e
-    raise e
-  end
-end
-
-require "msh/version"
-require "msh/configuration"
-
-# TODO: why isn't the config enough to require this?
-require "optparse"
-
-class Msh::Lexer::ScanError
-  # Make rex's error message more friendly
-  #
-  # ```
-  # --> spec/fixtures/bad/lex.sh:2:4
-  #
-  #  1 | fortune | cowsay -f
-  #  2 | wow %
-  #      ---^
-  #         | cannot tokenize "%\n"
-  # ```
-  #
-  # @param rex [Racc::Parser]
-  def pretty_message rex
-    token = message.delete_prefix("can not match: '").delete_suffix("'")
-
-    # show a few lines from the file surrounding the error
-    if rex.filename
-      msg = "\n--> #{rex.filename}:#{rex.line}:#{rex.column}\n"
-
-      rex.string.split("\n").each_with_index do |line, index|
-        if rex.line - index + 1 <= 3
-          msg += "\n  #{index + 1} | #{line}"
-        end
-      end
-
-      msg += "\n      "
-      (rex.column - 1).times { msg += "-" }
-      msg += "^"
-      msg += "\n     #{' ' * rex.column}| cannot tokenize #{token.inspect}\n"
-    else
-      msg = "error: cannot tokenize #{token.inspect}\n"
-    end
-
-    msg
-  end
 end
 
 class Msh::Lexer
-  def string
-    @ss.string
-  end
-
   def self.interactive
     while line = Readline.readline("lexer> ", true)&.chomp
       case line
@@ -283,7 +203,6 @@ class Msh::Lexer
         begin
           rex = Msh::Lexer.new
           rex.instance_eval { scan_setup line }
-
           while token = rex.next_token
             p token
           end
@@ -295,30 +214,25 @@ class Msh::Lexer
   end
 
   # Run the lexer on a file
+  #
+  # @raises [Msh::Lexer::ScanError]
   def self.lex_file filename
     rex = Msh::Lexer.new
     rex.load_file filename
     while token = rex.next_token
       p token
     end
-  rescue Msh::Lexer::ScanError => e
-    raise e.class.new, e.pretty_message(rex)
   end
 
+  # Lex each file passed as input, or run interactively
   def self.start args = ARGV
-    # Lex each file passed as input
-    if args.size.positive?
-      args.each do |file|
-        abort "#{file} is not a file!" unless File.file?(file)
+    return Msh::Lexer.interactive if args.size.zero?
 
-        begin
-          Msh::Lexer.lex_file file
-        rescue Msh::Lexer::ScanError => e
-          abort e.message
-        end
-      end
-    else
-      Msh::Lexer.interactive
+    args.each do |file|
+      abort "#{file} is not a file!" unless File.file?(file)
+      Msh::Lexer.lex_file file
     end
+  rescue Msh::Lexer::ScanError => e
+    abort e.message
   end
 end

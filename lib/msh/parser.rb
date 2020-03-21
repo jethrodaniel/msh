@@ -15,7 +15,7 @@ module Msh
 
 module_eval(<<'...end parse.y/module_eval...', 'parse.y', 224)
 
-  include AST::Sexp
+  include ::AST::Sexp
 
   attr_reader :lexer
 

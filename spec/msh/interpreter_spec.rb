@@ -33,7 +33,7 @@ RSpec.describe Msh::Interpreter do
         skip
       end
 
-      Msh.help_topics.each do |topic|
+      Msh::Documentation.help_topics.each do |topic|
         it topic do
           man = File.read(Msh.root + "spec/fixtures/help/#{topic}.txt")
           expect(sh("MANPAGER=cat msh -c 'help #{topic}'")).to eq(man)

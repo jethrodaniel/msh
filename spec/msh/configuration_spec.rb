@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "msh/configuration"
+
 RSpec.describe Msh::Configuration do
   it "has configuration abilities" do
     expect(Msh.configuration).not_to be nil
