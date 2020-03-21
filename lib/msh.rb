@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "pathname"
+require "readline"
+
 require "msh/version"
 require "msh/error"
 require "msh/configuration"
@@ -15,6 +18,11 @@ require "msh/interpreter"
 # It's goal is to enable you to write less shell, and more Ruby.
 #
 module Msh
+  # @return [Pathname] this gem's root directory path
+  def self.root
+    Pathname.new(__dir__) + ".."
+  end
+
   # Entry point for msh.
   #
   # Parses options/commands, then runs either interactively or on files.
@@ -35,7 +43,7 @@ module Msh
   end
 
   BANNER = <<~B
-    #{gemspec.summary}
+    #{Msh::SUMMARY}
 
     Usage:
         msh [options]... [file]...
@@ -101,7 +109,7 @@ module Msh
     # @todo: what the "::" means (need it to work)
     def setup_manpath
       manpaths = ENV["MANPATH"].to_s.split(File::PATH_SEPARATOR)
-      manpaths << Msh.man_dir.realpath.to_s
+      manpaths << Msh.root.join("man").realpath.to_s
       ENV["MANPATH"] = manpaths.compact.join(File::PATH_SEPARATOR) + "::"
     end
   end

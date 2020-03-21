@@ -1,20 +1,10 @@
 # frozen_string_literal: true
 
-# require "abbrev" # TODO: use the std library for abbreviations, optional
-
-# require "pry" # TODO: optionally swapable with irb, or equivalent REPL
-# require "active_support/all" # TODO: optional in config
-
-# TODO: optional readline
-begin
-  require "readline"
-rescue
-  abort "can't require 'readline'!"
-end
+require "readline"
 
 module Msh
   def self.help_topics
-    Msh.man_dir.glob("*.adoc.erb").map do |erb|
+    Msh.root.join('man').glob("*.adoc.erb").map do |erb|
       File.basename(erb)
           .match(/msh\-(?<topic>\w+).1.adoc.erb/)
           &.[](:topic)
@@ -42,28 +32,21 @@ module Msh
     end
   end
 
-  class << self
-    # Is Msh currently testing? (need this to test the parser and lexer)
-    def testing?
-      ENV["MSH_TESTING"]
-    end
+  # Configure Msh like RSpec
+  #
+  # ```
+  # Msh.configure do |c|
+  #   c.color = true
+  #   c.history = {:size => 10.megabytes}
+  # end
+  # ```
+  #
+  def self.configure
+    yield configuration if block_given?
+  end
 
-    # Configure Msh like RSpec
-    #
-    # ```
-    # Msh.configure do |c|
-    #   c.color = true
-    #   c.history = {:size => 10.megabytes}
-    # end
-    # ```
-    #
-    def configure
-      yield configuration if block_given?
-    end
-
-    # Access Msh's configuration, like RSpec
-    def configuration
-      @configuration ||= Msh::Configuration.new
-    end
+  # Access Msh's configuration, like RSpec
+  def self.configuration
+    @configuration ||= Msh::Configuration.new
   end
 end

@@ -3,16 +3,16 @@
 lib = File.expand_path("lib", __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "msh/version"
+require "msh/gemspec"
 
 Gem::Specification.new do |spec|
-  spec.name     = "msh"
+  spec.name     = Msh::NAME
   spec.version  = Msh::VERSION
-  spec.authors  = ["Mark Delk"]
-  spec.email    = ["jethrodaniel@gmail.com"]
-
-  spec.summary  = "a ruby shell"
-  spec.homepage = "https://github.com/jethrodaniel/msh"
-  spec.license  = "MIT"
+  spec.authors  = Msh::AUTHORS
+  spec.email    = Msh::EMAIL
+  spec.summary  = Msh::SUMMARY
+  spec.homepage = Msh::HOMEPAGE
+  spec.license  = Msh::LICENSE
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the
   # 'allowed_push_host' to allow pushing to a single host or delete this

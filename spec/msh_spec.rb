@@ -12,13 +12,6 @@ RSpec.describe Msh do
     end
   end
 
-  describe ".man_path" do
-    it "is the path to msh's man/ directory" do
-      expect(Msh.man_dir).to be_a Pathname
-      expect(Msh.man_dir.realpath.to_s).to end_with("msh/man")
-    end
-  end
-
   describe ".start" do
     context "when ARGV is empty" do
       it "starts msh interactively" do
