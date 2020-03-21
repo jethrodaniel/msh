@@ -16,7 +16,8 @@ DESIGN
 
        Notably horric things about those shells
 
-       ·   lexing, parsing, and interpretation are not distinct phases
+       ·   lexing, parsing, and interpretation are not distinct phases (torn
+           on this)
 
        ·   parameter expansion ${expression}
 
@@ -32,25 +33,59 @@ DESIGN
 
        ·   variables are just Ruby variables
 
-   example
+   Example
        When Msh executes the following code
 
            echo the time is #{Time.now} | cowsay
 
        The following steps are performed
 
-   Preprocessing
+   1. Preprocessing
        The code is evaluated as a Ruby string, to allow for interpolation via
        #{}.
 
-   Lexing
+           echo the time is 2020-03-21 16:39:28 -0500 | cowsay
+
+   2. Lexing
        The input is converted into tokens.
 
-   Parsing
+           [:WORD, "echo"]
+           [:WORD, "the"]
+           [:TIME, "time"]
+           [:WORD, "is"]
+           [:WORD, "2020-03-21"]
+           [:WORD, "16:39:28"]
+           [:WORD, "-0500"]
+           [:PIPE, "|"]
+           [:WORD, "cowsay"]
+
+   3. Parsing
        The tokens are converted into an abstract syntax tree (AST).
 
-   Interetation
+           s(:EXPR,
+             s(:PIPELINE,
+               s(:COMMAND,
+                 s(:WORD, "echo"),
+                 s(:WORD, "the"),
+                 s(:WORD, "time"),
+                 s(:WORD, "is"),
+                 s(:WORD, "2020-03-21"),
+                 s(:WORD, "16:39:28"),
+                 s(:WORD, "-0500")),
+               s(:COMMAND,
+                 s(:WORD, "cowsay"))))
+
+   4. Interetation
        The AST is executed by a tree-walking interpretor.
+
+                _______________________________________
+               < the time is 2020-03-21 16:39:28 -0500 >
+                ---------------------------------------
+                       \   ^__^
+                        \  (oo)\_______
+                           (__)\       )\/\
+                               ||----w |
+                               ||     ||
 
 MSH
        Part of msh(1).

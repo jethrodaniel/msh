@@ -69,7 +69,7 @@ Notably horric things about \fIthose\fP shells
 .  sp -1
 .  IP \(bu 2.3
 .\}
-lexing, parsing, and interpretation are not distinct phases
+lexing, parsing, and interpretation are not distinct phases (torn on this)
 .RE
 .sp
 .RS 4
@@ -139,7 +139,7 @@ functions are just Ruby methods
 .\}
 variables are just Ruby variables
 .RE
-.SS "example"
+.SS "Example"
 .sp
 When Msh executes the following code
 .sp
@@ -150,18 +150,68 @@ echo the time is #{Time.now} | cowsay
 .if n .RE
 .sp
 The following steps are performed
-.SS "Preprocessing"
+.SS "1. Preprocessing"
 .sp
 The code is evaluated as a Ruby string, to allow for interpolation via \fI#{}\fP.
-.SS "Lexing"
+.sp
+.if n .RS 4
+.nf
+echo the time is 2020\-03\-21 16:39:28 \-0500 | cowsay
+.fi
+.if n .RE
+.SS "2. Lexing"
 .sp
 The input is converted into tokens.
-.SS "Parsing"
+.sp
+.if n .RS 4
+.nf
+[:WORD, "echo"]
+[:WORD, "the"]
+[:TIME, "time"]
+[:WORD, "is"]
+[:WORD, "2020\-03\-21"]
+[:WORD, "16:39:28"]
+[:WORD, "\-0500"]
+[:PIPE, "|"]
+[:WORD, "cowsay"]
+.fi
+.if n .RE
+.SS "3. Parsing"
 .sp
 The tokens are converted into an abstract syntax tree (AST).
-.SS "Interetation"
+.sp
+.if n .RS 4
+.nf
+s(:EXPR,
+  s(:PIPELINE,
+    s(:COMMAND,
+      s(:WORD, "echo"),
+      s(:WORD, "the"),
+      s(:WORD, "time"),
+      s(:WORD, "is"),
+      s(:WORD, "2020\-03\-21"),
+      s(:WORD, "16:39:28"),
+      s(:WORD, "\-0500")),
+    s(:COMMAND,
+      s(:WORD, "cowsay"))))
+.fi
+.if n .RE
+.SS "4. Interetation"
 .sp
 The AST is executed by a tree\-walking interpretor.
+.sp
+.if n .RS 4
+.nf
+     _______________________________________
+    < the time is 2020\-03\-21 16:39:28 \-0500 >
+     \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+            \(rs   ^__^
+             \(rs  (oo)\(rs_______
+                (__)\(rs       )\(rs/\(rs
+                    ||\-\-\-\-w |
+                    ||     ||
+.fi
+.if n .RE
 .SH "MSH"
 .sp
 Part of msh(1).
