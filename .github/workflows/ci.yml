@@ -29,4 +29,4 @@ jobs:
 
     - name: run specs
       run: |
-        bundle exec rake
+        bundle exec rake spec
