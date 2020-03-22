@@ -712,3 +712,26 @@
                   s(:COMMAND,
                     s(:WORD, "duck"))))))))
 
+  ? |
+    ls
+    wow newlines
+    yay
+  :
+    :valid: true
+    :tokens: |
+      [[:WORD, "ls"],
+       [:NEWLINE, "\n"],
+       [:WORD, "wow"],
+       [:WORD, "newlines"],
+       [:NEWLINE, "\n"],
+       [:WORD, "yay"],
+       [:NEWLINE, "\n"]]
+    :ast: |
+      s(:EXPR,
+        s(:COMMAND,
+          s(:WORD, "ls")),
+        s(:COMMAND,
+          s(:WORD, "wow"),
+          s(:WORD, "newlines")),
+        s(:COMMAND,
+          s(:WORD, "yay")))

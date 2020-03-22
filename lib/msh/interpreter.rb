@@ -106,38 +106,38 @@ module Msh
     end
 
     def on_EXPR node
-      abort "EXPR must contain a single child" if node.children.size > 1
-      node = node.children.first
+      node.children.each do |node|
+        case node.type
+        when :PIPELINE
+          process node
+        when :OR
+          or_expr = process node
 
-      case node.type
-      when :PIPELINE
-        process node
-      when :OR
-        or_expr = process node
+          run(*or_expr.left.words)
+          run(*or_expr.right.words) unless $CHILD_STATUS.exitstatus.zero?
+        when :AND
+          and_expr = process node
 
-        run(*or_expr.left.words)
-        run(*or_expr.right.words) unless $CHILD_STATUS.exitstatus.zero?
-      when :AND
-        and_expr = process node
+          run(*and_expr.left.words)
+          return unless $CHILD_STATUS.exitstatus.zero?
 
-        run(*and_expr.left.words)
-        return unless $CHILD_STATUS.exitstatus.zero?
+          run(*and_expr.right.words)
+        when :COMMAND
+          words = process(node).words
 
-        run(*and_expr.right.words)
-      when :COMMAND
-        words = process(node).words
+          begin
+            return @env.send(*words) if @env.respond_to?(words.first)
+          rescue ArgumentError => e
+            puts e
+            return 1
+          end
 
-        begin
-          return @env.send(*words) if @env.respond_to?(words.first)
-        rescue ArgumentError => e
-          puts e
-          return 1
+          run *words
+        else
+          abort "expected one of :PIPELINE, :AND, :OR, :COMMAND"
         end
-
-        run *words
-      else
-        abort "expected one of :PIPELINE, :AND, :OR, :COMMAND"
       end
+      $CHILD_STATUS
     end
 
     # Modified from https://gist.github.com/JoshCheek/61769bfa05d52609e15948fabfad3381

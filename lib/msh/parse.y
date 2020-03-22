@@ -8,19 +8,24 @@
 class Msh::Parser
 
 rule
+  init
+   : code
+   | code code { result = s(:EXPR, *val[0].children, *val[1].children) }
+   | init code { result = s(:EXPR, *val[0].children, *val[1].children) }
+   |      sep  { result = s(:NOOP) }
+
   code
-   : expr             { result = s(:EXPR, val[0]) }
-   | and_or           { result = s(:EXPR, val[0]) }
-   | list             { result = s(:EXPR, val[0]) }
-   | simple_list      { result = s(:EXPR, val[0]) }
-   | pipeline_cmd     { result = s(:EXPR, val[0]) }
-   | pipeline_cmd sep { result = s(:EXPR, val[0]) }
-   | command      sep { result = s(:EXPR, val[0]) }
-   |              sep { result = s(:NOOP) } # nothing as input
+   : expr          sep  { result = s(:EXPR, val[-1]) }
+   | and_or        sep  { result = s(:EXPR, val[0]) }
+   | list          sep  { result = s(:EXPR, val[0]) }
+   | simple_list   sep  { result = s(:EXPR, val[0]) }
+   | pipeline_cmd  sep  { result = s(:EXPR, val[0]) }
+   | pipeline_cmd  sep  { result = s(:EXPR, val[0]) }
+   | command       sep  { result = s(:EXPR, val[0]) }
 
   sep
-    : /* epsilon */
-    | newlines
+    : newlines
+    | /* epsilon */
 
   newlines
     : NEWLINE
