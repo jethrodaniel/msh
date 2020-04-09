@@ -8,9 +8,10 @@
   "echo such wow":
     :valid: true
     :tokens: |
-      [[:WORD, "echo"],
-       [:WORD, "such"],
-       [:WORD, "wow"]]
+      ["[1:1-4][WORD, 'echo']",
+       "[1:6-9][WORD, 'such']",
+       "[1:11-13][WORD, 'wow']",
+       "[1:14-14][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:COMMAND,
@@ -21,9 +22,10 @@
   "echo so scare":
     :valid: true
     :tokens: |
-      [[:WORD, "echo"],
-       [:WORD, "so"],
-       [:WORD, "scare"]]
+      ["[1:1-4][WORD, 'echo']",
+       "[1:6-7][WORD, 'so']",
+       "[1:9-13][WORD, 'scare']",
+       "[1:14-14][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:COMMAND,
@@ -31,24 +33,8 @@
           s(:WORD, "so"),
           s(:WORD, "scare")))
 
-  "/usr/bin/program\\ with\\ space \\but\\ this\\ is\\ an\\ arg":
-    :valid: true
-    :tokens: |
-      [[:WORD, "/usr/bin/program\\ with\\ space"],
-       [:WORD, "\\but\\ this\\ is\\ an\\ arg"]]
-    :ast: |
-      s(:EXPR,
-        s(:COMMAND,
-          s(:WORD, "/usr/bin/program\\ with\\ space"),
-          s(:WORD, "\\but\\ this\\ is\\ an\\ arg")))
-
-  # "a&&b":
-  #   :valid: true
-  #   :tokens: |
-  #   :ast: |
-
-  # "echo a\\;b":
-  #   :valid: true
+  # "/usr/bin/program\\ with\\ space \\but\\ this\\ is\\ an\\ arg":
+  #   :valid: false
   #   :tokens: |
   #     [[:WORD, "/usr/bin/program\\ with\\ space"],
   #      [:WORD, "\\but\\ this\\ is\\ an\\ arg"]]
@@ -58,6 +44,25 @@
   #         s(:WORD, "/usr/bin/program\\ with\\ space"),
   #         s(:WORD, "\\but\\ this\\ is\\ an\\ arg")))
 
+  "a&&b":
+    :valid: true
+    :tokens: |
+      ["[1:1-1][WORD, 'a']",
+       "[1:2-3][AND, '&&']",
+       "[1:4-4][WORD, 'b']",
+       "[1:5-5][EOF, '']"]
+    :ast: |
+
+  # "echo a\\;b":
+  #   :valid: false
+  #   :tokens: |
+  #     [[:WORD, "/usr/bin/program\\ with\\ space"],
+  #      [:WORD, "\\but\\ this\\ is\\ an\\ arg"]]
+  #   :ast: |
+  #     s(:EXPR,
+  #       s(:COMMAND,
+  #         s(:WORD, "/usr/bin/program\\ with\\ space"),
+  #         s(:WORD, "\\but\\ this\\ is\\ an\\ arg")))
 
   # "find . -name \"*.rb\" -exec sed -i 's/msh/yas/g' {} \\;)":
   #   :tokens: |
@@ -76,8 +81,9 @@
   "cd ..":
     :valid: true
     :tokens: |
-      [[:WORD, "cd"],
-       [:WORD, ".."]]
+      ["[1:1-2][WORD, 'cd']",
+       "[1:4-5][WORD, '..']",
+       "[1:6-6][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:COMMAND,
@@ -87,12 +93,12 @@
   "...":
     :valid: true
     :tokens: |
-      [[:WORD, "..."]]
+      ["[1:1-3][WORD, '...']",
+       "[1:4-4][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:COMMAND,
           s(:WORD, "...")))
-
 
   #
   # pipes
@@ -100,9 +106,10 @@
   "fortune | cowsay":
     :valid: true
     :tokens: |
-      [[:WORD, "fortune"],
-       [:PIPE, "|"],
-       [:WORD, "cowsay"]]
+      ["[1:1-7][WORD, 'fortune']",
+       "[1:9-9][PIPE, '|']",
+       "[1:11-16][WORD, 'cowsay']",
+       "[1:17-17][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:PIPELINE,
@@ -116,9 +123,10 @@
   "fortune |& cowsay":
     :valid: true
     :tokens: |
-      [[:WORD, "fortune"],
-       [:PIPE_AND, "|&"],
-       [:WORD, "cowsay"]]
+      ["[1:1-7][WORD, 'fortune']",
+       "[1:9-10][PIPE_AND, '|&']",
+       "[1:12-17][WORD, 'cowsay']",
+       "[1:18-18][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:PIPELINE,
@@ -132,11 +140,12 @@
   "fortune >out |& cowsay":
     :valid: true
     :tokens: |
-      [[:WORD, "fortune"],
-       [:REDIRECT, "1>"],
-       [:WORD, "out"],
-       [:PIPE_AND, "|&"],
-       [:WORD, "cowsay"]]
+      ["[1:1-7][WORD, 'fortune']",
+       "[1:9-9][REDIRECT_OUT, '>']",
+       "[1:10-12][WORD, 'out']",
+       "[1:14-15][PIPE_AND, '|&']",
+       "[1:17-22][WORD, 'cowsay']",
+       "[1:23-23][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:PIPELINE,
@@ -151,13 +160,14 @@
   "fortune >out | wow |& cowsay":
     :valid: true
     :tokens: |
-      [[:WORD, "fortune"],
-       [:REDIRECT, "1>"],
-       [:WORD, "out"],
-       [:PIPE, "|"],
-       [:WORD, "wow"],
-       [:PIPE_AND, "|&"],
-       [:WORD, "cowsay"]]
+      ["[1:1-7][WORD, 'fortune']",
+       "[1:9-9][REDIRECT_OUT, '>']",
+       "[1:10-12][WORD, 'out']",
+       "[1:14-14][PIPE, '|']",
+       "[1:16-18][WORD, 'wow']",
+       "[1:20-21][PIPE_AND, '|&']",
+       "[1:23-28][WORD, 'cowsay']",
+       "[1:29-29][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:PIPELINE,
@@ -175,15 +185,16 @@
   "fortune >out | wow |& cowsay | wow":
     :valid: true
     :tokens: |
-      [[:WORD, "fortune"],
-       [:REDIRECT, "1>"],
-       [:WORD, "out"],
-       [:PIPE, "|"],
-       [:WORD, "wow"],
-       [:PIPE_AND, "|&"],
-       [:WORD, "cowsay"],
-       [:PIPE, "|"],
-       [:WORD, "wow"]]
+      ["[1:1-7][WORD, 'fortune']",
+       "[1:9-9][REDIRECT_OUT, '>']",
+       "[1:10-12][WORD, 'out']",
+       "[1:14-14][PIPE, '|']",
+       "[1:16-18][WORD, 'wow']",
+       "[1:20-21][PIPE_AND, '|&']",
+       "[1:23-28][WORD, 'cowsay']",
+       "[1:30-30][PIPE, '|']",
+       "[1:32-34][WORD, 'wow']",
+       "[1:35-35][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:PIPELINE,
@@ -203,19 +214,20 @@
   "a >out | b <in >out |& c |& d":
     :valid: true
     :tokens: |
-      [[:WORD, "a"],
-       [:REDIRECT, "1>"],
-       [:WORD, "out"],
-       [:PIPE, "|"],
-       [:WORD, "b"],
-       [:REDIRECT, "0<"],
-       [:WORD, "in"],
-       [:REDIRECT, "1>"],
-       [:WORD, "out"],
-       [:PIPE_AND, "|&"],
-       [:WORD, "c"],
-       [:PIPE_AND, "|&"],
-       [:WORD, "d"]]
+      ["[1:1-1][WORD, 'a']",
+       "[1:3-3][REDIRECT_OUT, '>']",
+       "[1:4-6][WORD, 'out']",
+       "[1:8-8][PIPE, '|']",
+       "[1:10-10][WORD, 'b']",
+       "[1:12-12][REDIRECT_IN, '<']",
+       "[1:13-14][WORD, 'in']",
+       "[1:16-16][REDIRECT_OUT, '>']",
+       "[1:17-19][WORD, 'out']",
+       "[1:21-22][PIPE_AND, '|&']",
+       "[1:24-24][WORD, 'c']",
+       "[1:26-27][PIPE_AND, '|&']",
+       "[1:29-29][WORD, 'd']",
+       "[1:30-30][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:PIPELINE,
@@ -239,10 +251,11 @@
   "! fortune | cowsay":
     :valid: true
     :tokens: |
-      [[:BANG, "!"],
-       [:WORD, "fortune"],
-       [:PIPE, "|"],
-       [:WORD, "cowsay"]]
+      ["[1:1-1][BANG, '!']",
+       "[1:3-9][WORD, 'fortune']",
+       "[1:11-11][PIPE, '|']",
+       "[1:13-18][WORD, 'cowsay']",
+       "[1:19-19][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:NEG_PIPELINE,
@@ -254,8 +267,9 @@
   "time echo":
     :valid: true
     :tokens: |
-      [[:TIME, "time"],
-       [:WORD, "echo"]]
+      ["[1:1-4][TIME, 'time']",
+       "[1:6-9][WORD, 'echo']",
+       "[1:10-10][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:PIPELINE,
@@ -263,7 +277,7 @@
           s(:WORD, "echo")))
 
   "time -p echo":
-    :valid: true
+    :valid: false
     :tokens: |
       [[:TIME, "time"],
        [:TIME_OPT, "-p"],
@@ -277,8 +291,9 @@
   "echo time":
     :valid: true
     :tokens: |
-      [[:WORD, "echo"],
-       [:TIME, "time"]]
+      ["[1:1-4][WORD, 'echo']",
+       "[1:6-9][TIME, 'time']",
+       "[1:10-10][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:COMMAND,
@@ -288,11 +303,12 @@
   "time ! fortune | cowsay":
     :valid: true
     :tokens: |
-      [[:TIME, "time"],
-       [:BANG, "!"],
-       [:WORD, "fortune"],
-       [:PIPE, "|"],
-       [:WORD, "cowsay"]]
+      ["[1:1-4][TIME, 'time']",
+       "[1:6-6][BANG, '!']",
+       "[1:8-14][WORD, 'fortune']",
+       "[1:16-16][PIPE, '|']",
+       "[1:18-23][WORD, 'cowsay']",
+       "[1:24-24][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:NEG_PIPELINE,
@@ -303,7 +319,7 @@
             s(:WORD, "cowsay"))))
 
   "time -p ! fortune | cowsay":
-    :valid: true
+    :valid: false
     :tokens: |
       [[:TIME, "time"],
        [:TIME_OPT, "-p"],
@@ -323,11 +339,12 @@
   "a | b | c":
    :valid: true
    :tokens: |
-     [[:WORD, "a"],
-      [:PIPE, "|"],
-      [:WORD, "b"],
-      [:PIPE, "|"],
-      [:WORD, "c"]]
+     ["[1:1-1][WORD, 'a']",
+      "[1:3-3][PIPE, '|']",
+      "[1:5-5][WORD, 'b']",
+      "[1:7-7][PIPE, '|']",
+      "[1:9-9][WORD, 'c']",
+      "[1:10-10][EOF, '']"]
    :ast: |
      s(:EXPR,
        s(:PIPELINE,
@@ -345,9 +362,10 @@
   "a || b":
     :valid: true
     :tokens: |
-      [[:WORD, "a"],
-       [:OR, "||"],
-       [:WORD, "b"]]
+      ["[1:1-1][WORD, 'a']",
+       "[1:3-4][OR, '||']",
+       "[1:6-6][WORD, 'b']",
+       "[1:7-7][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:OR,
@@ -359,9 +377,10 @@
   "a && b":
     :valid: true
     :tokens: |
-      [[:WORD, "a"],
-       [:AND_AND, "&&"],
-       [:WORD, "b"]]
+      ["[1:1-1][WORD, 'a']",
+       "[1:3-4][AND, '&&']",
+       "[1:6-6][WORD, 'b']",
+       "[1:7-7][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:AND,
@@ -377,11 +396,12 @@
   "date && date | cowsay":
     :valid: true
     :tokens: |
-      [[:WORD, "date"],
-       [:AND_AND, "&&"],
-       [:WORD, "date"],
-       [:PIPE, "|"],
-       [:WORD, "cowsay"]]
+      ["[1:1-4][WORD, 'date']",
+       "[1:6-7][AND, '&&']",
+       "[1:9-12][WORD, 'date']",
+       "[1:14-14][PIPE, '|']",
+       "[1:16-21][WORD, 'cowsay']",
+       "[1:22-22][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:AND,
@@ -400,9 +420,10 @@
   "{a}":
    :valid: true
    :tokens: |
-     [[:LEFT_BRACE, "{"],
-      [:WORD, "a"],
-      [:RIGHT_BRACE, "}"]]
+     ["[1:1-1][LEFT_BRACE, '{']",
+      "[1:2-2][WORD, 'a']",
+      "[1:3-3][RIGHT_BRACE, '}']",
+      "[1:4-4][EOF, '']"]
    :ast: |
      s(:EXPR,
        s(:GROUP,
@@ -412,15 +433,16 @@
   "{a;b}>out|c":
     :valid: true
     :tokens: |
-      [[:LEFT_BRACE, "{"],
-       [:WORD, "a"],
-       [:SEMI, ";"],
-       [:WORD, "b"],
-       [:RIGHT_BRACE, "}"],
-       [:REDIRECT, "1>"],
-       [:WORD, "out"],
-       [:PIPE, "|"],
-       [:WORD, "c"]]
+      ["[1:1-1][LEFT_BRACE, '{']",
+       "[1:2-2][WORD, 'a']",
+       "[1:3-3][SEMI, ';']",
+       "[1:4-4][WORD, 'b']",
+       "[1:5-5][RIGHT_BRACE, '}']",
+       "[1:6-6][REDIRECT_OUT, '>']",
+       "[1:7-9][WORD, 'out']",
+       "[1:10-10][PIPE, '|']",
+       "[1:11-11][WORD, 'c']",
+       "[1:12-12][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:PIPELINE,
@@ -442,9 +464,10 @@
   "(a)":
    :valid: true
    :tokens: |
-     [[:LEFT_PAREN, "("],
-      [:WORD, "a"],
-      [:RIGHT_PAREN, ")"]]
+     ["[1:1-1][LEFT_PAREN, '(']",
+      "[1:2-2][WORD, 'a']",
+      "[1:3-3][RIGHT_PAREN, ')']",
+      "[1:4-4][EOF, '']"]
    :ast: |
      s(:EXPR,
        s(:SUBSHELL,
@@ -454,15 +477,16 @@
   "(a;b)>out|c":
     :valid: true
     :tokens: |
-      [[:LEFT_PAREN, "("],
-       [:WORD, "a"],
-       [:SEMI, ";"],
-       [:WORD, "b"],
-       [:RIGHT_PAREN, ")"],
-       [:REDIRECT, "1>"],
-       [:WORD, "out"],
-       [:PIPE, "|"],
-       [:WORD, "c"]]
+      ["[1:1-1][LEFT_PAREN, '(']",
+       "[1:2-2][WORD, 'a']",
+       "[1:3-3][SEMI, ';']",
+       "[1:4-4][WORD, 'b']",
+       "[1:5-5][RIGHT_PAREN, ')']",
+       "[1:6-6][REDIRECT_OUT, '>']",
+       "[1:7-9][WORD, 'out']",
+       "[1:10-10][PIPE, '|']",
+       "[1:11-11][WORD, 'c']",
+       "[1:12-12][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:PIPELINE,
@@ -480,31 +504,30 @@
   "{a}|(b)>out&&c||d>t;a;{b;c}>wow":
     :valid: true
     :tokens: |
-      [[:LEFT_BRACE, "{"],
-       [:WORD, "a"],
-       [:RIGHT_BRACE, "}"],
-       [:PIPE, "|"],
-       [:LEFT_PAREN, "("],
-       [:WORD, "b"],
-       [:RIGHT_PAREN, ")"],
-       [:REDIRECT, "1>"],
-       [:WORD, "out"],
-       [:AND_AND, "&&"],
-       [:WORD, "c"],
-       [:OR, "||"],
-       [:WORD, "d"],
-       [:REDIRECT, "1>"],
-       [:WORD, "t"],
-       [:SEMI, ";"],
-       [:WORD, "a"],
-       [:SEMI, ";"],
-       [:LEFT_BRACE, "{"],
-       [:WORD, "b"],
-       [:SEMI, ";"],
-       [:WORD, "c"],
-       [:RIGHT_BRACE, "}"],
-       [:REDIRECT, "1>"],
-       [:WORD, "wow"]]
+      ["[1:1-1][LEFT_BRACE, '{']",
+       "[1:2-2][WORD, 'a']",
+       "[1:3-3][RIGHT_BRACE, '}']",
+       "[1:4-4][PIPE, '|']",
+       "[1:5-5][LEFT_PAREN, '(']",
+       "[1:6-6][WORD, 'b']",
+       "[1:7-7][RIGHT_PAREN, ')']",
+       "[1:8-8][REDIRECT_OUT, '>']",
+       "[1:9-11][WORD, 'out']",
+       "[1:12-13][AND, '&&']",
+       "[1:14-14][WORD, 'c']",
+       "[1:15-16][OR, '||']",
+       "[1:17-17][WORD, 'd']",
+       "[1:18-18][REDIRECT_OUT, '>']",
+       "[1:19-21][WORD, 't;a']",
+       "[1:22-22][SEMI, ';']",
+       "[1:23-23][LEFT_BRACE, '{']",
+       "[1:24-24][WORD, 'b']",
+       "[1:25-25][SEMI, ';']",
+       "[1:26-26][WORD, 'c']",
+       "[1:27-27][RIGHT_BRACE, '}']",
+       "[1:28-28][REDIRECT_OUT, '>']",
+       "[1:29-31][WORD, 'wow']",
+       "[1:32-32][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:LIST,
@@ -536,34 +559,37 @@
             s(:REDIRECTIONS,
               s(:REDIRECT, 1, "wow")))))
 
+  "{a || b}":
+   :valid: true
+   :tokens: |
+     ["[1:1-1][LEFT_BRACE, '{']",
+      "[1:2-2][WORD, 'a']",
+      "[1:4-5][OR, '||']",
+      "[1:7-7][WORD, 'b']",
+      "[1:8-8][RIGHT_BRACE, '}']",
+      "[1:9-9][EOF, '']"]
+   :ast: |
+     s(:EXPR,
+       s(:GROUP,
+         s(:COMMAND,
+           s(:WORD, "a"))))
 
-  #"{a || b}":
-  # :valid: true
-  # :tokens: |
-  #   [[:LEFT_BRACE, "{"],
-  #    [:WORD, "a"],
-  #    [:RIGHT_BRACE, "}"]]
-  # :ast: |
-  #   s(:EXPR,
-  #     s(:GROUP,
-  #       s(:COMMAND,
-  #         s(:WORD, "a"))))
+  #
+  # subshells
+  #
 
-  ##
-  ## subshells
-  ##
-
-  #"(a)":
-  # :valid: true
-  # :tokens: |
-  #   [[:LEFT_PAREN, "("],
-  #    [:WORD, "a"],
-  #    [:RIGHT_PAREN, ")"]]
-  # :ast: |
-  #   s(:EXPR,
-  #     s(:SUBSHELL,
-  #       s(:COMMAND,
-  #         s(:WORD, "a"))))
+  "(a)":
+    :valid: true
+    :tokens: |
+      ["[1:1-1][LEFT_PAREN, '(']",
+       "[1:2-2][WORD, 'a']",
+       "[1:3-3][RIGHT_PAREN, ')']",
+       "[1:4-4][EOF, '']"]
+    :ast: |
+      s(:EXPR,
+        s(:SUBSHELL,
+          s(:COMMAND,
+            s(:WORD, "a"))))
 
   ##
   ## redirections
@@ -572,37 +598,36 @@
   "ls a <in 1<in >out 2>out >>foo >|wow 3>|ouch &>un &>>mas 4<&1 <&4 >&5 2>&1 13>&2- 6<>foo":
    :valid: true
    :tokens: |
-     [[:WORD, "ls"],
-      [:WORD, "a"],
-      [:REDIRECT, "0<"],
-      [:WORD, "in"],
-      [:REDIRECT, "1<"],
-      [:WORD, "in"],
-      [:REDIRECT, "1>"],
-      [:WORD, "out"],
-      [:REDIRECT, "2>"],
-      [:WORD, "out"],
-      [:APPEND, "1>>"],
-      [:WORD, "foo"],
-      [:REDIRECT_NOCLOBBER, "1>|"],
-      [:WORD, "wow"],
-      [:REDIRECT, "3>|"],
-      [:WORD, "ouch"],
-      [:REDIRECT_BOTH, "&>"],
-      [:WORD, "un"],
-      [:APPEND_BOTH, "&>>"],
-      [:WORD, "mas"],
-      [:DUP, "4<&"],
-      [:WORD, "1"],
-      [:DUP, "0<&"],
-      [:WORD, "4"],
-      [:REDIRECT_BOTH, ">&"],
-      [:WORD, "5"],
-      [:DUP, "2>&"],
-      [:WORD, "1"],
-      [:MOVE_FD, "13>&2-"],
-      [:OPEN_RW, "6<>"],
-      [:WORD, "foo"]]
+     ["[1:1-2][WORD, 'ls']",
+      "[1:4-4][WORD, 'a']",
+      "[1:6-6][REDIRECT_IN, '<']",
+      "[1:7-8][WORD, 'in']",
+      "[1:10-12][REDIRECT_IN, '1<i']",
+      "[1:13-13][WORD, 'n']",
+      "[1:15-15][REDIRECT_OUT, '>']",
+      "[1:16-18][WORD, 'out']",
+      "[1:20-21][REDIRECT_OUT, '2>']",
+      "[1:22-24][WORD, 'out']",
+      "[1:26-27][APPEND_OUT, '>>']",
+      "[1:28-30][WORD, 'foo']",
+      "[1:32-33][NO_CLOBBER, '>|']",
+      "[1:34-36][WORD, 'wow']",
+      "[1:38-40][NO_CLOBBER, '3>|']",
+      "[1:41-44][WORD, 'ouch']",
+      "[1:46-47][AND_REDIRECT_RIGHT, '&>']",
+      "[1:48-49][WORD, 'un']",
+      "[1:51-53][AND_D_REDIRECT_RIGHT, '&>>']",
+      "[1:54-56][WORD, 'mas']",
+      "[1:58-67][REDIRECT_OUT, '4<&1 <&4 >']",
+      "[1:68-69][BG, '&5']",
+      "[1:71-72][REDIRECT_OUT, '2>']",
+      "[1:73-74][BG, '&1']",
+      "[1:76-78][REDIRECT_OUT, '13>']",
+      "[1:79-80][BG, '&2']",
+      "[1:81-81][WORD, '-']",
+      "[1:83-85][OPEN_RW, '6<>']",
+      "[1:86-88][WORD, 'foo']",
+      "[1:89-89][EOF, '']"]
    :ast: |
      s(:EXPR,
        s(:COMMAND,
@@ -630,20 +655,21 @@
   "#":
     :valid: true
     :tokens: |
-      []
+      ["[1:2-2][EOF, '']"]
     :ast: |
       s(:NOOP)
   "# look! # a comment!\n\n\n\n":
     :valid: true
     :tokens: |
-      []
+      ["[5:1-1][EOF, '']"]
     :ast: |
       s(:NOOP)
 
   "fortune # comments continue until one or more newlines":
     :valid: true
     :tokens: |
-      [[:WORD, "fortune"]]
+      ["[1:1-7][WORD, 'fortune']",
+       "[1:55-55][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:COMMAND,
@@ -651,36 +677,39 @@
 
   # job control
 
-  #"a &":
-  #   :tokens: |
-  #     [[:WORD, "a"],
-  #      [:BG, "&"]]
-  #   :ast: |
+  "a &":
+    :valid: true
+    :tokens: |
+      ["[1:1-1][WORD, 'a']",
+       "[1:4-4][BG, '&']",
+       "[1:5-5][EOF, '']"]
+    :ast: |
 
   "ls|wow 3>doggo 2>&1 >/dev/null;wow&&wow||o>out&&goose|&duck":
     :valid: true
     :tokens: |
-      [[:WORD, "ls"],
-       [:PIPE, "|"],
-       [:WORD, "wow"],
-       [:REDIRECT, "3>"],
-       [:WORD, "doggo"],
-       [:DUP, "2>&"],
-       [:WORD, "1"],
-       [:REDIRECT, "1>"],
-       [:WORD, "/dev/null"],
-       [:SEMI, ";"],
-       [:WORD, "wow"],
-       [:AND_AND, "&&"],
-       [:WORD, "wow"],
-       [:OR, "||"],
-       [:WORD, "o"],
-       [:REDIRECT, "1>"],
-       [:WORD, "out"],
-       [:AND_AND, "&&"],
-       [:WORD, "goose"],
-       [:PIPE_AND, "|&"],
-       [:WORD, "duck"]]
+      ["[1:1-2][WORD, 'ls']",
+       "[1:3-3][PIPE, '|']",
+       "[1:4-6][WORD, 'wow']",
+       "[1:8-9][REDIRECT_OUT, '3>']",
+       "[1:10-14][WORD, 'doggo']",
+       "[1:16-17][REDIRECT_OUT, '2>']",
+       "[1:18-19][BG, '&1']",
+       "[1:21-21][REDIRECT_OUT, '>']",
+       "[1:22-30][WORD, '/dev/null']",
+       "[1:31-31][SEMI, ';']",
+       "[1:32-34][WORD, 'wow']",
+       "[1:35-36][AND, '&&']",
+       "[1:37-39][WORD, 'wow']",
+       "[1:40-41][OR, '||']",
+       "[1:42-42][WORD, 'o']",
+       "[1:43-43][REDIRECT_OUT, '>']",
+       "[1:44-46][WORD, 'out']",
+       "[1:47-48][AND, '&&']",
+       "[1:49-53][WORD, 'goose']",
+       "[1:54-55][PIPE_AND, '|&']",
+       "[1:56-59][WORD, 'duck']",
+       "[1:60-60][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:LIST,
@@ -719,13 +748,11 @@
   :
     :valid: true
     :tokens: |
-      [[:WORD, "ls"],
-       [:NEWLINE, "\n"],
-       [:WORD, "wow"],
-       [:WORD, "newlines"],
-       [:NEWLINE, "\n"],
-       [:WORD, "yay"],
-       [:NEWLINE, "\n"]]
+      ["[1:1-2][WORD, 'ls']",
+       "[2:1-3][WORD, 'wow']",
+       "[2:5-12][WORD, 'newlines']",
+       "[3:1-3][WORD, 'yay']",
+       "[4:1-1][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:COMMAND,

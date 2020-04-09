@@ -95,14 +95,7 @@ task :run => :msh do
 end
 
 desc "build everything"
-task :msh => %w[man lib/msh/lexer.rb lib/msh/parser.rb]
-
-file "lib/msh/lexer.rb" => "lib/msh/parse.l" do
-  opts = []
-  opts << "--debug" if ENV["MSH_DEBUG"]
-
-  sh "bundle exec rex --output-file lib/msh/lexer.rb lib/msh/parse.l"
-end
+task :msh => %w[man lib/msh/parser.rb]
 
 file "lib/msh/parser.rb" => "lib/msh/parse.y" do
   opts = [

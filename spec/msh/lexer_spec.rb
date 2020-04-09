@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "msh/lexer"
+
 # LEX_DATA = {
 #  "git c -m 'update readme'" => [
 #    [:WORD, "git"],
@@ -86,8 +88,6 @@
 # end
 
 RSpec.describe Msh::Lexer do
-  subject { Msh::Lexer.new }
-
   let(:ruby_version) { RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01 }
 
   Examples.passing.each do |code, data|
@@ -98,7 +98,7 @@ RSpec.describe Msh::Lexer do
                  binding.eval(data[:tokens], *binding.source_location)
                end
 
-      expect(subject.tokenize(code)).to eq tokens
+      expect(Msh::Lexer.new(code).tokens.map(&:to_s)).to eq tokens
     end
   end
 end
