@@ -41,7 +41,11 @@ module Msh
       ";"
     ].freeze
 
-    attr_reader :line, :column
+    # @return [Integer]
+    attr_reader :line
+
+    # @return [Integer]
+    attr_reader :column
 
     # @param input [String]
     def initialize input

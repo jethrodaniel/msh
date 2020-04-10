@@ -3,7 +3,6 @@ exe/msh
 ext/**/*.{c,cc,cxx,cpp,rb}
 
 --markup asciidoc
---markup-provider asciidoctor
 
 --exclude lib/msh/parser.rb
 --exclude lib/msh/lexer.rb
