@@ -16,7 +16,7 @@ Its goal is the same as that of Ruby
 
 **note**:
 
-- msh is still in the design stage, and will be subject to breaking changes until a `v1.0.0` release.
+- msh is still in the early stages, and will be subject to breaking changes until a `v1.0.0` release.
 
 - this readme is only intended for basic installation and development. See the `help` builtin, the main manpage ([erb](man/msh.1.adoc.erb), [text](spec/fixtures/help/msh.txt)), and the [man directory](./man) for more information.
 
@@ -31,18 +31,11 @@ Its goal is the same as that of Ruby
 
 Msh has the following runtime dependencies
 
-- `man`, `less`, or `cat` for the `help` builtin (todo: implement in ruby)
-- ~~[reline](https://github.com/ruby/reline) (requires 1 C dependency on [io-console](https://github.com/ruby/io-console))~~
 - [readline](https://github.com/ruby/readline-ext/) (C, comes with CRuby)
-- [ast](https://github.com/whitequark/ast/) (Ruby, no dependencies)
 
-To build the lexer, parser, and manpages
-
-- [racc](https://github.com/ruby/racc)
-- [rexical](https://github.com/tenderlove/rexical)
-- [asciidoctor](https://github.com/asciidoctor/asciidoctor)
-
-Msh ships with the generated files, though, so these are just build time dependencies.
+We use [asciidoctor](https://github.com/asciidoctor/asciidoctor) to build the
+manpages, but we ship the generated files, though, so its just a build time
+dependency.
 
 ## installation
 
@@ -62,6 +55,11 @@ Options:
         --copyright, --license       show the copyright (MIT)
     -c  <cmd_string>                 runs <cmd_string> as shell input
 ```
+
+## roadmap
+
+- [ ] version 1.0.0 will be when I can use msh as my daily driver
+- [ ] version 2.0.0 may be a mruby port, in order to package as a static executable (maybe)
 
 ## development
 
@@ -87,7 +85,7 @@ rake spec:examples      # create sample msh scripts from spec/examples.yaml
 rake spec:help          # dump results from `help` builtin to text files for specs
 ```
 
-run `./bin/console` to load up msh in a REPL.
+Run `./bin/console` to load up msh in a REPL.
 
 ### testing
 
@@ -102,9 +100,10 @@ Most of these come from a [single YAML file](./spec/fixtures/examples.yml)...
   "echo such wow":
     :valid: true
     :tokens: |
-      [[:WORD, "echo"],
-       [:WORD, "such"],
-       [:WORD, "wow"]]
+      ["[1:1-4][WORD, 'echo']",
+       "[1:6-9][WORD, 'such']",
+       "[1:11-13][WORD, 'wow']",
+       "[1:14-14][EOF, '']"]
     :ast: |
       s(:EXPR,
         s(:COMMAND,
@@ -113,7 +112,6 @@ Most of these come from a [single YAML file](./spec/fixtures/examples.yml)...
           s(:WORD, "wow")))
 
   "echo so scare":
-    :valid: true
 ...
 ```
 
@@ -165,3 +163,11 @@ THE SOFTWARE.
 - [POSIX specifications](https://pubs.opengroup.org/onlinepubs/9699919799/)
 - [shell intro (1978)](https://web.archive.org/web/20170207130846/http://porkmail.org/era/unix/shell.html)
 - [bashish BNF](https://github.com/jalanb/jab/blob/master/src/bash/bash.bnf)
+
+## thanks
+
+We stand on the shoulders of giants, to whom we are grateful.
+
+- https://craftinginterpreters.com/
+- Crystal lang's source code for real-world examples of lexer/parser/interperter/compiler design
+- msh's manpager is adapted from [todo.rb](https://gist.github.com/mattsears/1259080)
