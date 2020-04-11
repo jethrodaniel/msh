@@ -2,13 +2,11 @@
 
 require "strscan"
 
+require "msh/error"
 require "msh/token"
 
 module Msh
-  # Lexer for Msh source code, which breaks down input text into a series of
-  # tokens.
-  #
-  # Primary means of use is to call `next_token` to get tokens, one at a time.
+  # The lexer breaks down input text into a series of tokens.
   #
   # ```
   # lex = Lexer.new "fortune | cowsay\n"
@@ -19,7 +17,7 @@ module Msh
   # lex.next_token #-=> Lexer::Error, "out of input"
   # ```
   class Lexer
-    class Error < StandardError; end
+    class Error < Msh::Error; end
 
     # We match the start of a WORD by not matching anything else, then looping
     # and collecting characters as long as we see a non-whitespace, non-special
@@ -66,7 +64,7 @@ module Msh
       tokens = []
       tokens << next_token while next?
 
-      unless tokens.last.type == :EOF
+      unless tokens.last&.type == :EOF
         @curr_token = ""
         tokens << make_token(:EOF)
       end
@@ -192,6 +190,8 @@ module Msh
             else
               put_back_char
               token = make_token :REDIRECT_OUT
+            # else
+            #   word can start with a number, why not?
             end
           when "<"
             case next_char
@@ -277,8 +277,6 @@ module Msh
     end
 
     # Run the lexer interactively, i.e, run a loop and tokenize user input.
-    #
-    # @return [void]
     def self.interactive
       while line = Readline.readline("lexer> ", true)&.chomp
         case line
@@ -299,8 +297,6 @@ module Msh
     end
 
     # Run the lexer on a file, and print all of it's tokens.
-    #
-    # @return [void]
     def self.lex_file filename
       lex = new File.read(filename)
       while token = lex.next_token
@@ -312,8 +308,6 @@ module Msh
 
     # Run the lexer, either on all files passed to ARGV, or interactively, if
     # no files are supplied. Aborts program on error.
-    #
-    # @return [void]
     def self.start args = ARGV
       return Msh::Lexer.interactive if args.size.zero?
 

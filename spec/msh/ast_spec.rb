@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "msh/ast"
+
 RSpec.describe Msh::AST::Command do
   subject do
     Msh::AST::Command.new :words => %w[echo hi]

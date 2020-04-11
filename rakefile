@@ -19,6 +19,7 @@
 require "bundler/gem_tasks"
 require "rspec/core/rake_task"
 require "rubocop/rake_task"
+require "rake/clean"
 
 # need these to generate the manpages and readme
 require "erb"
@@ -77,6 +78,7 @@ Examples.examples.each_with_index do |(code, data), index|
   end
 
   scripts << script
+  CLEAN << script
 end
 
 namespace :spec do
@@ -94,20 +96,7 @@ task :run => :msh do
 end
 
 desc "build everything"
-task :msh => %w[man lib/msh/parser.rb]
-
-file "lib/msh/parser.rb" => "lib/msh/parse.y" do
-  opts = [
-    "--output-file lib/msh/parser.rb",
-    "-o lib/msh/parser.rb",
-    "--verbose"
-  ]
-  opts << "--debug" if ENV["MSH_DEBUG"]
-
-  sh <<~SH
-    bundle exec racc #{opts.join ' '} lib/msh/parse.y
-  SH
-end
+task :msh => :man
 
 manpages = []
 FileList["man/*.adoc.erb"].each do |erb_manpage|

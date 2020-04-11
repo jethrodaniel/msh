@@ -4,6 +4,7 @@ require "msh/cli"
 require "msh/documentation"
 require "msh/interpreter"
 require "msh/parser"
+require "msh/repl"
 
 module Msh
   # Entry point for the `msh` command.
@@ -13,12 +14,19 @@ module Msh
     Msh::Documentation.setup_manpath!
     Msh::CLI.handle_options!
 
-    return Msh::Interpreter.interactive if ARGV.size.zero?
-
-    ARGV.each do |file|
-      parser = Msh::Parser.new
-      nodes = parser.parse File.read(file)
-      Msh::Interpreter.new.process(nodes)
+    if ARGV.size.zero?
+      if ENV['NO_COLOR']
+        Msh::Repl::Simple.new
+      else
+        Msh::Repl::Ansi.new
+      end
+    else
+      abort "unimplemented"
+      # ARGV.each do |file|
+      #   parser = Msh::Parser.new
+      #   nodes = parser.parse File.read(file)
+      #   Msh::Interpreter.new.process(nodes)
+      # end
     end
   end
 end

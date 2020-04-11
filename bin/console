@@ -9,3 +9,10 @@ Pry.start
 
 # require "irb"
 # IRB.start(__FILE__)
+
+require "msh/lexer"
+require "msh/parser"
+lex = Msh::Lexer.new "cowsay"
+parser = Msh::Parser.new lex.tokens
+interpreter = Msh::Interpreter.new parser.parse
+

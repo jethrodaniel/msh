@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "msh/interpreter"
+
 RSpec.describe Msh::Interpreter do
   subject { Msh::Interpreter.new }
 

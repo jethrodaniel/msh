@@ -1,109 +1,47 @@
 # frozen_string_literal: true
 
-require "English" # for $CHILD_STATUS
-
+require "English"
 require "ast"
+require "paint"
 
-require "msh/ast"
+# require "msh/env"
 require "msh/documentation"
-require "msh/env"
+require "msh/ansi"
+require "msh/ast"
 require "msh/lexer"
 require "msh/parser"
 
-Readline.completion_append_character = " "
-Readline.completion_proc = proc do |str|
-  if str.start_with? "help"
-    Msh::Documentation.help_topics.map { |topic| "help #{topic}" } + ["help"]
-  else
-    Dir[str + "*"].grep(/^#{Regexp.escape(str)}/)
-  end
-end
-
-module Racc
-  class ParseError
-    def pretty_message
-      "error: #{message.delete_suffix(' (error)')}"
-    end
-  end
-end
-
 module Msh
+  # The interpreter executes an AST.
+  #
+  # It also maintains its own environment, and has access to a user's config.
+  #
+  # ```
+  # lex = Lexer.new "fortune | cowsay\n"
+  # parser = Parser.new lex.tokens
+  # interpreter = Interpreter.new parser.parse lex.tokens
+  # ```
   class Interpreter
-    class MissingCommandError < StandardError
-      def pretty_message
-        # did you mean?
-        message
-      end
-    end
-  end
-end
+    include Msh::Colors
 
-# msh interpreter.
-#
-# An instance of `Msh::Interpreter` is created when msh starts up, and lives
-# for the duration of the shell.
-#
-# Includes the `AST::Processor::Mixin` module, which defines a `process`
-# method which calls any `on_TOKEN` handler methods for that node. The
-# point of the module is to transform ASTs - using it as an interpreter
-# is a natural consequence, but this approach can be used to write verifiers,
-# etc, and compose them together.
-#
-# That being said, we have an `on_TOKEN` method for each of our tokens, and we
-# can go ahead and interpret as we go.
-#
-# Our entry point is the root of the grammar
-#
-module Msh
-  class Interpreter
+    # `AST::Processor::Mixin` defines the following for us
+    #
+    # ```
+    #  def process(node)      #=> calls method `on_TOKEN` for node type TOKEN
+    #  def process_all(nodes) #=> nodes.map { |n| process n }
+    # ```
+    #
+    # Each `on_TOKEN` type is responsible for handling its children. This
+    # allows `process` to recursively traverse the AST.
     include ::AST::Processor::Mixin
 
     def initialize
-      @env = Env.new
+      # @env = Env.new
     end
 
-    def preprocess input
-      @env.evaluate input
-    rescue NoMethodError => e
-      puts e
-    end
-
-    def run *args
-      @env.send :run, *args
-    end
-
-    # Run the interpreter interactively.
-    #
-    # @return [Void]
-    def self.interactive
-      interpreter = Msh::Interpreter.new
-      parser = Msh::Parser.new
-
-      while line = Readline.readline("interpreter> ", true)&.chomp
-        # don't add blank lines or duplicates to history
-        if /\A\s*\z/ =~ line || Readline::HISTORY.to_a.dig(-2) == line
-          Readline::HISTORY.pop
-        end
-
-        begin
-          line = interpreter.preprocess line
-          nodes = parser.parse line
-          interpreter.process nodes
-        rescue MissingCommandError, Racc::ParseError => e
-          p e.pretty_message
-        rescue Msh::Lexer::ScanError => e
-          p e.pretty_message(parser.lexer)
-        end
-      end
-    rescue Interrupt
-      puts "^C"
-      exec *%w[stty sane]
-      # run *%w[tput rs1] # clear
-    end
-
-    def on_NOOP _node
-      0
-    end
+    # def on_NOOP _node
+    #   0
+    # end
 
     def on_EXPR node
       node.children.each do |node|
@@ -123,16 +61,16 @@ module Msh
 
           run(*and_expr.right.words)
         when :COMMAND
-          words = process(node).words
+          cmd = process node
 
-          begin
-            return @env.send(*words) if @env.respond_to?(words.first)
-          rescue ArgumentError => e
-            puts e
-            return 1
-          end
+          # begin
+          #   return @env.send(*words) if @env.respond_to?(words.first)
+          # rescue ArgumentError => e
+          #   puts e
+          #   return 1
+          # end
 
-          run *words
+          run *cmd.words
         else
           abort "expected one of :PIPELINE, :AND, :OR, :COMMAND"
         end
@@ -227,6 +165,32 @@ module Msh
     # @return [Msh::Command]
     def on_COMMAND node
       Msh::AST::Command.from_node node
+    end
+
+    def prompt
+      Paint["msh ", GREEN, :bright] + Paint["λ ", PURPLE, :bright]
+    end
+
+    private
+
+    # Execute a command via `fork`, wait for the command to finish
+    #
+    # @param args [Array<String>] args to execute
+    # @return [Integer] exit status of the command
+    def run *args
+      unless args.all? { |a| a.is_a? String }
+        abort "expected Array<String>, got `#{args.class}:#{args.inspect}`"
+      end
+
+      pid = fork do
+        exec *args
+      rescue Errno::ENOENT => e
+        puts e.message
+      end
+
+      Process.wait pid
+
+      $CHILD_STATUS.exitstatus
     end
   end
 end
