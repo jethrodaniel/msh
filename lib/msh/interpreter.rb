@@ -5,6 +5,7 @@ require "ast"
 require "paint"
 
 # require "msh/env"
+require "msh/logger"
 require "msh/documentation"
 require "msh/ansi"
 require "msh/ast"
@@ -23,6 +24,7 @@ module Msh
   # ```
   class Interpreter
     include Msh::Colors
+    include Msh::Logger
 
     # `AST::Processor::Mixin` defines the following for us
     #
@@ -36,6 +38,7 @@ module Msh
     include ::AST::Processor::Mixin
 
     def initialize
+      log.debug { "initialized new interpreter" }
       # @env = Env.new
     end
 
