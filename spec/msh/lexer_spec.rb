@@ -88,6 +88,8 @@ require "msh/lexer"
 # end
 
 RSpec.describe Msh::Lexer do
+  include Msh::Token::Shortcut
+
   let(:ruby_version) { RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01 }
 
   Examples.passing.each do |code, data|
@@ -99,6 +101,37 @@ RSpec.describe Msh::Lexer do
                end
 
       expect(Msh::Lexer.new(code).tokens.map(&:to_s)).to eq tokens
+    end
+  end
+
+  describe "incremental lexing" do
+    it "lexes one token at a time" do
+      lex = Msh::Lexer.new "fortune | cowsay\n"
+
+      expect(lex.next?).to be true
+      expect(lex.current_token).to be nil
+
+      expect(lex.next?).to be true
+      lex.next_token
+      expect(lex.current_token).to eq t(:WORD, "fortune", 1, 1)
+
+      expect(lex.next?).to be true
+      lex.next_token
+      expect(lex.current_token).to eq t(:PIPE, "|", 1, 9)
+
+      expect(lex.next?).to be true
+      lex.next_token
+      expect(lex.current_token).to eq t(:WORD, "cowsay", 1, 11)
+
+      expect(lex.next?).to be true
+      lex.next_token
+      expect(lex.current_token).to eq t(:EOF, "", 2, 1)
+
+      expect(lex.next?).to be false
+
+      expect do
+        lex.next_token
+      end.to raise_error(Msh::Lexer::Error, "error at line 2, column 1: out of input")
     end
   end
 end

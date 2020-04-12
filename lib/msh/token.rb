@@ -14,7 +14,10 @@ module Msh
   # Token.new :WORD, "echo", 1, 4 #=> [1:4-8][WORD, 'echo']
   # ```
   class Token
-    attr_reader :type, :value, :line, :column
+    attr_reader :type
+    attr_reader :value
+    attr_reader :line
+    attr_reader :column
 
     # @param type [Symbol]
     # @param value [String]
@@ -27,8 +30,37 @@ module Msh
       @column = column
     end
 
+    # @return [String]
     def to_s
       "[#{@line}:#{@column}-#{column_end}][#{@type}, '#{@value}']"
+    end
+
+    # @param other [Token]
+    # @return [bool]
+    def == other
+      @line == other.line \
+        && @column == other.column \
+        && @value == other.value \
+        && @type == other.type
+    end
+
+    # Convenience method to create a new token.
+    #
+    # ```
+    # include Msh::Token::Shortcut
+    #
+    # verbose = Token.new :WORD, "echo", 1, 4
+    # terse = t :WORD, "echo", 1, 4
+    # terse == verbose #=> true
+    # ```
+    module Shortcut
+      # @see {Token.new}
+      def t type, value, line, column
+        Token.new :type => type,
+                  :value => value,
+                  :line => line,
+                  :column => column
+      end
     end
 
     private

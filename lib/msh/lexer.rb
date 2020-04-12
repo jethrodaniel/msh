@@ -39,17 +39,19 @@ module Msh
       ";"
     ].freeze
 
-    # @return [Integer]
+    # @return [Integer] the current line
     attr_reader :line
 
-    # @return [Integer]
+    # @return [Integer] the current column
     attr_reader :column
+
+    # @return [Token] the last token recognized
+    attr_reader :current_token
 
     # @param input [String]
     def initialize input
       @scanner = StringScanner.new input
       @line = @column = 1
-      @tokens = []
     end
 
     # @return [Boolean] are there any more tokens?
@@ -65,7 +67,7 @@ module Msh
       tokens << next_token while next?
 
       unless tokens.last&.type == :EOF
-        @curr_token = ""
+        @matched = ""
         tokens << make_token(:EOF)
       end
 
@@ -76,14 +78,14 @@ module Msh
     # @raises [Error] if the lexer is out of input, or if the input is invalid
     def next_token
       token = nil
-      @curr_token = ""
+      @matched = ""
 
       # puts "tokens: #{@tokens.map &:to_s}"
       unless next?
-        if @tokens.last.type == :EOF
+        if current_token.type == :EOF
           error "out of input" unless next?
         else
-          @curr_token = ""
+          @matched = ""
           @column += 1
           return make_token :EOF
         end
@@ -94,13 +96,13 @@ module Msh
         case next_char
         when "#"
           @column += @scanner.skip /[^\n]*/
-          @curr_token = ""
+          @matched = ""
         when " ", "\t"
-          @curr_token = ""
+          @matched = ""
         when "\n"
           @line += 1
           @column = 1
-          @curr_token = ""
+          @matched = ""
         when ";"
           token = make_token :SEMI
         when "t"
@@ -233,7 +235,7 @@ module Msh
 
       token = make_token :EOF if token.nil?
 
-      @tokens << token
+      @current_token = token
 
       token
     end
@@ -244,7 +246,9 @@ module Msh
     #
     # @raise [Error]
     def error msg = nil
-      raise Error, "Error at line #{@line}, column #{@column - @curr_token.size}: #{msg}"
+      raise Error, "error at line " \
+                   "#{@line}, column #{@column - @matched.size}: " \
+                   "#{msg}"
     end
 
     # Add a new token.
@@ -252,17 +256,17 @@ module Msh
     # @return [Token] the token created
     def make_token type
       Token.new :type => type,
-                :value => @curr_token,
+                :value => @matched,
                 :line => @line,
-                :column => @column - @curr_token.size
+                :column => @column - @matched.size
     end
 
     # @return [String] the next character of input
     def next_char
       # puts "next char, pos: #{@scanner.pos}"
       @column += 1
-      @curr_token += (c = @scanner.getch) || ""
-      # puts "[#{@line}:#{@column - @curr_token.size}-#{@column - 1}]: '#{@curr_token}'"
+      @matched += (c = @scanner.getch) || ""
+      # puts "[#{@line}:#{@column - @matched.size}-#{@column - 1}]: '#{@matched}'"
       c
     end
 
@@ -272,7 +276,7 @@ module Msh
     def put_back_char
       # puts "put_back_char, pos: #{@scanner.pos}"
       @column -= 1
-      @curr_token = @curr_token[0..-2]
+      @matched = @matched[0..-2]
       @scanner.pos -= 1
     end
 
