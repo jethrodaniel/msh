@@ -5,6 +5,7 @@ require "pry"
 require "pp"
 
 require "msh/error"
+require "msh/configuration"
 require "msh/ansi"
 
 # prevent IRB from polluting Readline history
@@ -90,13 +91,12 @@ module Msh
     end
 
     def repl
-      # _evaluate '#{@binding.irb}' # rubocop:disable Lint/InterpolationCheck
-      _evaluate '#{@binding.pry}' # rubocop:disable Lint/InterpolationCheck
+      _evaluate "#\{@binding.#{Msh.configuration.repl}\}"
     end
 
     def exit
       puts "goodbye! <3"
-      exit
+      abort
     end
     alias quit exit
 

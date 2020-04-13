@@ -2,12 +2,12 @@
 
 module Msh
   class Configuration
-    attr_accessor :color, :history, :prompt
+    attr_accessor :color, :history, :repl
 
     def initialize
       @color = true
       @history = {:size => 2_048}
-      @prompt = "$"
+      @repl = :irb # :pry
     end
   end
 
