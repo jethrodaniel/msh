@@ -19,7 +19,7 @@ module Msh
   # ```
   # lex = Lexer.new "fortune | cowsay\n"
   # parser = Parser.new lex.tokens
-  # interpreter = Interpreter.new parser.parse lex.tokens
+  # interpreter = Interpreter.new parser.parse
   # ```
   class Interpreter
     include Msh::Logger
@@ -84,7 +84,7 @@ module Msh
           abort "expected one of :PIPELINE, :AND, :OR, :COMMAND"
         end
       end
-      $CHILD_STATUS
+      $CHILD_STATUS.exitstatus
     end
 
     # Modified from https://gist.github.com/JoshCheek/61769bfa05d52609e15948fabfad3381
@@ -150,7 +150,7 @@ module Msh
       end
 
       # pipeline.last.status
-      $CHILD_STATUS
+      $CHILD_STATUS.exitstatus
     end
 
     # @param node [AST::Node] an :OR or :AND node

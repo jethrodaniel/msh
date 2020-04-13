@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-# require "irb"
+require "irb"
+require "pry"
 require "pp"
 
 require "msh/error"
@@ -38,7 +39,11 @@ module Msh
     end
 
     def _evaluate input
-      @binding.eval("\"#{input}\"", *@binding.source_location)
+      # pry-byebug has an issue here, and would appear as a repl evaluated in
+      # the wrong context here (in the AST gem, actually).  This is likely a
+      # byebug-specific issue. IRB works fine here.
+      e = @binding.eval("\"#{input}\"", *@binding.source_location)
+      e
     end
 
     def builtins
@@ -85,12 +90,13 @@ module Msh
     end
 
     def repl
-      _evaluate '#{@binding.irb}' # rubocop:disable Lint/InterpolationCheck
+      # _evaluate '#{@binding.irb}' # rubocop:disable Lint/InterpolationCheck
+      _evaluate '#{@binding.pry}' # rubocop:disable Lint/InterpolationCheck
     end
 
     def exit
       puts "goodbye! <3"
-      abort
+      exit
     end
     alias quit exit
 
@@ -115,7 +121,7 @@ module Msh
 
       Process.wait pid
 
-      $CHILD_STATUS
+      $CHILD_STATUS.exitstatus
     end
   end
 end
