@@ -8,9 +8,6 @@ require "msh/error"
 require "msh/configuration"
 require "msh/ansi"
 
-# prevent IRB from polluting Readline history
-# IRB.conf[:SAVE_HISTORY] = nil
-
 module Msh
   # An environment maintains the current environment variables of an
   # interpreter instance, as well as serving to host the methods used for

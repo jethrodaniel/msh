@@ -249,7 +249,7 @@ module Msh
         case line
         when "q", "quit", "exit"
           puts "goodbye! <3"
-          exit
+          return
         else
           begin
             puts Msh::Lexer.new(line).tokens

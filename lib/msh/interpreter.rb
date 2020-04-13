@@ -40,8 +40,18 @@ module Msh
       @env = Env.new
     end
 
+    # @return [String]
     def prompt
       @env.prompt
+    end
+
+    # @param input [String]
+    # @return [String]
+    def preprocess input
+      @env._evaluate input
+    rescue NoMethodError => e
+      puts e
+      input
     end
 
     def handler_missing node

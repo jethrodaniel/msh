@@ -19,7 +19,9 @@ module Msh
             Readline::HISTORY.pop
           end
 
-          # line = interpreter.preprocess line
+          # FIXME: Make the lexer return [INTERPOLATION, "..."].
+          #        Use a stack to match the brackets (`{` and `}`).
+          line = interpreter.preprocess line
           lexer = Msh::Lexer.new line
           parser = Msh::Parser.new lexer.tokens
           interpreter.process parser.parse
