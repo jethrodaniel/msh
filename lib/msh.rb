@@ -15,18 +15,18 @@ module Msh
     Msh::CLI.handle_options!
 
     if ARGV.size.zero?
-      if ENV['NO_READLINE']
+      if ENV["NO_READLINE"]
         Msh::Repl::Simple.new
       else
         Msh::Repl::Ansi.new
       end
     else
-      abort "unimplemented"
-      # ARGV.each do |file|
-      #   parser = Msh::Parser.new
-      #   nodes = parser.parse File.read(file)
-      #   Msh::Interpreter.new.process(nodes)
-      # end
+      interpreter = Msh::Interpreter.new
+      ARGV.each do |file|
+        lexer = Msh::Lexer.new File.read(file)
+        parser = Msh::Parser.new lexer.tokens
+        interpreter.process parser.parse
+      end
     end
   end
 end

@@ -36,16 +36,21 @@ Gem::Specification.new do |spec|
     gems.locked
     gems.rb
     lib/msh.rb
+    lib/msh/ansi.rb
     lib/msh/ast.rb
     lib/msh/cli.rb
     lib/msh/configuration.rb
     lib/msh/documentation.rb
-    lib/msh/error.rb
     lib/msh/env.rb
+    lib/msh/error.rb
     lib/msh/gemspec.rb
     lib/msh/interpreter.rb
     lib/msh/lexer.rb
+    lib/msh/logger.rb
     lib/msh/parser.rb
+    lib/msh/repl
+    lib/msh/repl.rb
+    lib/msh/token.rb
     lib/msh/version.rb
     license.txt
     man/man1/msh-help.1

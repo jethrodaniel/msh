@@ -8,16 +8,16 @@ RSpec.describe Msh::Configuration do
 
     expect(Msh.configuration.color).to be true
     expect(Msh.configuration.history).to eq(:size => 2_048)
-    expect(Msh.configuration.prompt).to eq("$")
+    expect(Msh.configuration.repl).to eq(:irb)
 
     Msh.configure do |c|
       c.color = false
       c.history = {:size => 1_000}
-      c.prompt = "%"
+      c.repl = :pry
     end
 
     expect(Msh.configuration.color).to be false
     expect(Msh.configuration.history).to eq(:size => 1_000)
-    expect(Msh.configuration.prompt).to eq("%")
+    expect(Msh.configuration.repl).to eq(:pry)
   end
 end
