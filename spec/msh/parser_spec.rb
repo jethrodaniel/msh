@@ -18,24 +18,9 @@ RSpec.describe Msh::Parser do
       lexer = Msh::Lexer.new code
       parser = Msh::Parser.new lexer.tokens
       expect(parser.parse).to eq ast
-
     end
   end
-
-  # Run each input and test it's output for a failure
-  #
-  #   "bad msh code" => [ErrorType, "error message"]
-  {
-    # ">" => [
-    #   Msh::Parser::Error,
-    #   /\[\d\]\[\d\]: parse error on value/
-    #   # %([1][2]: parse error on value ">" (error))
-    # ]
-  }.each do |code, (error_class, error_msg)|
-    it code.to_s do
-      expect { subject.parse(code) }.to raise_error(error_class, error_msg)
-    end
-  end
+end
 
   # # **note**: testing a private method here
   # describe "#expand_PIPE_AND" do
@@ -70,4 +55,21 @@ RSpec.describe Msh::Parser do
   #           s(:WORD, "bar")))
   #   end
   # end
-end
+# end
+#
+
+#  # Run each input and test it's output for a failure
+#  #
+#  #   "bad msh code" => [ErrorType, "error message"]
+#  {
+#    # ">" => [
+#    #   Msh::Parser::Error,
+#    #   /\[\d\]\[\d\]: parse error on value/
+#    #   # %([1][2]: parse error on value ">" (error))
+#    # ]
+#  }.each do |code, (error_class, error_msg)|
+#    it code.to_s do
+#      expect { subject.parse(code) }.to raise_error(error_class, error_msg)
+#    end
+#  end
+

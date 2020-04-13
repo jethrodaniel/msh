@@ -10,9 +10,9 @@ module Msh
   # The parser converts a series of tokens into an abstract syntax tree (AST).
   #
   # ```
-  # lex = Lexer.new "fortune | cowsay\n"
-  # parser = Parser.new l
-  # parser.parse lex.tokens
+  # lexer = Lexer.new "fortune | cowsay\n"
+  # parser = Parser.new lexer.tokens
+  # parser.parse
   # #=>
   #   s(:EXPR,
   #    s(:PIPELINE,
@@ -55,10 +55,17 @@ module Msh
     # @return [Array<Token>]
     attr_reader :tokens
 
-    # @param tokens [Array<Token>]
     def initialize tokens
-      @tokens = tokens
       @pos = 0
+      @tokens = tokens
+    end
+
+    def line
+      current_token.line
+    end
+
+    def column
+      current_token.column
     end
 
     # Parse all tokens into an AST
@@ -67,8 +74,6 @@ module Msh
     def parse
       expression
     end
-
-    private
 
     # @return [AST]
     def expression

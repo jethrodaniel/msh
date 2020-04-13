@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "readline"
 require "strscan"
 
 require "msh/error"
@@ -45,33 +46,30 @@ module Msh
     # @return [Integer] the current column
     attr_reader :column
 
-    # @return [Token] the last token recognized
-    attr_reader :current_token
-
     # @param input [String]
     def initialize input
       @scanner = StringScanner.new input
       @line = @column = 1
+      @tokens = []
     end
 
     # @return [Boolean] are there any more tokens?
     def next?
-      !@scanner.eos?
+      @tokens.last&.type != :EOF
+      # !@scanner.eos?
+    end
+
+    def current_token
+      @tokens.last
     end
 
     # Run the lexer on the input until we collect all the tokens.
     #
     # @return [Array<Token>] all tokens in the input
     def tokens
-      tokens = []
-      tokens << next_token while next?
+      next_token while next?
 
-      unless tokens.last&.type == :EOF
-        @matched = ""
-        tokens << make_token(:EOF)
-      end
-
-      tokens
+      @tokens
     end
 
     # @return [Token] the next token
@@ -80,18 +78,25 @@ module Msh
       token = nil
       @matched = ""
 
-      # puts "tokens: #{@tokens.map &:to_s}"
-      unless next?
-        if current_token.type == :EOF
-          error "out of input" unless next?
-        else
-          @matched = ""
-          @column += 1
-          return make_token :EOF
-        end
-      end
+      if !next? && @tokens.last&.type == :EOF
+        error "out of input"
+       end
 
+      # puts "tokens: #{@tokens.map &:to_s}"
       until token || !next?
+        # if !next?
+        #   if @tokens.last.type == :EOF
+        #     return nil
+        #     # error "out of input" unless next?
+        #   else
+        #     @matched = ""
+        #     @column += 1
+        #     token = make_token :EOF
+        #     @tokens << token
+        #     token
+        #   end
+        # end
+
         # skip comments, update line and column number on newlines
         case next_char
         when "#"
@@ -192,8 +197,8 @@ module Msh
             else
               put_back_char
               token = make_token :REDIRECT_OUT
-            # else
-            #   word can start with a number, why not?
+              # else
+              #   word can start with a number, why not?
             end
           when "<"
             case next_char
@@ -221,21 +226,21 @@ module Msh
             end
           end
         else
-          i = 1
-          # puts "peek: '#{@scanner.peek 1}'"
-          until NON_WORD_CHARS.include? @scanner.peek(1)
-            next_char
-            i += 1
-            # puts "peek: '#{@scanner.peek 1}'"
+          next_char until NON_WORD_CHARS.include?(@scanner.peek(1))
+
+          if @matched == ""
+            @column -= 1
+            token = make_token :EOF
+          else
+            token = make_token :WORD
           end
-          token = make_token :WORD
           # error "no matching token found"
         end
       end
 
       token = make_token :EOF if token.nil?
 
-      @current_token = token
+      @tokens << token
 
       token
     end
@@ -290,7 +295,8 @@ module Msh
         else
           begin
             lex = Msh::Lexer.new line
-            while token = lex.next_token
+            while lex.next?
+              token = lex.next_token
               puts token
             end
           rescue Error => e
@@ -303,7 +309,8 @@ module Msh
     # Run the lexer on a file, and print all of it's tokens.
     def self.lex_file filename
       lex = new File.read(filename)
-      while token = lex.next_token
+      while lex.next?
+        token = lex.next_token
         puts token
       end
     rescue Error => e
