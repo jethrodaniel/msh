@@ -4,10 +4,9 @@ require "English"
 require "ast"
 require "paint"
 
-# require "msh/env"
 require "msh/logger"
+require "msh/env"
 require "msh/documentation"
-require "msh/ansi"
 require "msh/ast"
 require "msh/lexer"
 require "msh/parser"
@@ -23,7 +22,6 @@ module Msh
   # interpreter = Interpreter.new parser.parse lex.tokens
   # ```
   class Interpreter
-    include Msh::Colors
     include Msh::Logger
 
     # `AST::Processor::Mixin` defines the following for us
@@ -39,7 +37,15 @@ module Msh
 
     def initialize
       log.debug { "initialized new interpreter" }
-      # @env = Env.new
+      @env = Env.new
+    end
+
+    def prompt
+      @env.prompt
+    end
+
+    def handler_missing node
+      error "no handler for node: #{node}"
     end
 
     # def on_NOOP _node
@@ -66,12 +72,12 @@ module Msh
         when :COMMAND
           cmd = process node
 
-          # begin
-          #   return @env.send(*words) if @env.respond_to?(words.first)
-          # rescue ArgumentError => e
-          #   puts e
-          #   return 1
-          # end
+          begin
+            return @env.send(*cmd.words) if @env.respond_to?(cmd.words.first)
+          rescue ArgumentError => e
+            puts e
+            return 1
+          end
 
           run *cmd.words
         else
@@ -170,30 +176,11 @@ module Msh
       Msh::AST::Command.from_node node
     end
 
-    def prompt
-      Paint["msh ", GREEN, :bright] + Paint["λ ", PURPLE, :bright]
-    end
-
     private
 
-    # Execute a command via `fork`, wait for the command to finish
-    #
-    # @param args [Array<String>] args to execute
-    # @return [Integer] exit status of the command
+    # @see {Msh::Env#run}
     def run *args
-      unless args.all? { |a| a.is_a? String }
-        abort "expected Array<String>, got `#{args.class}:#{args.inspect}`"
-      end
-
-      pid = fork do
-        exec *args
-      rescue Errno::ENOENT => e
-        puts e.message
-      end
-
-      Process.wait pid
-
-      $CHILD_STATUS.exitstatus
+      @env.send :run, *args # NOTE: calling a private method here
     end
   end
 end

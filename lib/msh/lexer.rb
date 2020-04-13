@@ -78,9 +78,7 @@ module Msh
       token = nil
       @matched = ""
 
-      if !next? && @tokens.last&.type == :EOF
-        error "out of input"
-       end
+      error "out of input" if !next? && @tokens.last&.type == :EOF
 
       # puts "tokens: #{@tokens.map &:to_s}"
       until token || !next?
@@ -245,6 +243,42 @@ module Msh
       token
     end
 
+    # Run the lexer interactively, i.e, run a loop and tokenize user input.
+    def self.interactive
+      while line = Readline.readline("lexer> ", true)&.chomp
+        case line
+        when "q", "quit", "exit"
+          puts "goodbye! <3"
+          exit
+        else
+          begin
+            puts Msh::Lexer.new(line).tokens
+          rescue Error => e
+            puts e.message
+          end
+        end
+      end
+    end
+
+    # Run the lexer on a file, and print all of it's tokens.
+    def self.lex_file filename
+      puts new(File.read(filename)).tokens
+    rescue Error => e
+      puts e.message
+    end
+
+    # Run the lexer, either on all files passed to ARGV, or interactively, if
+    # no files are supplied. Aborts program on error.
+    def self.start args = ARGV
+      return Msh::Lexer.interactive if args.size.zero?
+
+      args.each do |file|
+        raise Error, "#{file} is not a file!" unless File.file?(file)
+
+        puts Lexer.new(File.read(file)).tokens
+      end
+    end
+
     private
 
     # Raise an error with helpful output.
@@ -283,51 +317,6 @@ module Msh
       @column -= 1
       @matched = @matched[0..-2]
       @scanner.pos -= 1
-    end
-
-    # Run the lexer interactively, i.e, run a loop and tokenize user input.
-    def self.interactive
-      while line = Readline.readline("lexer> ", true)&.chomp
-        case line
-        when "q", "quit", "exit"
-          puts "goodbye! <3"
-          exit
-        else
-          begin
-            lex = Msh::Lexer.new line
-            while lex.next?
-              token = lex.next_token
-              puts token
-            end
-          rescue Error => e
-            puts e.message
-          end
-        end
-      end
-    end
-
-    # Run the lexer on a file, and print all of it's tokens.
-    def self.lex_file filename
-      lex = new File.read(filename)
-      while lex.next?
-        token = lex.next_token
-        puts token
-      end
-    rescue Error => e
-      puts e.message
-    end
-
-    # Run the lexer, either on all files passed to ARGV, or interactively, if
-    # no files are supplied. Aborts program on error.
-    def self.start args = ARGV
-      return Msh::Lexer.interactive if args.size.zero?
-
-      args.each do |file|
-        abort "#{file} is not a file!" unless File.file?(file)
-        lex_file file
-      end
-    rescue Error => e
-      abort e.message
     end
   end
 end

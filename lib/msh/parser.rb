@@ -60,10 +60,12 @@ module Msh
       @tokens = tokens
     end
 
+    # @return [Integer]
     def line
       current_token.line
     end
 
+    # @return [Integer]
     def column
       current_token.column
     end
@@ -75,15 +77,11 @@ module Msh
       expression
     end
 
+    # NOTE: Root of the grammar.
+    #
     # @return [AST]
     def expression
       s(:EXPR, pipeline)
-    end
-
-    def eof
-      error "expected :EOF" unless match?(:EOF)
-
-      s(:EOF, advance.value)
     end
 
     # @return [AST]
@@ -222,15 +220,14 @@ module Msh
         case line
         when "q", "quit", "exit"
           puts "goodbye! <3"
-          exit
+          return
         else
           begin
             lexer = Msh::Lexer.new line
             parser = Msh::Parser.new lexer.tokens
             p parser.parse
           rescue Error => e
-            # TODO: better error message
-            puts "[#{parser.line}][#{parser.column}]: #{e.message.gsub "\n", ''}"
+            puts e.message
           end
         end
       end
@@ -241,9 +238,10 @@ module Msh
       return Msh::Parser.interactive if args.size.zero?
 
       args.each do |file|
-        abort "#{file} is not a file!" unless File.file?(file)
+        raise Error, "#{file} is not a file!" unless File.file?(file)
+
         lexer = Msh::Lexer.new File.read(file)
-        parser = Msh::Parser.new
+        parser = Msh::Parser.new lexer.tokens
         p parser.parse
       end
     end
