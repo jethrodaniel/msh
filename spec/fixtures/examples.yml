@@ -762,3 +762,33 @@
           s(:WORD, "newlines")),
         s(:COMMAND,
           s(:WORD, "yay")))
+
+  # interpolation
+
+  "echo #{:a} #{:b}":
+    :valid: true
+    :tokens: |
+      ["[1:1-4][WORD, 'echo']",
+       "[1:8-9][INTERPOLATION, ':a']",
+       "[1:14-15][INTERPOLATION, ':b']",
+       "[1:17-17][EOF, '']"]
+    :ast: |
+      s(:EXPR,
+        s(:COMMAND,
+          s(:WORD, "echo"),
+          s(:INTERPOLATION, ":a"),
+          s(:INTERPOLATION, ":b")))
+
+  "#{a b}#{b} #{c d}":
+    :valid: true
+    :tokens: |
+      ["[1:3-5][INTERPOLATION, 'a b']",
+       "[1:9-9][INTERPOLATION, 'b']",
+       "[1:14-16][INTERPOLATION, 'c d']",
+       "[1:18-18][EOF, '']"]
+    :ast: |
+      s(:EXPR,
+        s(:COMMAND,
+          s(:INTERPOLATION, "a b"),
+          s(:INTERPOLATION, "b"),
+          s(:INTERPOLATION, "c d")))

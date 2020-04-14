@@ -98,8 +98,21 @@ module Msh
         # skip comments, update line and column number on newlines
         case next_char
         when "#"
-          @column += @scanner.skip /[^\n]*/
-          @matched = ""
+          case next_char
+          when "{"
+            @matched = ""
+            while (c = next_char) != "}" # loop until closing `}`
+              error "unterminated string interpolation, expected `}`" if c.nil? || !next?
+            end
+            @matched = @matched[0..-2] # discard the `}`
+            @column -= 1 # hack
+            token = make_token :INTERPOLATION
+            @column += 1 # hack
+          else
+            # put_back_char
+            @column += @scanner.skip /[^\n]*/
+            @matched = ""
+          end
         when " ", "\t"
           @matched = ""
         when "\n"

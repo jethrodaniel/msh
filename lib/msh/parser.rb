@@ -129,7 +129,21 @@ module Msh
 
       prefix = redirection
 
-      words << s(:WORD, advance.value) while match? :WORD, :TIME
+      while match? :WORD, :TIME, :INTERPOLATION
+        case peek.type
+        when :INTERPOLATION
+          # if words.last&.type == :WORD
+            # puts "word started"
+            # words << s(:WORD, advance.value)
+          # else
+            # puts "not word started"
+            words << s(:INTERPOLATION, advance.value)
+          # end
+        when :WORD, :TIME
+          # puts "word"
+          words << s(:WORD, advance.value)
+        end
+      end
 
       suffix = redirection
 
