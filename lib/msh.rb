@@ -4,9 +4,9 @@ require "msh/cli"
 require "msh/documentation"
 require "msh/repl"
 
-# Msh is a Ruby shell.
+# == Msh is a Ruby shell.
 #
-# It supports a basic subset of shell, including
+# It supports a subset of `sh`/`bash`, including
 #
 #   - [x] redirection `a 2>&1 > out.log`
 #   - [ ] conditionals `a || b && c`
@@ -14,6 +14,8 @@ require "msh/repl"
 #   - [ ] grouping `a; {b}`
 #   - [ ] subshells `(a) && {b || c; }`
 #   - [x] pipes `a | b`
+#   - [ ] command substitution `a 'b' c` (but use backticks, not single qoutes)
+#   - [ ] process substitution `<(a | b)`
 #
 # It uses Ruby to handle variables, functions, and aliases, and allows for
 # Ruby interpolation anywhere in the source.
@@ -30,7 +32,7 @@ require "msh/repl"
 #                 ||     ||
 # ```
 #
-# Msh operates more or less like so:
+# == Msh operates more or less like so:
 #
 # 1. `msh` executable calls {Msh::Repl::Ansi.initialize}
 #
@@ -67,15 +69,62 @@ require "msh/repl"
 #         s(:COMMAND,
 #           s(:WORD, "cowsay"))))
 #
-# 1. the AST is interpreted by an {Msh::Interpreter} instance.
+# 1. the AST is executed by an {Msh::Interpreter} instance.
 #
-# Command resolution in the interpreter is as follows:
+#     interpreter = Msh::Interpreter.new
+#     interpreter.process parser.parse
 #
-# 	1. check aliases
-# 	1. check functions
-# 	1. check executables
+# The interpreter operates like so:
 #
-# TODO: finish this
+# Traverse the AST, and handle the following as we they appear:
+#
+#   * [ ] command substitutions (backtick strings) are recursively operated on
+#   * [ ] Ruby interpolation (`#{}`) is `eval`'d in the interpreter's env
+#   * [ ] subshells?
+#
+# Resolve commands by checking if any of the following match, in order
+#
+# 	1. aliases
+# 	1. functions / builtins
+# 	1. executables
+#
+# If any match, the first match is used as the command. If any of the three
+# aren't matched, then the command is unresolved, or _not found_.
+#
+# == Host language
+#
+# Unlike other shells, Msh doesn't have functions or variables builtin to the
+# language, rather, it tasks that to it's host, or implementation, language
+# (here, Ruby).
+#
+# The host language is available via a REPL at with the `repl` command, and
+# additionally processes string interpolation in all commands.
+#
+#     $ repl
+#     irb> ... quit
+#     $ echo the time is now #{Time.now}
+#
+# ==== Functions
+#
+# Instead of functions, Msh just calls Ruby methods
+#
+#     echo #{def hello name; puts "hello, #{name}"; end}
+#     hello world #=> prints "hello, world"
+#
+# Similarly, builtins and aliases are just Ruby methods as well.
+#
+#     $ builtins
+#     $ aliases
+#
+# ==== Variables
+#
+# Variables in the REPL correspond directly to environment variables.
+#
+#     $ RAILS_ENV=production bundle exec rails
+#     $ repl
+#     irb> RAILS_ENV='production' # this is like `export VAR=...`
+#     $ bundle exec rails
+#
 module Msh
   # Entry point for the `msh` command.
   #

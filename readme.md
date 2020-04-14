@@ -12,15 +12,8 @@ Its goal is the same as that of Ruby
 >
 > Yukihiro 'Matz' Matsumoto
 
----
 
-**note**:
-
-- msh is still in the early stages, and will be subject to breaking changes until a `v1.0.0` release.
-
-- this readme is only intended for basic installation and development. See the `help` builtin, the main manpage ([erb](man/msh.1.adoc.erb), [text](spec/fixtures/help/msh.txt)), and the [man directory](./man) for more information.
-
----
+**NOTE**: still in early stages, subject to breaking changes until `v1.0.0`.
 
 ## supported rubies
 
@@ -29,13 +22,13 @@ Its goal is the same as that of Ruby
 
 ## dependencies
 
-Msh has the following runtime dependencies
+### runtime
 
 - [readline](https://github.com/ruby/readline-ext/) (C, comes with CRuby)
 
-We use [asciidoctor](https://github.com/asciidoctor/asciidoctor) to build the
-manpages, but we ship the generated files, though, so its just a build time
-dependency.
+### build
+
+- [asciidoctor](https://github.com/asciidoctor/asciidoctor) to build the manpages
 
 ## installation
 
@@ -170,4 +163,3 @@ We stand on the shoulders of giants, to whom we are grateful.
 
 - https://craftinginterpreters.com/
 - Crystal lang's source code for real-world examples of lexer/parser/interperter/compiler design
-- msh's manpager is adapted from [todo.rb](https://gist.github.com/mattsears/1259080)
