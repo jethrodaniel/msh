@@ -7,31 +7,16 @@
 
 msh is a ruby shell.
 
-Its goal is the same as that of Ruby
-
-> Ruby is designed to make programmers happy.
->
-> Yukihiro 'Matz' Matsumoto
-
-
 **NOTE**: still in early stages, subject to breaking changes until `v1.0.0`.
 
-## supported rubies
+## Dependencies
 
-- [x] CRuby >= 2.5
-- [ ] JRuby
+💯 percent Ruby, no C dependencies. Only 2 runtime dependencies
 
-## dependencies
+- [ast](https://github.com/whitequark/ast)
+- [paint](https://github.com/janlelis/paint)
 
-### runtime
-
-- [readline](https://github.com/ruby/readline-ext/) (C, comes with CRuby)
-
-### build
-
-- [asciidoctor](https://github.com/asciidoctor/asciidoctor) to build the manpages
-
-## installation
+## Installation
 
 Assuming you have Ruby installed:
 
@@ -41,23 +26,23 @@ $ msh -h
 <%= `msh -h` %>
 ```
 
-## roadmap
+## Roadmap
 
-- [ ] version 1.0.0 will be when I can use msh as my daily driver
-- [ ] version 2.0.0 may be a mruby port, in order to package as a static executable (maybe)
+- [ ] version 1.0.0 - when I can use msh as my daily driver
+- [ ] version 2.0.0 - may be a mruby port, in order to package as a static executable
 
-## development
+## Development
 
-see the rakefile
-
-```sh
-$ bundle exec rake -T
-<%= `bundle exec rake -T` %>
+```
+$ bundle exec rake -T     # `rake install` to install locally
+$ bundle exec bin/console # load Msh up in a Ruby REPL
+$ bundle exec bin/lexer   # Run the lexer
+$ bundle exec bin/parser  # Run the parser
+$ bundle exec exe/msh     # Run Msh
+$ bundle exec yard server --reload # View documentation in a browser
 ```
 
-Run `./bin/console` to load up msh in a REPL.
-
-### testing
+### Testing
 
 msh has more tests than you can shake a stick at.
 
@@ -76,7 +61,7 @@ $ bundle exec rake spec
 
 You can also check out [the CI](https://github.com/jethrodaniel/msh/actions/) to see the specs' last executions 🔪.
 
-## contributing
+## Contributing
 
 Bug reports and pull requests are welcome on [GitHub](https://github.com/jethrodaniel/msh).
 
@@ -85,21 +70,18 @@ git clone https://github.com/jethrodaniel/msh
 cd msh && bundle exec rake
 ```
 
-## license
+## License
 
-```sh
-<%= `msh --copyright` %>
-```
+MIT, see the [license file](license.txt).
 
-## references
+## References
 
 - [POSIX specifications](https://pubs.opengroup.org/onlinepubs/9699919799/)
 - [shell intro (1978)](https://web.archive.org/web/20170207130846/http://porkmail.org/era/unix/shell.html)
 - [bashish BNF](https://github.com/jalanb/jab/blob/master/src/bash/bash.bnf)
 
-## thanks
-
 We stand on the shoulders of giants, to whom we are grateful.
 
 - https://craftinginterpreters.com/
-- Crystal lang's source code for real-world examples of lexer/parser/interperter/compiler design
+- https://github.com/crystal-lang/crystal
+- https://github.com/ruby/ruby
