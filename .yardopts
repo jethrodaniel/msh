@@ -1,11 +1,8 @@
-exe/msh
-{lib,app}/**/*.rb
-ext/**/*.{c,cc,cxx,cpp,rb}
+exe/**/*
+lib/**/*.rb
 
 --markup asciidoc
 
---exclude lib/msh/parser.rb
---exclude lib/msh/lexer.rb
 --exclude rakefile
 
 --output-dir docs

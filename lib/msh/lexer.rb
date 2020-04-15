@@ -17,6 +17,12 @@ module Msh
   # lex.next_token #=> [2:1-1][EOF, '']
   # lex.next_token #-=> Lexer::Error, "out of input"
   # ```
+  #
+  # By definition, a token contains a type (which token), and a value (the
+  # matched string). They also usually contain line and column number
+  # information, and other metadata as well.
+  #
+  # @see Token
   class Lexer
     class Error < Msh::Error; end
 
