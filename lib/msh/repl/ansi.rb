@@ -5,8 +5,8 @@ require "readline"
 require "msh/ansi"
 
 module Msh
-  # REPL to be used on a modern ANSI terminal
   class Repl
+    # REPL to be used on a modern ANSI terminal, with Readline
     class Ansi < Repl
       include Colors
 
@@ -36,7 +36,9 @@ module Msh
         Readline.completion_append_character = " "
         Readline.completion_proc = proc do |str|
           if str.start_with? "help"
-            Msh::Documentation.help_topics.map { |topic| "help #{topic}" } + ["help"]
+            Msh::Documentation.help_topics.map do |topic|
+              "help #{topic}"
+            end + ["help"]
           else
             Dir[str + "*"].grep(/^#{Regexp.escape(str)}/)
           end
