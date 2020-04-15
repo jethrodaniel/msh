@@ -50,7 +50,7 @@ $ bundle exec exe/msh     # Run Msh
 $ bundle exec yard server --reload # View documentation in a browser
 ```
 
-### Testing
+## Testing
 
 msh has more tests than you can shake a stick at.
 
