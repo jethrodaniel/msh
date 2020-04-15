@@ -44,59 +44,6 @@ module Msh
       e
     end
 
-    def builtins
-      o = Object.new
-      public_methods.reject { |m| o.respond_to? m }
-                    .reject { |m| m.start_with? "_" }
-                    .map(&:to_s)
-                    .sort
-                    .each { |m| puts m }
-    end
-
-    def prompt
-      Paint["msh ", GREEN, :bright] + Paint["λ ", PURPLE, :bright]
-    end
-
-    def history
-      size = 3
-      Readline::HISTORY.to_a.tap do |h|
-        size = h.size.to_s.chars.size
-      end.each.with_index(1) do |e, i|
-        puts "#{i.to_s.ljust(size, ' ')} #{e}"
-      end
-      0
-    end
-    alias hist history
-
-    def help *topics
-      cmd = if topics.empty?
-              %w[man msh]
-            else
-              %w[man] + topics.map { |t| "msh-#{t}" }
-            end
-      run(*cmd)
-    end
-
-    def lexer *files
-      Msh::Lexer.start files
-      0
-    end
-
-    def parser *files
-      Msh::Parser.start files
-      0
-    end
-
-    def repl
-      _evaluate "#\{@binding.#{Msh.configuration.repl}\}"
-    end
-
-    def exit
-      puts "goodbye! <3"
-      abort
-    end
-    alias quit exit
-
     private
 
     # Execute a command via `fork`, wait for the command to finish
@@ -122,3 +69,12 @@ module Msh
     end
   end
 end
+
+require "msh/builtins/builtins"
+require "msh/builtins/help"
+require "msh/builtins/history"
+require "msh/builtins/lexer"
+require "msh/builtins/parser"
+require "msh/builtins/prompt"
+require "msh/builtins/quit"
+require "msh/builtins/repl"
