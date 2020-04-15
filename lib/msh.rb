@@ -43,12 +43,6 @@ require "msh/repl"
 #       interpreter.process parser.parse
 #     end
 #
-# 1. preprocessing is done be evaling any string interpolation (`#{}`).
-#
-#     def preprocess line
-#       environment.eval line #=> same string, interpolated
-#     end
-#
 # 1. lexing breaks the input up into tokens
 #
 #     lexer = Msh::Lexer.new "fortune | cowsay"
@@ -73,23 +67,6 @@ require "msh/repl"
 #
 #     interpreter = Msh::Interpreter.new
 #     interpreter.process parser.parse
-#
-# The interpreter operates like so:
-#
-# Traverse the AST, and handle the following as we they appear:
-#
-#   * [ ] command substitutions (backtick strings) are recursively operated on
-#   * [ ] Ruby interpolation (`#{}`) is `eval`'d in the interpreter's env
-#   * [ ] subshells?
-#
-# Resolve commands by checking if any of the following match, in order
-#
-# 	1. aliases
-# 	1. functions / builtins
-# 	1. executables
-#
-# If any match, the first match is used as the command. If any of the three
-# aren't matched, then the command is unresolved, or _not found_.
 #
 # == Host language
 #

@@ -14,13 +14,76 @@ require "msh/parser"
 module Msh
   # The interpreter executes an AST.
   #
-  # It also maintains its own environment, and has access to a user's config.
-  #
   # ```
   # lex = Lexer.new "fortune | cowsay\n"
   # parser = Parser.new lex.tokens
   # interpreter = Interpreter.new parser.parse
   # ```
+  # It also maintains its own environment, and has access to a user's config.
+  #
+  # == It operates like so:
+  #
+  # At startup, read the user's config.
+  #
+  # When {#process} is called, traverse the given AST, executing while
+  # traversing each node.
+  #
+  # ==== command substitution
+  #
+  # TODO
+  #
+  # Command substitution works the same way as sh, i.e, a backtick string is
+  # evaluated as the std out of running the string as a command.
+  #
+  # ```
+  # echo `echo UP | tr '[:upper:]' '[:lower:]'` #=> `up`
+  # ```
+  #
+  # Bash encourages the alternate `$()` syntax, which is admittedly, easier to
+  # read.
+  #
+  # ==== ruby interpolation
+  #
+  # TODO
+  #
+  # Ruby interpolation is allowed anywhere using the familiar `#{}` syntax.
+  # It is evaluated into WORDs, i.e, it can be used wherever command
+  # substitution is allowed.
+  #
+  # ```
+  # echo #{1 + 1} #=> 2
+  # ```
+  # ==== subshells
+  #
+  # TODO
+  #
+  # Subshells are the same as those in sh, i.e, they work like command
+  # substitution, but run in a separate instance of the shell
+  #
+  # ```
+  # (exit 1) #=> only exits the subshell, not the current shell
+  # ```
+  # === what's in a WORD? that which..
+  #
+  # A command shell's main job is to execute commands. A "command" is just a
+  # series of WORD-like tokens, with optional redirections.
+  #
+  # These WORD-like tokens can be regular literals, string interpolation,
+  # subshells, single and double quotes, or command substitution.
+  #
+  # Expansions occur just before the word is used, as in sh.
+  #
+  # === command resolution
+  #
+  # Commands are resolved by checking if any of the following match, in order
+  #
+  # 	1. aliases
+  # 	1. functions / builtins
+  # 	1. executables
+  #
+  # If any match, the first match is used as the command. If any of the three
+  # aren't matched, then the command is unresolved, or _not found_.
+  #
   class Interpreter
     include Msh::Logger
 
