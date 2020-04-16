@@ -108,5 +108,6 @@ MIT, see the [license file](license.txt).
 We stand on the shoulders of giants, to whom we are grateful.
 
 - https://craftinginterpreters.com/
+- https://ycpcs.github.io/cs340-fall2016/lectures/lecture05.html
 - https://github.com/crystal-lang/crystal
 - https://github.com/ruby/ruby
