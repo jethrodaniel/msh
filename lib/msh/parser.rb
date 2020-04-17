@@ -85,11 +85,12 @@ module Msh
     class Error < Msh::Error; end
 
     REDIRECT_OPS = %i[
-      REDIRECT_LEFT
-      REDIRECT_RIGHT
-      D_REDIRECT_LEFT
-      D_REDIRECT_RIGHT
+      REDIRECT_OUT
     ].freeze
+      # REDIRECT_LEFT
+      # REDIRECT_RIGHT
+      # D_REDIRECT_LEFT
+      # D_REDIRECT_RIGHT
 
     # @return [Array<Token>]
     attr_reader :tokens
@@ -120,11 +121,11 @@ module Msh
     #
     # @return [AST]
     def expression
-      s(:EXPR, pipeline)
+      s(:EXPR, pipeline_or_command)
     end
 
     # @return [AST]
-    def pipeline
+    def pipeline_or_command
       prefix = if match? :TIME
                  p = s(:TIME)
                  advance
@@ -191,7 +192,7 @@ module Msh
       elsif prefix.size.zero? && suffix.size.zero?
         s(:COMMAND, *words)
       else
-        s(:COMMAND, prefix, *words, suffix)
+        s(:COMMAND, *prefix, *words, *suffix)
       end
     end
 
@@ -201,12 +202,12 @@ module Msh
 
       io_num = io_number
 
-      while match? REDIRECT_OPS
-        redirect = advance
+      while match? *REDIRECT_OPS
+        redirect = advance.value
 
-        error "expected a filename" unless match(:WORD)
+        error "expected a filename" unless match?(:WORD)
 
-        filename = advance
+        filename = advance.value
 
         redirections << if io_num
                           s(:REDIRECTION, io_num, redirect, filename)

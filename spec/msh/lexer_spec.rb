@@ -93,14 +93,18 @@ RSpec.describe Msh::Lexer do
   let(:ruby_version) { RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01 }
 
   Examples.passing.each do |code, data|
-    it code do
-      tokens = if ruby_version < 2.6
-                 binding.eval(data[:tokens], __FILE__, __LINE__)
-               else
-                 binding.eval(data[:tokens], *binding.source_location)
-               end
+    # don't interpolate the token string
+    source = data[:tokens].gsub '#{', '\#{' # yeah, this is stupid
 
-      expect(Msh::Lexer.new(code).tokens.map(&:to_s)).to eq tokens
+    it code do
+      expected = if ruby_version < 2.6
+                   binding.eval(source, __FILE__, __LINE__)
+                 else
+                   binding.eval(source, *binding.source_location)
+                 end
+
+      tokens = Msh::Lexer.new(code).tokens.map(&:to_s)
+      expect(tokens).to eq expected
     end
   end
 

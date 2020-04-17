@@ -91,43 +91,51 @@ module Msh
       @matched = ""
 
       error "out of input" if !next? && @tokens.last&.type == :EOF
-
       # puts "tokens: #{@tokens.map &:to_s}"
-      until token || !next?
-        # if !next?
-        #   if @tokens.last.type == :EOF
-        #     return nil
-        #     # error "out of input" unless next?
-        #   else
-        #     @matched = ""
-        #     @column += 1
-        #     token = make_token :EOF
-        #     @tokens << token
-        #     token
-        #   end
-        # end
 
-        # skip comments, update line and column number on newlines
+      until token || !next?
         case next_char
-        when "#"
+        when "#" # could be a comment, or start of string interpolation
           case next_char
-          when "{"
+          when "{" # start of string interpolation
             @matched = ""
-            while (c = next_char) != "}" # loop until closing `}`
-              error "unterminated string interpolation, expected `}`" if c.nil? || !next?
+            line = @line
+            col = @column - 2
+            l_brace_stack = []
+
+            while c = next_char # loop until closing `}`
+              break if c.nil? || !next?
+
+              case c
+              when "{"
+                l_brace_stack << c
+              when "}"
+                if l_brace_stack.empty? # end of interpolation
+                  break
+                else
+                  l_brace_stack.pop
+                end
+              end
             end
+
+            if l_brace_stack.size.positive? || c.nil? || !next?
+              @matched = ""
+              error <<~ERR
+                unterminated string interpolation, expected `}` to complete `\#{` at line #{line}, column #{col}
+              ERR
+            end
+
             @matched = @matched[0..-2] # discard the `}`
             @column -= 1 # hack
             token = make_token :INTERPOLATION
             @column += 1 # hack
-          else
-            # put_back_char
+          else # a comment
             @column += @scanner.skip /[^\n]*/
             @matched = ""
           end
-        when " ", "\t"
+        when " ", "\t" # skip whitespace
           @matched = ""
-        when "\n"
+        when "\n" # newlines
           @line += 1
           @column = 1
           @matched = ""
@@ -155,7 +163,7 @@ module Msh
           token = make_token :RIGHT_PAREN
         when "!"
           token = make_token :BANG
-        when "&"
+        when "&" # could be &, &&, &>, or &>>
           case next_char
           when "&"
             token = make_token :AND
@@ -170,7 +178,7 @@ module Msh
           else
             token = make_token :BG
           end
-        when ">"
+        when ">" # could be >, >>, or >|
           case next_char
           when ">"
             token = make_token :APPEND_OUT
@@ -180,7 +188,7 @@ module Msh
             put_back_char
             token = make_token :REDIRECT_OUT
           end
-        when "<"
+        when "<" # could be <, <&n-, <&n, or <>
           case next_char
           when "&"
             case next_char
@@ -199,7 +207,7 @@ module Msh
             put_back_char
             token = make_token :REDIRECT_IN
           end
-        when "|"
+        when "|" # could be |, ||, or |&
           case next_char
           when "|"
             token = make_token :OR
@@ -248,7 +256,7 @@ module Msh
               token = make_token :REDIRECT_IN
             end
           end
-        else
+        else # must be a word, or the end of input
           next_char until NON_WORD_CHARS.include?(@scanner.peek(1))
 
           if @matched == ""
@@ -257,7 +265,6 @@ module Msh
           else
             token = make_token :WORD
           end
-          # error "no matching token found"
         end
       end
 
@@ -310,9 +317,7 @@ module Msh
     #
     # @raise [Error]
     def error msg = nil
-      raise Error, "error at line " \
-                   "#{@line}, column #{@column - @matched.size}: " \
-                   "#{msg}"
+      raise Error, "error at line #{@line}, column #{@column - @matched.size}: #{msg}"
     end
 
     # Add a new token.
@@ -330,6 +335,7 @@ module Msh
       # puts "next char, pos: #{@scanner.pos}"
       @column += 1
       @matched += (c = @scanner.getch) || ""
+      # @line += 1 if c == "\n"
       # puts "[#{@line}:#{@column - @matched.size}-#{@column - 1}]: '#{@matched}'"
       c
     end
