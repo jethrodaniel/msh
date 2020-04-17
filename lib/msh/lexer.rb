@@ -20,9 +20,15 @@ module Msh
   #
   # By definition, a token contains a type (which token), and a value (the
   # matched string). They also usually contain line and column number
-  # information, and other metadata as well.
+  # information, and other metadata as well. See {Msh::Token}.
   #
-  # @see Token
+  # A lexer operates like so:
+  #
+  # - As long as input is available, grab the next character
+  # - Attempt to match a token
+  #
+  # The match attempt logic is {#next_token}, which is just a a big switch
+  # statement on the next character, more or less.
   class Lexer
     class Error < Msh::Error; end
 

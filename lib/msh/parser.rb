@@ -26,18 +26,57 @@ module Msh
   #
   # ```
   # expr -> pipeline
+  #       | command
   #
-  # pipeline -> pipeline cmd
-  #           | cmd PIPE cmd
-  #           | cmd
+  # pipeline -> pipe_prefix pipeline
+  #           | pipeline
   #
-  # cmd -> cmd WORD
-  #      | WORD
+  # pipe_prefix -> time
+  #              |
+  #
+  # pipeline -> command PIPE pipeline
+  #           | command
+  #
+  # command -> redir word command redir
+  #          | redir word redir
+  #
+  # redir -> io_number redir_op io_number
+  #        |
+  #
+  # redir_op -> REDIRECT_LEFT
+  #           | D_REDIRECT_LEFT
+  #           | REDIRECT_RIGHT
+  #           | D_REDIRECT_RIGHT
+  #
+  # io_number -> digit io_number
+  #        | digit
+  #        |
+  #
+  # word -> INTERPOLATION
+  #       | WORD
+  #       |
+  #
+  # digit -> 0
+  #        | 1
+  #        | 2
+  #        | 3
+  #        | 4
+  #        | 5
+  #        | 6
+  #        | 7
+  #        | 8
+  #        | 9
   # ```
   #
-  # This particular parser is a recursive descent parser, which starts
-  # matching at the root of the grammar, then dispatches to methods for
-  # each production.
+  # This implementation is a recursive descent parser, which starts matching at
+  # the root of the grammar, then dispatches to methods for each production.
+  # More specifically, there is a parse method for each non-terminal symbol,
+  # and terminal symbols on the right-hand side of a rule consume themselves
+  # from the input.
+  #
+  # Each parsing method returns an AST - we collect these as we traverse the
+  # tokens, to build up the final AST.
+  #
   class Parser
     # AST::Sexp allows us to easily create AST nodes, using s-expression syntax,
     # i.e, `s(:TOKEN)`, or `s(:TOKEN, [children...])`.
@@ -112,7 +151,7 @@ module Msh
         if prefix
           s(:PIPELINE, prefix, *commands)
         else
-          c
+          c # return :COMMAND
         end
       else
         if prefix
@@ -195,6 +234,7 @@ module Msh
       raise Error, "error at line #{line}, column #{col}: #{msg}"
     end
 
+    # @param types [Symbol...]
     # @return [bool]
     def match? *types
       types.any? { |t| peek.type == t }
