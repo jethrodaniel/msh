@@ -32,12 +32,7 @@ module Msh
   class Lexer
     class Error < Msh::Error; end
 
-    # We match the start of a WORD by not matching anything else, then looping
-    # and collecting characters as long as we see a non-whitespace, non-special
-    # character or a backslash escaped speacial character.
-    #
     # TODO: there's def more of these
-    #
     NON_WORD_CHARS = [
       "",
       "#",
@@ -65,35 +60,34 @@ module Msh
       @tokens = []
     end
 
-    # @return [Boolean] are there any more tokens?
-    def next?
-      @tokens.last&.type != :EOF
-      # !@scanner.eos?
-    end
-
-    def current_token
-      @tokens.last
-    end
-
     # Run the lexer on the input until we collect all the tokens.
     #
     # @return [Array<Token>] all tokens in the input
     def tokens
-      next_token while next?
-
+      next_token until @tokens.last&.type == :EOF
+      # next_token until eof?
+      # make_token(:EOF) unless @tokens.last&.type == :EOF
       @tokens
     end
 
     # @return [Token] the next token
     # @raises [Error] if the lexer is out of input, or if the input is invalid
     def next_token
-      token = nil
       @matched = ""
 
-      error "out of input" if !next? && @tokens.last&.type == :EOF
-      # puts "tokens: #{@tokens.map &:to_s}"
+      if eof?
+        if @tokens.last&.type == :EOF
+          error "out of input"
+        else
+          t = make_token :EOF
+          @tokens << t
+          return t
+        end
+      end
 
-      until token || !next?
+      token = nil
+
+      until token || eof?
         case next_char
         when "#" # could be a comment, or start of string interpolation
           case next_char
@@ -104,7 +98,7 @@ module Msh
             l_brace_stack = []
 
             while c = next_char # loop until closing `}`
-              break if c.nil? || !next?
+              break if c.nil? || eof?
 
               case c
               when "{"
@@ -118,20 +112,24 @@ module Msh
               end
             end
 
-            if l_brace_stack.size.positive? || c.nil? || !next?
+            if l_brace_stack.size.positive? # || c.nil? || eof?
               @matched = ""
               error <<~ERR
                 unterminated string interpolation, expected `}` to complete `\#{` at line #{line}, column #{col}
               ERR
             end
 
-            @matched = @matched[0..-2] # discard the `}`
+            @matched = @matched[0...-1] # discard the `}`
             @column -= 1 # hack
             token = make_token :INTERPOLATION
             @column += 1 # hack
           else # a comment
-            @column += @scanner.skip /[^\n]*/
+            @column -= 1 # subtract one for the `{`
+            @column += @scanner.skip(/[^\n]*/)
             @matched = ""
+            require 'pry';require 'pry-byebug';binding.pry;nil
+            puts
+
           end
         when " ", "\t" # skip whitespace
           @matched = ""
@@ -260,7 +258,6 @@ module Msh
           next_char until NON_WORD_CHARS.include?(@scanner.peek(1))
 
           if @matched == ""
-            @column -= 1
             token = make_token :EOF
           else
             token = make_token :WORD
@@ -273,6 +270,19 @@ module Msh
       @tokens << token
 
       token
+    end
+
+    # {#eof?} but in such a way that you still get true when the next token
+    # is an EOF
+    #
+    # @param [Boolean] whether the last token is *not* an EOF
+    def next?
+      @tokens.last&.type != :EOF
+    end
+
+    # @return [Token, nil]
+    def current_token
+      @tokens.last
     end
 
     # Run the lexer interactively, i.e, run a loop and tokenize user input.
@@ -320,9 +330,7 @@ module Msh
       raise Error, "error at line #{@line}, column #{@column - @matched.size}: #{msg}"
     end
 
-    # Add a new token.
-    #
-    # @return [Token] the token created
+    # @return [Token] a new token
     def make_token type
       Token.new :type => type,
                 :value => @matched,
@@ -330,13 +338,21 @@ module Msh
                 :column => @column - @matched.size
     end
 
+    # @return [Boolean] has the scanner reached the end of input?
+    def eof?
+      @scanner.eos?
+    end
+
+    # @return [String] the current character of input
+    def current_char
+      @scanner.string[@scanner.pos]
+    end
+
     # @return [String] the next character of input
     def next_char
-      # puts "next char, pos: #{@scanner.pos}"
+      c = @scanner.getch
       @column += 1
-      @matched += (c = @scanner.getch) || ""
-      # @line += 1 if c == "\n"
-      # puts "[#{@line}:#{@column - @matched.size}-#{@column - 1}]: '#{@matched}'"
+      @matched += c unless c.nil?
       c
     end
 
@@ -344,9 +360,8 @@ module Msh
     #
     # @return [Integer] the current position index in input
     def put_back_char
-      # puts "put_back_char, pos: #{@scanner.pos}"
       @column -= 1
-      @matched = @matched[0..-2]
+      @matched = @matched[0...-1]
       @scanner.pos -= 1
     end
   end

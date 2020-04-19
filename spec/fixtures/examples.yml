@@ -45,7 +45,7 @@
           s(:WORD, "\\but\\ this\\ is\\ an\\ arg")))
 
   "a&&b":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-1][WORD, 'a']",
        "[1:2-3][AND, '&&']",
@@ -56,7 +56,7 @@
   "echo a\\;b":
     :valid: false
     :tokens: |
-      [[:WORD, "/usr/bin/program\\ with\\ space"],
+      [[:WORD, "a"],
        [:WORD, "\\but\\ this\\ is\\ an\\ arg"]]
     :ast: |
       s(:EXPR,
@@ -121,7 +121,7 @@
   # `|&` is sugar for `2>&1 |`
 
   "fortune |& cowsay":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-7][WORD, 'fortune']",
        "[1:9-10][PIPE_AND, '|&']",
@@ -138,7 +138,7 @@
             s(:WORD, "cowsay"))))
 
   "fortune >out |& cowsay":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-7][WORD, 'fortune']",
        "[1:9-9][REDIRECT_OUT, '>']",
@@ -158,7 +158,7 @@
             s(:WORD, "cowsay"))))
 
   "fortune >out | wow |& cowsay":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-7][WORD, 'fortune']",
        "[1:9-9][REDIRECT_OUT, '>']",
@@ -183,7 +183,7 @@
             s(:WORD, "cowsay"))))
 
   "fortune >out | wow |& cowsay | wow":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-7][WORD, 'fortune']",
        "[1:9-9][REDIRECT_OUT, '>']",
@@ -212,7 +212,7 @@
             s(:WORD, "wow"))))
 
   "a >out | b <in >out |& c |& d":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-1][WORD, 'a']",
        "[1:3-3][REDIRECT_OUT, '>']",
@@ -249,7 +249,7 @@
             s(:WORD, "d"))))
 
   "! fortune | cowsay":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-1][BANG, '!']",
        "[1:3-9][WORD, 'fortune']",
@@ -265,7 +265,7 @@
             s(:WORD, "cowsay"))))
 
   "time echo":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-4][TIME, 'time']",
        "[1:6-9][WORD, 'echo']",
@@ -301,7 +301,7 @@
          s(:WORD, "time")))
 
   "time ! fortune | cowsay":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-4][TIME, 'time']",
        "[1:6-6][BANG, '!']",
@@ -337,7 +337,7 @@
             s(:WORD, "cowsay"))))
 
   "a | b | c":
-   :valid: false
+   :valid: true
    :tokens: |
      ["[1:1-1][WORD, 'a']",
       "[1:3-3][PIPE, '|']",
@@ -360,7 +360,7 @@
   #
 
   "a || b":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-1][WORD, 'a']",
        "[1:3-4][OR, '||']",
@@ -375,7 +375,7 @@
             s(:WORD, "b"))))
 
   "a && b":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-1][WORD, 'a']",
        "[1:3-4][AND, '&&']",
@@ -394,7 +394,7 @@
   #
 
   "date && date | cowsay":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-4][WORD, 'date']",
        "[1:6-7][AND, '&&']",
@@ -418,7 +418,7 @@
   #
 
   "{a}":
-   :valid: false
+   :valid: true
    :tokens: |
      ["[1:1-1][LEFT_BRACE, '{']",
       "[1:2-2][WORD, 'a']",
@@ -431,7 +431,7 @@
            s(:WORD, "a"))))
 
   "{a;b}>out|c":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-1][LEFT_BRACE, '{']",
        "[1:2-2][WORD, 'a']",
@@ -462,7 +462,7 @@
   #
 
   "(a)":
-   :valid: false
+   :valid: true
    :tokens: |
      ["[1:1-1][LEFT_PAREN, '(']",
       "[1:2-2][WORD, 'a']",
@@ -475,7 +475,7 @@
            s(:WORD, "a"))))
 
   "(a;b)>out|c":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-1][LEFT_PAREN, '(']",
        "[1:2-2][WORD, 'a']",
@@ -502,7 +502,7 @@
             s(:WORD, "c"))))
 
   "{a}|(b)>out&&c||d>t;a;{b;c}>wow":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-1][LEFT_BRACE, '{']",
        "[1:2-2][WORD, 'a']",
@@ -560,7 +560,7 @@
               s(:REDIRECT, 1, "wow")))))
 
   "{a || b}":
-   :valid: false
+   :valid: true
    :tokens: |
      ["[1:1-1][LEFT_BRACE, '{']",
       "[1:2-2][WORD, 'a']",
@@ -579,7 +579,7 @@
   #
 
   "(a)":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-1][LEFT_PAREN, '(']",
        "[1:2-2][WORD, 'a']",
@@ -607,7 +607,7 @@
     :ast: |
 
   "ls a <in 1<in >out 2>out >>foo >|wow 3>|ouch &>un &>>mas 4<&1 <&4 >&5 2>&1 13>&2- 6<>foo":
-   :valid: false
+   :valid: true
    :tokens: |
      ["[1:1-2][WORD, 'ls']",
       "[1:4-4][WORD, 'a']",
@@ -664,20 +664,28 @@
   # comments
 
   "#":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:2-2][EOF, '']"]
     :ast: |
       s(:NOOP)
+
+  "#x":
+    :valid: true
+    :tokens: |
+      ["[1:3-3][EOF, '']"]
+    :ast: |
+      s(:NOOP)
+
   "# look! # a comment!\n\n\n\n":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[5:1-1][EOF, '']"]
     :ast: |
       s(:NOOP)
 
   "fortune # comments continue until one or more newlines":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-7][WORD, 'fortune']",
        "[1:55-55][EOF, '']"]
@@ -689,7 +697,7 @@
   # job control
 
   "a &":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-1][WORD, 'a']",
        "[1:4-4][BG, '&']",
@@ -697,7 +705,7 @@
     :ast: |
 
   "ls|wow 3>doggo 2>&1 >/dev/null;wow&&wow||o>out&&goose|&duck":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-2][WORD, 'ls']",
        "[1:3-3][PIPE, '|']",
@@ -757,7 +765,7 @@
     wow newlines
     yay
   :
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-2][WORD, 'ls']",
        "[2:1-3][WORD, 'wow']",
@@ -803,7 +811,7 @@
   #   s(:WORD,
   #     s(:LITERAL, "a")) for all the WORDs
   "echo a#{:b}c#{:d}e a#{:b} #{:c}d #{1}#{2}":
-    :valid: false
+    :valid: true
     :tokens: |
       ["[1:1-4][WORD, 'echo']",
        "[1:6-6][WORD, 'a']",
