@@ -10,6 +10,15 @@ RSpec.describe Msh::Token do
                    :column => 2
   end
 
+  let :other do
+    Msh::Token.new.tap do |t|
+      t.type = :WORD
+      t.value = "echo"
+      t.line = 6
+      t.column = 2
+    end
+  end
+
   it ".type" do
     expect(subject.type).to eq(:WORD)
   end
@@ -28,5 +37,9 @@ RSpec.describe Msh::Token do
 
   it ".to_s" do
     expect(subject.to_s).to eq("[6:2-5][WORD, 'echo']")
+  end
+
+  it ".==" do
+    expect(subject).to eq(other)
   end
 end

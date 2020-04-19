@@ -11,23 +11,29 @@ module Msh
   # able to reconstruct the orignal input (without comments).
   #
   # ```
-  # Token.new :WORD, "echo", 1, 4 #=> [1:4-8][WORD, 'echo']
+  # Token.new.tap do |t|
+  #   t.type = :WORD
+  #   t.value = "echo"
+  #   t.column = 1
+  #   t.line = 4
+  # end #=> [1:4-8][WORD, 'echo']
   # ```
   class Token
-    attr_reader :type
-    attr_reader :value
-    attr_reader :line
-    attr_reader :column
+    attr_accessor :type
+    attr_accessor :value
+    attr_accessor :line
+    attr_accessor :column
 
-    # @param type [Symbol]
-    # @param value [String]
-    # @param line [Integer]
-    # @param column [Integer]
-    def initialize type:, value:, line:, column:
-      @type = type
-      @value = value
-      @line = line
-      @column = column
+    # @param opts [Hash<Symbol, Integer>]
+    # @option type [Symbol]
+    # @option value [String]
+    # @option line [Integer]
+    # @option column [Integer]
+    def initialize opts = {}
+      @type   = opts[:type]
+      @value  = opts[:value] || "" # so we can `+=` characters to this
+      @line   = opts[:line]
+      @column = opts[:column]
     end
 
     # @return [String]
