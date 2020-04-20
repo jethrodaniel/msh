@@ -19,10 +19,10 @@ module Msh
   # end #=> [1:4-8][WORD, 'echo']
   # ```
   class Token
-    attr_accessor :type
-    attr_accessor :value
-    attr_accessor :line
-    attr_accessor :column
+    attr_accessor :type, :value, :line, :column
+
+    # @param [Boolean]
+    attr_accessor :valid
 
     # @param opts [Hash<Symbol, Integer>]
     # @option type [Symbol]
@@ -34,6 +34,7 @@ module Msh
       @value  = opts[:value] || "" # so we can `+=` characters to this
       @line   = opts[:line]
       @column = opts[:column]
+      @valid  = false
     end
 
     # @return [String]
@@ -47,7 +48,13 @@ module Msh
       @line == other.line \
         && @column == other.column \
         && @value == other.value \
-        && @type == other.type
+        && @type == other.type \
+        && @valid == other.valid
+    end
+
+    # @param [Boolean] whether this token is completed and valid
+    def valid?
+      @valid
     end
 
     private

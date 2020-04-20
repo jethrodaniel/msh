@@ -75,110 +75,132 @@ module Msh
     # @return [Token] the next token
     # @raises [Error] if the lexer is out of input, or if the input is invalid
     def next_token
+      _next_token until @token.valid?
+
+      error "out of input" if eof? && !@token.valid?
+
+      @token
+    end
+
+    # @return [Token, nil] the next token, or nil if not complete or at EOF
+    def _next_token
       reset_token
-
-      if eof?
-        if @tokens.last&.type == :EOF
-          error "out of input"
-        else
-          set_token_start
-          @token.type = :EOF
-          return add_token
-        end
-      end
-
       set_token_start
 
-      until eof?
+require 'pry';require 'pry-byebug';binding.pry;nil
+puts
+
+      if eof?
+        require 'pry';require 'pry-byebug';binding.pry;nil
+        puts
+
+      end
+
+      case next_char
+      when nil, ""
+        @token.type = :EOF
+        @token.valid = true unless @tokens.last&.type == :EOF
+      when "#" # could be a comment, or start of string interpolation
         case next_char
-        when "#" # could be a comment, or start of string interpolation
-          case next_char
-          when "{" # start of string interpolation
-            reset_and_set_start
-
-            line = @line
-            col = @column - 2
-            l_brace_stack = []
-
-            while c = next_char # loop until closing `}`
-              break if c.nil? || eof?
-
-              case c
-              when "{"
-                l_brace_stack << c
-              when "}"
-                if l_brace_stack.empty? # end of interpolation
-                  break
-                else
-                  l_brace_stack.pop
-                end
-              end
-            end
-
-            if l_brace_stack.size.positive? # || c.nil? || eof?
-              error <<~ERR
-                unterminated string interpolation, expected `}` to complete `\#{` at line #{line}, column #{col}
-              ERR
-            end
-
-            @token.value = @token.value[0...-1] # discard the `}`
-            @column -= 1 # hack
-            @token.type = :INTERPOLATION
-            @column += 1 # hack
-            return add_token
-          else # a comment
-            @column -= 1 # subtract one for the `{`
-            @column += @scanner.skip(/[^\n]*/)
-            @token.value = ""
-          end
-        when " ", "\t" # skip whitespace
-          reset_token
-          set_token_start
-          next
-        when "\n" # newlines
-          @line += 1
-          @column = 1
-          next
-        when ";"
-          @token.type = :SEMI
-        when "t"
-          case next_char
-          when "i"
-            case next_char
-            when "m"
-              case next_char
-              when "e"
-                # TODO: `time -p` here?
-                @token.type = :TIME
-              end
-            end
-          end
         when "{"
-          @token.type = :LEFT_BRACE
-        when "}"
-          @token.type = :RIGHT_BRACE
-        when "("
-          @token.type = :LEFT_PAREN
-        when ")"
-          @token.type = :RIGHT_PAREN
-        when "!"
-          @token.type = :BANG
-        when "&" # could be &, &&, &>, or &>>
+          consume_interpolation
+        else
+          consume_comment
+        end
+      when " ", "\t" # skip whitespace
+        reset_and_set_start
+        @column += @scanner.skip(/[ \t]*/)
+      when "\n" # newlines
+        reset_and_set_start
+        @line += 1
+        @column = 1
+      when ";"
+        @token.type = :SEMI
+      when "t"
+        case next_char
+        when "i"
           case next_char
-          when "&"
-            @token.type = :AND
-          when ">"
+          when "m"
             case next_char
-            when ">"
-              @token.type = :AND_D_REDIRECT_RIGHT
-            else
-              put_back_char
-              @token.type = :AND_REDIRECT_RIGHT
+            when "e"
+              # TODO: `time -p` here?
+              @token.type = :TIME
+            end
+          end
+        end
+      when "{"
+        @token.type = :LEFT_BRACE
+      when "}"
+        @token.type = :RIGHT_BRACE
+      when "("
+        @token.type = :LEFT_PAREN
+      when ")"
+        @token.type = :RIGHT_PAREN
+      when "!"
+        @token.type = :BANG
+      when "&" # could be &, &&, &>, or &>>
+        case next_char
+        when "&"
+          @token.type = :AND
+        when ">"
+          case next_char
+          when ">"
+            @token.type = :AND_D_REDIRECT_RIGHT
+          else
+            put_back_char
+            @token.type = :AND_REDIRECT_RIGHT
+          end
+        else
+          @token.type = :BG
+        end
+      when ">" # could be >, >>, or >|
+        case next_char
+        when ">"
+          @token.type = :APPEND_OUT
+          return add_token
+        when "|"
+          @token.type = :NO_CLOBBER
+          return add_token
+        else
+          put_back_char
+          @token.type = :REDIRECT_OUT
+          return add_token
+        end
+      when "<" # could be <, <&n-, <&n, or <>
+        case next_char
+        when "&"
+          case next_char
+          when "1".."9"
+            case next_char
+            when "-"
+              @token.type = :MOVE
             end
           else
-            @token.type = :BG
+            put_back_char
+            @token.type = :DUP
           end
-        when ">" # could be >, >>, or >|
+        when ">"
+          @token.type = :OPEN_RW
+        else
+          put_back_char
+          @token.type = :REDIRECT_IN
+        end
+      when "|" # could be |, ||, or |&
+        case next_char
+        when "|"
+          @token.type = :OR
+          return add_token
+        when "&"
+          @token.type = :PIPE_AND
+          return add_token
+        else
+          put_back_char
+          @token.type = :PIPE
+          return add_token
+        end
+      when "1".."9" # TODO: support more than 9 file descriptors
+        case next_char
+        when ">"
           case next_char
           when ">"
             @token.type = :APPEND_OUT
@@ -187,8 +209,10 @@ module Msh
           else
             put_back_char
             @token.type = :REDIRECT_OUT
+            # else
+            #   word can start with a number, why not?
           end
-        when "<" # could be <, <&n-, <&n, or <>
+        when "<"
           case next_char
           when "&"
             case next_char
@@ -201,73 +225,40 @@ module Msh
               put_back_char
               @token.type = :DUP
             end
+
           when ">"
             @token.type = :OPEN_RW
           else
-            put_back_char
+            # TODO
+            # open_rw n<>
+            # << here strings?
+            # n<&
+            # put_back_char
             @token.type = :REDIRECT_IN
           end
-        when "|" # could be |, ||, or |&
-          case next_char
-          when "|"
-            @token.type = :OR
-          when "&"
-            @token.type = :PIPE_AND
-          else
-            put_back_char
-            @token.type = :PIPE
-          end
-        when "1".."9" # TODO: support more than 9 file descriptors
-          case next_char
-          when ">"
-            case next_char
-            when ">"
-              @token.type = :APPEND_OUT
-            when "|"
-              @token.type = :NO_CLOBBER
-            else
-              put_back_char
-              @token.type = :REDIRECT_OUT
-              # else
-              #   word can start with a number, why not?
-            end
-          when "<"
-            case next_char
-            when "&"
-              case next_char
-              when "1".."9"
-                case next_char
-                when "-"
-                  @token.type = :MOVE
-                end
-              else
-                put_back_char
-                @token.type = :DUP
-              end
+        end
+      else # must be a word, or the end of input
+        next_char until NON_WORD_CHARS.include?(@scanner.peek(1))
 
-            when ">"
-              @token.type = :OPEN_RW
-            else
-              # TODO
-              # open_rw n<>
-              # << here strings?
-              # n<&
-              # put_back_char
-              @token.type = :REDIRECT_IN
-            end
-          end
-        else # must be a word, or the end of input
-          next_char until NON_WORD_CHARS.include?(@scanner.peek(1))
-
-          if @token.value == ""
-            @token.type = :EOF
-            return add_token
-          else
-            @token.type = :WORD
-            return add_token
-          end
+        if @token.value == ""
+          @token.type = :EOF
+          @token.valid = true
+        else
+          @token.type = :WORD
+          @token.valid = true
         end
       end
+
+      if @token.value == ""
+        reset_and_set_start
+        @token.type = :EOF
+        @token.valid = true
+      end
+
+require 'pry';require 'pry-byebug';binding.pry;nil
+puts
+
+      @token
     end
 
     # {#eof?} but in such a way that you still get true when the next token
@@ -331,15 +322,7 @@ module Msh
     #
     # @raise [Error]
     def error msg = nil
-      raise Error, "error at line #{@line}, column #{@column - @token.value.size}: #{msg}"
-    end
-
-    # @return [Token] a new token
-    def make_token type
-      Token.new :type => type,
-                :value => @token.value,
-                :line => @line,
-                :column => @column - @token.value.size
+      raise Error, "error at line #{@token.line}, column #{@token.column}: #{msg}"
     end
 
     def set_token_start
@@ -356,6 +339,7 @@ module Msh
         t.value  = ""
         t.line   = nil
         t.column = nil
+        t.valid  = false
       end
     end
 
@@ -389,6 +373,46 @@ module Msh
       @column -= 1
       @token.value = @token.value[0...-1]
       @scanner.pos -= 1
+    end
+
+    def consume_interpolation
+      line = @line
+      col = @column += 1 # -2 for the `#{`
+      reset_and_set_start
+      l_brace_stack = []
+
+      while c = next_char # loop until closing `}`
+        @column += 1
+        break if c.nil? || eof?
+
+        case c
+        when "{"
+          l_brace_stack << c
+        when "}"
+          if l_brace_stack.empty? # end of interpolation
+            break
+          else
+            l_brace_stack.pop
+          end
+        end
+      end
+
+      if l_brace_stack.size.positive? # || c.nil? || eof?
+        error <<~ERR
+          unterminated string interpolation, expected `}` to complete `\#{` at line #{line}, column #{col}
+        ERR
+      end
+
+      @token.value = @token.value[0...-1] # discard the `}`
+      @token.type = :INTERPOLATION
+      @token.column += 1
+      @token.valid = true
+    end
+
+    def consume_comment
+      @column -= 1 # subtract one for the `{`
+      @column += @scanner.skip(/[^\n]*/)
+      @token.value = ""
     end
   end
 end

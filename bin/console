@@ -12,7 +12,7 @@ Pry.start
 
 require "msh/lexer"
 require "msh/parser"
-lex = Msh::Lexer.new "cowsay"
-parser = Msh::Parser.new lex.tokens
-interpreter = Msh::Interpreter.new parser.parse
+l = Msh::Lexer.new "cowsay"
+p = Msh::Parser.new lex.tokens
+i = Msh::Interpreter.new parser.parse
 
