@@ -140,6 +140,8 @@ RSpec.describe Msh::Lexer do
     MSG
     %>
 
+    code = "\n#{code}\n"
+    source = "\n#{source}\n"
     <%# https://docs.ruby-lang.org/en/2.7.0/syntax/literals_rdoc.html#label-Percent+Strings %>
     source = %q<%= delimiter %><%= source %><%= delimiter %>
     code = %q<%= delimiter %><%= code %><%= delimiter %>

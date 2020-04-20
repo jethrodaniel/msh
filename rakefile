@@ -88,12 +88,18 @@ namespace :spec do
   desc "create sample msh scripts from spec/examples.yaml"
   task :examples => scripts
 
-  task :generate => %w[spec/msh/lexer_spec.rb]
+  gen_specs = %w[
+    spec/msh/lexer_spec.rb
+    spec/msh/parser_spec.rb
+  ]
+  task :generate => gen_specs
 
-  file "spec/msh/lexer_spec.rb" do |t|
-    puts "#{t.name}.erb -> #{t.name}"
-    erb t.name
-    sh "bundle exec rubocop -a #{t.name} || true"
+  gen_specs.each do |f|
+    file f do |t|
+      puts "#{t.name}.erb -> #{t.name}"
+      erb t.name
+      sh "bundle exec rubocop -a #{t.name} 2>/dev/null | grep '1 file inspected' || true"
+    end
   end
 end
 

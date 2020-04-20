@@ -7,19 +7,38 @@ RSpec.describe Msh::Parser do
 
   let(:ruby_version) { RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01 }
 
-  Examples.passing.each do |code, data|
+  <% Examples.examples.each do |code, data| %>
+    <%
+    source = data[:ast]
+    delimiter = %w[~ ! @ $ % ^ & * | - _ = + ? / ; : , .].find do |d|
+      !source.include? d
+    end
+    raise <<~MSG if delimiter.nil?
+      couldn't find usable delimiter for #{source}
+    MSG
+    %>
+
+    code = "\n#{code}\n"
+    source = "\n#{source}\n"
+    <%# https://docs.ruby-lang.org/en/2.7.0/syntax/literals_rdoc.html#label-Percent+Strings %>
+    source = %q<%= delimiter %><%= source %><%= delimiter %>
+    code = %q<%= delimiter %><%= code %><%= delimiter %>
+
     it code do
+      <% if data[:valid] == false %>
+      skip
+      <% end %>
       ast = if ruby_version < 2.6
-              binding.eval(data[:ast], __FILE__, __LINE__)
-            else
-              binding.eval(data[:ast], *binding.source_location)
-            end
+               binding.eval(source, __FILE__, __LINE__)
+             else
+               binding.eval(source, *binding.source_location)
+             end
 
       lexer = Msh::Lexer.new code
       parser = Msh::Parser.new lexer.tokens
       expect(parser.parse).to eq ast
     end
-  end
+  <% end %>
 end
 
   # # **note**: testing a private method here
