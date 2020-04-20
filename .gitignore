@@ -20,3 +20,4 @@
 spec/fixtures/good/*.msh
 spec/fixtures/bad/*.msh
 man/msh*.adoc
+spec/msh/lexer_spec.rb

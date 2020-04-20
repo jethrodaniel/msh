@@ -11,3 +11,12 @@ Metrics/BlockLength:
 Security/Eval:
   Exclude:
     - 'spec/msh/*_spec.rb'
+
+Style/PercentLiteralDelimiters:
+  Exclude:
+    - 'spec/msh*/**/*_spec.rb'
+
+Style/RedundantPercentQ:
+  Exclude:
+    - 'spec/msh*/**/*_spec.rb'
+

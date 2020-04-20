@@ -21,13 +21,14 @@ require "rspec/core/rake_task"
 require "rubocop/rake_task"
 require "rake/clean"
 
-CLEAN << 'docs' << 'pkg'
+CLEAN << 'docs' << 'pkg' << 'spec/msh/lexer_spec.rb'
 
 # need these to generate the manpages and readme
 require "erb"
 require "msh/version"
 require "msh/gemspec"
 require "msh/documentation"
+require_relative "spec/examples"
 
 # with_80_columns do
 #   ...
@@ -41,7 +42,7 @@ require_relative "spec/spec_helper"
 task :default => %i[msh build install spec]
 
 RSpec::Core::RakeTask.new :spec
-task :spec => "spec:examples"
+task :spec => %w[spec:examples spec:generate]
 
 namespace :spec do
   desc "dump results from `help` builtin to text files for specs"
@@ -86,6 +87,14 @@ end
 namespace :spec do
   desc "create sample msh scripts from spec/examples.yaml"
   task :examples => scripts
+
+  task :generate => %w[spec/msh/lexer_spec.rb]
+
+  file "spec/msh/lexer_spec.rb" do |t|
+    puts "#{t.name}.erb -> #{t.name}"
+    erb t.name
+    sh "bundle exec rubocop -a #{t.name} || true"
+  end
 end
 
 RuboCop::RakeTask.new :lint do |t|
