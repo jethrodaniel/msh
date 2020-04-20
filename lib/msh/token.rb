@@ -50,25 +50,6 @@ module Msh
         && @type == other.type
     end
 
-    # Convenience method to create a new token.
-    #
-    # ```
-    # include Msh::Token::Shortcut
-    #
-    # verbose = Token.new :WORD, "echo", 1, 4
-    # terse = t :WORD, "echo", 1, 4
-    # terse == verbose #=> true
-    # ```
-    module Shortcut
-      # @see {Token.new}
-      def t type, value, line, column
-        Token.new :type => type,
-                  :value => value,
-                  :line => line,
-                  :column => column
-      end
-    end
-
     private
 
     def column_end

@@ -56,15 +56,17 @@ module Msh
     # @param input [String]
     def initialize input
       @scanner = StringScanner.new input
-      @line = @column = 1
-      @tokens = []
+      @line    = 1
+      @column  = 1
+      @tokens  = []
+      @token   = Token.new
     end
 
     # Run the lexer on the input until we collect all the tokens.
     #
     # @return [Array<Token>] all tokens in the input
     def tokens
-      next_token until @tokens.last&.type == :EOF
+      next_token until @token.type == :EOF
       # next_token until eof?
       # make_token(:EOF) unless @tokens.last&.type == :EOF
       @tokens
@@ -73,26 +75,27 @@ module Msh
     # @return [Token] the next token
     # @raises [Error] if the lexer is out of input, or if the input is invalid
     def next_token
-      @matched = ""
+      reset_token
 
       if eof?
         if @tokens.last&.type == :EOF
           error "out of input"
         else
-          t = make_token :EOF
-          @tokens << t
-          return t
+          set_token_start
+          @token.type = :EOF
+          return add_token
         end
       end
 
-      token = nil
+      set_token_start
 
-      until token || eof?
+      until eof?
         case next_char
         when "#" # could be a comment, or start of string interpolation
           case next_char
           when "{" # start of string interpolation
-            @matched = ""
+            reset_and_set_start
+
             line = @line
             col = @column - 2
             l_brace_stack = []
@@ -113,32 +116,31 @@ module Msh
             end
 
             if l_brace_stack.size.positive? # || c.nil? || eof?
-              @matched = ""
               error <<~ERR
                 unterminated string interpolation, expected `}` to complete `\#{` at line #{line}, column #{col}
               ERR
             end
 
-            @matched = @matched[0...-1] # discard the `}`
+            @token.value = @token.value[0...-1] # discard the `}`
             @column -= 1 # hack
-            token = make_token :INTERPOLATION
+            @token.type = :INTERPOLATION
             @column += 1 # hack
+            return add_token
           else # a comment
             @column -= 1 # subtract one for the `{`
             @column += @scanner.skip(/[^\n]*/)
-            @matched = ""
-            require 'pry';require 'pry-byebug';binding.pry;nil
-            puts
-
+            @token.value = ""
           end
         when " ", "\t" # skip whitespace
-          @matched = ""
+          reset_token
+          set_token_start
+          next
         when "\n" # newlines
           @line += 1
           @column = 1
-          @matched = ""
+          next
         when ";"
-          token = make_token :SEMI
+          @token.type = :SEMI
         when "t"
           case next_char
           when "i"
@@ -147,44 +149,44 @@ module Msh
               case next_char
               when "e"
                 # TODO: `time -p` here?
-                token = make_token :TIME
+                @token.type = :TIME
               end
             end
           end
         when "{"
-          token = make_token :LEFT_BRACE
+          @token.type = :LEFT_BRACE
         when "}"
-          token = make_token :RIGHT_BRACE
+          @token.type = :RIGHT_BRACE
         when "("
-          token = make_token :LEFT_PAREN
+          @token.type = :LEFT_PAREN
         when ")"
-          token = make_token :RIGHT_PAREN
+          @token.type = :RIGHT_PAREN
         when "!"
-          token = make_token :BANG
+          @token.type = :BANG
         when "&" # could be &, &&, &>, or &>>
           case next_char
           when "&"
-            token = make_token :AND
+            @token.type = :AND
           when ">"
             case next_char
             when ">"
-              token = make_token :AND_D_REDIRECT_RIGHT
+              @token.type = :AND_D_REDIRECT_RIGHT
             else
               put_back_char
-              token = make_token :AND_REDIRECT_RIGHT
+              @token.type = :AND_REDIRECT_RIGHT
             end
           else
-            token = make_token :BG
+            @token.type = :BG
           end
         when ">" # could be >, >>, or >|
           case next_char
           when ">"
-            token = make_token :APPEND_OUT
+            @token.type = :APPEND_OUT
           when "|"
-            token = make_token :NO_CLOBBER
+            @token.type = :NO_CLOBBER
           else
             put_back_char
-            token = make_token :REDIRECT_OUT
+            @token.type = :REDIRECT_OUT
           end
         when "<" # could be <, <&n-, <&n, or <>
           case next_char
@@ -193,39 +195,39 @@ module Msh
             when "1".."9"
               case next_char
               when "-"
-                token = make_token :MOVE
+                @token.type = :MOVE
               end
             else
               put_back_char
-              token = make_token :DUP
+              @token.type = :DUP
             end
           when ">"
-            token = make_token :OPEN_RW
+            @token.type = :OPEN_RW
           else
             put_back_char
-            token = make_token :REDIRECT_IN
+            @token.type = :REDIRECT_IN
           end
         when "|" # could be |, ||, or |&
           case next_char
           when "|"
-            token = make_token :OR
+            @token.type = :OR
           when "&"
-            token = make_token :PIPE_AND
+            @token.type = :PIPE_AND
           else
             put_back_char
-            token = make_token :PIPE
+            @token.type = :PIPE
           end
         when "1".."9" # TODO: support more than 9 file descriptors
           case next_char
           when ">"
             case next_char
             when ">"
-              token = make_token :APPEND_OUT
+              @token.type = :APPEND_OUT
             when "|"
-              token = make_token :NO_CLOBBER
+              @token.type = :NO_CLOBBER
             else
               put_back_char
-              token = make_token :REDIRECT_OUT
+              @token.type = :REDIRECT_OUT
               # else
               #   word can start with a number, why not?
             end
@@ -236,40 +238,36 @@ module Msh
               when "1".."9"
                 case next_char
                 when "-"
-                  token = make_token :MOVE
+                  @token.type = :MOVE
                 end
               else
                 put_back_char
-                token = make_token :DUP
+                @token.type = :DUP
               end
 
             when ">"
-              token = make_token :OPEN_RW
+              @token.type = :OPEN_RW
             else
               # TODO
               # open_rw n<>
               # << here strings?
               # n<&
               # put_back_char
-              token = make_token :REDIRECT_IN
+              @token.type = :REDIRECT_IN
             end
           end
         else # must be a word, or the end of input
           next_char until NON_WORD_CHARS.include?(@scanner.peek(1))
 
-          if @matched == ""
-            token = make_token :EOF
+          if @token.value == ""
+            @token.type = :EOF
+            return add_token
           else
-            token = make_token :WORD
+            @token.type = :WORD
+            return add_token
           end
         end
       end
-
-      token = make_token :EOF if token.nil?
-
-      @tokens << token
-
-      token
     end
 
     # {#eof?} but in such a way that you still get true when the next token
@@ -283,6 +281,12 @@ module Msh
     # @return [Token, nil]
     def current_token
       @tokens.last
+    end
+
+    # @return [Token, nil]
+    def add_token
+      @tokens << @token.dup
+      current_token
     end
 
     # Run the lexer interactively, i.e, run a loop and tokenize user input.
@@ -327,15 +331,37 @@ module Msh
     #
     # @raise [Error]
     def error msg = nil
-      raise Error, "error at line #{@line}, column #{@column - @matched.size}: #{msg}"
+      raise Error, "error at line #{@line}, column #{@column - @token.value.size}: #{msg}"
     end
 
     # @return [Token] a new token
     def make_token type
       Token.new :type => type,
-                :value => @matched,
+                :value => @token.value,
                 :line => @line,
-                :column => @column - @matched.size
+                :column => @column - @token.value.size
+    end
+
+    def set_token_start
+      @token.line = @line
+      @token.column = @column
+    end
+
+    # nils out all of our current token's fields
+    #
+    # @param [Token]
+    def reset_token
+      @token.tap do |t|
+        t.type   = nil
+        t.value  = ""
+        t.line   = nil
+        t.column = nil
+      end
+    end
+
+    def reset_and_set_start
+      reset_token
+      set_token_start
     end
 
     # @return [Boolean] has the scanner reached the end of input?
@@ -352,7 +378,7 @@ module Msh
     def next_char
       c = @scanner.getch
       @column += 1
-      @matched += c unless c.nil?
+      @token.value += c unless c.nil?
       c
     end
 
@@ -361,7 +387,7 @@ module Msh
     # @return [Integer] the current position index in input
     def put_back_char
       @column -= 1
-      @matched = @matched[0...-1]
+      @token.value = @token.value[0...-1]
       @scanner.pos -= 1
     end
   end

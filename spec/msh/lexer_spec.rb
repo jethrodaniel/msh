@@ -88,8 +88,6 @@ require "msh/lexer"
 # end
 
 RSpec.describe Msh::Lexer do
-  include Msh::Token::Shortcut
-
   let(:ruby_version) { RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01 }
 
   Examples.passing.each do |code, data|
@@ -109,6 +107,13 @@ RSpec.describe Msh::Lexer do
   end
 
   describe "incremental lexing" do
+    def t type, value, line, column
+      Msh::Token.new :type => type,
+                     :value => value,
+                     :line => line,
+                     :column => column
+    end
+
     it "lexes one token at a time" do
       lex = Msh::Lexer.new "fortune | cowsay\n"
 
