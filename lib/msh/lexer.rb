@@ -4,6 +4,7 @@ require "readline"
 require "strscan"
 
 require "msh/error"
+require "msh/logger"
 require "msh/token"
 
 module Msh
@@ -30,11 +31,13 @@ module Msh
   # The match attempt logic is {#next_token}, which is just a a big switch
   # statement on the next character, more or less.
   class Lexer
+    include Msh::Logger
+
     class Error < Msh::Error; end
 
     # TODO: there's def more of these
     NON_WORD_CHARS = [
-      "",
+      "", nil,
       "#",
       " ",
       "\t",
@@ -66,40 +69,22 @@ module Msh
     #
     # @return [Array<Token>] all tokens in the input
     def tokens
-      next_token until @token.type == :EOF
       # next_token until eof?
-      # make_token(:EOF) unless @tokens.last&.type == :EOF
+      # reset_and_set_start
+      # @token.type = :EOF
+      # @tokens << @token
+      next_token until @tokens.last&.type == :EOF
       @tokens
     end
 
-    # @return [Token] the next token
-    # @raises [Error] if the lexer is out of input, or if the input is invalid
+    # # @return [Token, nil] the next token, or nil if not complete or at EOF
     def next_token
-      _next_token until @token.valid?
-
-      error "out of input" if eof? && !@token.valid?
-
-      @token
-    end
-
-    # @return [Token, nil] the next token, or nil if not complete or at EOF
-    def _next_token
-      reset_token
-      set_token_start
-
-require 'pry';require 'pry-byebug';binding.pry;nil
-puts
-
-      if eof?
-        require 'pry';require 'pry-byebug';binding.pry;nil
-        puts
-
-      end
+      reset_and_set_start
 
       case next_char
-      when nil, ""
+      when "", nil
+        error "out of input" if @tokens.last&.type == :EOF
         @token.type = :EOF
-        @token.valid = true unless @tokens.last&.type == :EOF
       when "#" # could be a comment, or start of string interpolation
         case next_char
         when "{"
@@ -108,7 +93,7 @@ puts
           consume_comment
         end
       when " ", "\t" # skip whitespace
-        reset_and_set_start
+        # reset_and_set_start
         @column += @scanner.skip(/[ \t]*/)
       when "\n" # newlines
         reset_and_set_start
@@ -157,14 +142,11 @@ puts
         case next_char
         when ">"
           @token.type = :APPEND_OUT
-          return add_token
         when "|"
           @token.type = :NO_CLOBBER
-          return add_token
         else
           put_back_char
           @token.type = :REDIRECT_OUT
-          return add_token
         end
       when "<" # could be <, <&n-, <&n, or <>
         case next_char
@@ -189,14 +171,11 @@ puts
         case next_char
         when "|"
           @token.type = :OR
-          return add_token
         when "&"
           @token.type = :PIPE_AND
-          return add_token
         else
           put_back_char
           @token.type = :PIPE
-          return add_token
         end
       when "1".."9" # TODO: support more than 9 file descriptors
         case next_char
@@ -240,24 +219,23 @@ puts
       else # must be a word, or the end of input
         next_char until NON_WORD_CHARS.include?(@scanner.peek(1))
 
-        if @token.value == ""
-          @token.type = :EOF
-          @token.valid = true
-        else
+        # if @token.value == ""
+        #   @token.type = :EOF
+        #   @token.valid = true
+        # else
           @token.type = :WORD
-          @token.valid = true
-        end
+        # end
       end
 
-      if @token.value == ""
-        reset_and_set_start
-        @token.type = :EOF
-        @token.valid = true
-      end
+      return next_token if @token.type.nil?
+      #
+      # if @token.value == ""
+      #   reset_and_set_start
+      #   @token.type = :EOF
+      #   @token.valid = true
+      # end
 
-require 'pry';require 'pry-byebug';binding.pry;nil
-puts
-
+      @tokens << @token.dup
       @token
     end
 
@@ -272,12 +250,6 @@ puts
     # @return [Token, nil]
     def current_token
       @tokens.last
-    end
-
-    # @return [Token, nil]
-    def add_token
-      @tokens << @token.dup
-      current_token
     end
 
     # Run the lexer interactively, i.e, run a loop and tokenize user input.
@@ -406,7 +378,6 @@ puts
       @token.value = @token.value[0...-1] # discard the `}`
       @token.type = :INTERPOLATION
       @token.column += 1
-      @token.valid = true
     end
 
     def consume_comment
