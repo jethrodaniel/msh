@@ -450,42 +450,46 @@
   # precedence
   #
 
-#  "date && date | cowsay":
-#    :valid: true
-#    :tokens: |
-#      ["[1:1-4][WORD, 'date']",
-#       "[1:6-7][AND, '&&']",
-#       "[1:9-12][WORD, 'date']",
-#       "[1:14-14][PIPE, '|']",
-#       "[1:16-21][WORD, 'cowsay']",
-#       "[1:22-22][EOF, '']"]
-#    :ast: |
-#      s(:EXPR,
-#        s(:AND,
-#          s(:COMMAND,
-#            s(:WORD, "date")),
-#          s(:PIPELINE,
-#            s(:COMMAND,
-#              s(:WORD, "date")),
-#            s(:COMMAND,
-#              s(:WORD, "cowsay")))))
+  "date && date | cowsay":
+    :valid: true
+    :tokens: |
+      ['[1:1-4][WORD, "date"]',
+       '[1:5-5][SPACE, " "]',
+       '[1:6-7][AND, "&&"]',
+       '[1:8-8][SPACE, " "]',
+       '[1:9-12][WORD, "date"]',
+       '[1:13-13][SPACE, " "]',
+       '[1:14-14][PIPE, "|"]',
+       '[1:15-15][SPACE, " "]',
+       '[1:16-21][WORD, "cowsay"]',
+       '[1:22-22][EOF, "\\u0000"]']
+    :ast: |
+      s(:EXPR,
+        s(:AND,
+          s(:COMMAND,
+            s(:WORD, "date")),
+          s(:PIPELINE,
+            s(:COMMAND,
+              s(:WORD, "date")),
+            s(:COMMAND,
+              s(:WORD, "cowsay")))))
 
-#  #
-#  # groups
-#  #
+  #
+  # groups
+  #
 
-#  "{a}":
-#   :valid: true
-#   :tokens: |
-#     ["[1:1-1][LEFT_BRACE, '{']",
-#      "[1:2-2][WORD, 'a']",
-#      "[1:3-3][RIGHT_BRACE, '}']",
-#      "[1:4-4][EOF, '']"]
-#   :ast: |
-#     s(:EXPR,
-#       s(:GROUP,
-#         s(:COMMAND,
-#           s(:WORD, "a"))))
+  "{a}":
+   :valid: true
+   :tokens: |
+     ['[1:1-1][LEFT_BRACE, "{"]',
+      '[1:2-2][WORD, "a"]',
+      '[1:3-3][RIGHT_BRACE, "}"]',
+      '[1:4-4][EOF, "\\u0000"]']
+   :ast: |
+     s(:EXPR,
+       s(:GROUP,
+         s(:COMMAND,
+           s(:WORD, "a"))))
 
 #  "{a;b}>out|c":
 #    :valid: true
