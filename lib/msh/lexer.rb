@@ -90,17 +90,13 @@ module Msh
         when "{"
           consume_interpolation
         else
-          @token.value = '' # rm the `#`
+          @token.value = "" # rm the `#`
           @token.type = :COMMENT
-          until ["\n", "\0"].include? @scanner.current_char
-            advance
-          end
+          advance until ["\n", "\0"].include? @scanner.current_char
           @token.column += 1 if @token.value.size.positive? # why?
         end
       when " ", "\t" # skip whitespace
-        @token.type = :SPACE
-        while advance.match?(/[ \t]*/) && !@scanner.eof?
-        end
+        consume_whitespace
       when "\n" # newlines
         @token.type = :NEWLINE
         @token.value = @scanner.current_char
@@ -114,7 +110,12 @@ module Msh
             case advance
             when "e"
               # TODO: `time -p` here?
-              @token.type = :TIME
+              if @scanner.peek == "-" && @scanner.peek(2) == "p"
+                advance
+                @token.type = :TIME_P
+              else
+                @token.type = :TIME
+              end
             end
           end
         end
@@ -223,7 +224,6 @@ module Msh
         end
       else # must be a word, or the end of input
         advance until NON_WORD_CHARS.include?(@scanner.peek(1))
-
 
         # if @token.value == ""
         #   @token.type = :EOF
@@ -381,6 +381,14 @@ module Msh
       @token.value = @token.value[0...-1] # discard the `}`
       @token.type = :INTERPOLATION
       @token.column += 1
+    end
+
+    def consume_whitespace
+      @token.type = :SPACE
+      return if @scanner.current_char == "\0"
+
+      while advance.match?(/[ \t]*/) && @scanner.peek != "\0"
+      end
     end
   end
 end
