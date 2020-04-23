@@ -11,15 +11,6 @@ require "msh/scanner"
 module Msh
   # The lexer breaks down input text into a series of tokens.
   #
-  # ```
-  # lex = Lexer.new "fortune | cowsay\n"
-  # lex.next_token #=> [1:1-7][WORD, 'fortune']
-  # lex.next_token #=> [1:9-9][PIPE, '|']
-  # lex.next_token #=> [1:11-16][WORD, 'cowsay']
-  # lex.next_token #=> [2:1-1][EOF, '']
-  # lex.next_token #-=> Lexer::Error, "out of input"
-  # ```
-  #
   # By definition, a token contains a type (which token), and a value (the
   # matched string). They also usually contain line and column number
   # information, and other metadata as well. See {Msh::Token}.
@@ -68,10 +59,6 @@ module Msh
     #
     # @return [Array<Token>] all tokens in the input
     def tokens
-      # next_token until @scanner.eof?
-      # reset_and_set_start
-      # @token.type = :EOF
-      # @tokens << @token
       next_token until @tokens.last&.type == :EOF
       @tokens
     end
