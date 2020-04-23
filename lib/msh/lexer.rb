@@ -90,10 +90,8 @@ module Msh
         when "{"
           consume_interpolation
         else
-          @token.value = "" # rm the `#`
           @token.type = :COMMENT
           advance until ["\n", "\0"].include? @scanner.current_char
-          @token.column += 1 if @token.value.size.positive? # why?
         end
       when " ", "\t" # skip whitespace
         consume_whitespace
