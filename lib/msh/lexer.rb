@@ -99,7 +99,6 @@ module Msh
         consume_whitespace
       when "\n" # newlines
         @token.type = :NEWLINE
-        @token.value = @scanner.current_char
       when ";"
         @token.type = :SEMI
       when "{"
@@ -112,20 +111,17 @@ module Msh
         @token.type = :RIGHT_PAREN
       when "!"
         @token.type = :BANG
-      when "&" # could be &, &&, &>, or &>>
-        case advance
-        when "&"
+      when "&"
+        if @scanner.peek == "&"
+          advance
           @token.type = :AND
-        when ">"
-          case advance
-          when ">"
-            @token.type = :AND_D_REDIRECT_RIGHT
-          else
-            put_back_char
-            @token.type = :AND_REDIRECT_RIGHT
-          end
+        elsif @scanner.peek(2) == ">>"
+          2.times { advance }
+          @token.type = :AND_D_REDIRECT_RIGHT
+        elsif @scanner.peek == ">"
+          advance
+          @token.type = :AND_REDIRECT_RIGHT
         else
-          @scanner.column -= 1
           @token.type = :BG
         end
       when ">" # could be >, >>, or >|
