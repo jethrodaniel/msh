@@ -39,7 +39,8 @@ module Msh
 
     # @return [String]
     def to_s
-      "[#{@line}:#{@column}-#{column_end}][#{@type}, '#{@value}']"
+      lexeme_end = @value.size.zero? ? @column : @column + @value&.size - 1
+      "[#{@line}:#{@column}-#{lexeme_end}][#{@type}, #{@value.inspect}]"
     end
 
     # @param other [Token]
@@ -55,16 +56,6 @@ module Msh
     # @param [Boolean] whether this token is completed and valid
     def valid?
       @valid
-    end
-
-    private
-
-    def column_end
-      offset = @value.size - 1
-      # EOF has length zero, so the print output would be off by one
-      # when printing the last column of an EOF token.
-      offset = 0 if offset.negative?
-      @column + offset
     end
   end
 end

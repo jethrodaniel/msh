@@ -6,6 +6,7 @@ require "strscan"
 require "msh/error"
 require "msh/logger"
 require "msh/token"
+require "msh/scanner"
 
 module Msh
   # The lexer breaks down input text into a series of tokens.
@@ -58,9 +59,7 @@ module Msh
 
     # @param input [String]
     def initialize input
-      @scanner = StringScanner.new input
-      @line    = 1
-      @column  = 1
+      @scanner = Scanner.new input
       @tokens  = []
       @token   = Token.new
     end
@@ -69,7 +68,7 @@ module Msh
     #
     # @return [Array<Token>] all tokens in the input
     def tokens
-      # next_token until eof?
+      # next_token until @scanner.eof?
       # reset_and_set_start
       # @token.type = :EOF
       # @tokens << @token
@@ -81,32 +80,38 @@ module Msh
     def next_token
       reset_and_set_start
 
-      case next_char
-      when "", nil
+      case advance
+      when "\0"
         error "out of input" if @tokens.last&.type == :EOF
+        # set_token_start
         @token.type = :EOF
-      when "#" # could be a comment, or start of string interpolation
-        case next_char
+      when "#"
+        case @scanner.peek
         when "{"
           consume_interpolation
         else
-          consume_comment
+          @token.value = '' # rm the `#`
+          @token.type = :COMMENT
+          until ["\n", "\0"].include? @scanner.current_char
+            advance
+          end
+          @token.column += 1 if @token.value.size.positive? # why?
         end
       when " ", "\t" # skip whitespace
-        # reset_and_set_start
-        @column += @scanner.skip(/[ \t]*/)
+        @token.type = :SPACE
+        while advance.match?(/[ \t]*/) && !@scanner.eof?
+        end
       when "\n" # newlines
-        reset_and_set_start
-        @line += 1
-        @column = 1
+        @token.type = :NEWLINE
+        @token.value = @scanner.current_char
       when ";"
         @token.type = :SEMI
       when "t"
-        case next_char
+        case advance
         when "i"
-          case next_char
+          case advance
           when "m"
-            case next_char
+            case advance
             when "e"
               # TODO: `time -p` here?
               @token.type = :TIME
@@ -124,11 +129,11 @@ module Msh
       when "!"
         @token.type = :BANG
       when "&" # could be &, &&, &>, or &>>
-        case next_char
+        case advance
         when "&"
           @token.type = :AND
         when ">"
-          case next_char
+          case advance
           when ">"
             @token.type = :AND_D_REDIRECT_RIGHT
           else
@@ -136,24 +141,24 @@ module Msh
             @token.type = :AND_REDIRECT_RIGHT
           end
         else
+          @scanner.column -= 1
           @token.type = :BG
         end
       when ">" # could be >, >>, or >|
-        case next_char
-        when ">"
-          @token.type = :APPEND_OUT
-        when "|"
-          @token.type = :NO_CLOBBER
-        else
-          put_back_char
-          @token.type = :REDIRECT_OUT
-        end
+        @token.type = case advance
+                      when ">"
+                        :APPEND_OUT
+                      when "|"
+                        :NO_CLOBBER
+                      else
+                        :REDIRECT_OUT
+                      end
       when "<" # could be <, <&n-, <&n, or <>
-        case next_char
+        case advance
         when "&"
-          case next_char
+          case advance
           when "1".."9"
-            case next_char
+            case advance
             when "-"
               @token.type = :MOVE
             end
@@ -168,7 +173,7 @@ module Msh
           @token.type = :REDIRECT_IN
         end
       when "|" # could be |, ||, or |&
-        case next_char
+        case advance
         when "|"
           @token.type = :OR
         when "&"
@@ -178,9 +183,9 @@ module Msh
           @token.type = :PIPE
         end
       when "1".."9" # TODO: support more than 9 file descriptors
-        case next_char
+        case advance
         when ">"
-          case next_char
+          case advance
           when ">"
             @token.type = :APPEND_OUT
           when "|"
@@ -192,11 +197,11 @@ module Msh
             #   word can start with a number, why not?
           end
         when "<"
-          case next_char
+          case advance
           when "&"
-            case next_char
+            case advance
             when "1".."9"
-              case next_char
+              case advance
               when "-"
                 @token.type = :MOVE
               end
@@ -217,17 +222,19 @@ module Msh
           end
         end
       else # must be a word, or the end of input
-        next_char until NON_WORD_CHARS.include?(@scanner.peek(1))
+        advance until NON_WORD_CHARS.include?(@scanner.peek(1))
+
 
         # if @token.value == ""
         #   @token.type = :EOF
         #   @token.valid = true
         # else
-          @token.type = :WORD
+        @token.type = :WORD
         # end
       end
 
       return next_token if @token.type.nil?
+
       #
       # if @token.value == ""
       #   reset_and_set_start
@@ -298,8 +305,8 @@ module Msh
     end
 
     def set_token_start
-      @token.line = @line
-      @token.column = @column
+      @token.line = @scanner.line
+      @token.column = @scanner.column
     end
 
     # nils out all of our current token's fields
@@ -311,7 +318,6 @@ module Msh
         t.value  = ""
         t.line   = nil
         t.column = nil
-        t.valid  = false
       end
     end
 
@@ -320,43 +326,39 @@ module Msh
       set_token_start
     end
 
-    # @return [Boolean] has the scanner reached the end of input?
-    def eof?
-      @scanner.eos?
-    end
-
-    # @return [String] the current character of input
-    def current_char
-      @scanner.string[@scanner.pos]
-    end
-
-    # @return [String] the next character of input
-    def next_char
-      c = @scanner.getch
-      @column += 1
-      @token.value += c unless c.nil?
+    def advance
+      c = @scanner.advance
+      @token.value += c
       c
     end
 
     # Back the lexer up one character.
     #
     # @return [Integer] the current position index in input
-    def put_back_char
-      @column -= 1
+    def backup
+      c = @scanner.backup
       @token.value = @token.value[0...-1]
-      @scanner.pos -= 1
+      c
     end
 
+    # Start at the `{` of a `#{...}`, gredily match a `}` such that we have
+    # paired braces.
+    #
+    # ```
+    # #{{} # fails, unterminated string interpolation at line 1, column 2
+    # #{}} # `}` this will syntax error when we eventually eval it
+    # ```
+    #
+    # this has the unfortunate consequence of treating the left and right
+    # braces differently, as seen above. The only way to _actually_ fix this
+    # is to parse the ruby expression inside the interpolation.
     def consume_interpolation
-      line = @line
-      col = @column += 1 # -2 for the `#{`
+      line = @scanner.line
+      col = @scanner.column
       reset_and_set_start
       l_brace_stack = []
 
-      while c = next_char # loop until closing `}`
-        @column += 1
-        break if c.nil? || eof?
-
+      while c = advance # loop until closing `}`
         case c
         when "{"
           l_brace_stack << c
@@ -367,6 +369,7 @@ module Msh
             l_brace_stack.pop
           end
         end
+        break if @scanner.eof?
       end
 
       if l_brace_stack.size.positive? # || c.nil? || eof?
@@ -378,12 +381,6 @@ module Msh
       @token.value = @token.value[0...-1] # discard the `}`
       @token.type = :INTERPOLATION
       @token.column += 1
-    end
-
-    def consume_comment
-      @column -= 1 # subtract one for the `{`
-      @column += @scanner.skip(/[^\n]*/)
-      @token.value = ""
     end
   end
 end

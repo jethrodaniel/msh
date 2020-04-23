@@ -2,6 +2,8 @@
 
 require "logger"
 
+require "paint"
+
 require "msh/error"
 
 module Msh

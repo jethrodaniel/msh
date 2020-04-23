@@ -90,6 +90,22 @@ require "msh/lexer"
 RSpec.describe Msh::Lexer do
   let(:ruby_version) { RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01 }
 
+  Examples.passing.each do |code, data|
+    # don't interpolate the token string
+    source = data[:tokens].gsub '#{', '\#{' # yeah, this is stupid
+
+    it code do
+      expected = if ruby_version < 2.6
+                   binding.eval(source, __FILE__, __LINE__)
+                 else
+                   binding.eval(source, *binding.source_location)
+                 end
+
+      tokens = Msh::Lexer.new(code).tokens.map(&:to_s)
+      expect(tokens).to eq expected
+    end
+  end
+
   describe "incremental lexing" do
     def t type, value, line, column
       Msh::Token.new :type => type,
@@ -124,38 +140,7 @@ RSpec.describe Msh::Lexer do
 
       expect do
         lex.next_token
-      end.to raise_error(Msh::Lexer::Error, "error at line 2, column 1: out of input")
+      end.to raise_error(Msh::Lexer::Error, "error at line 2, column 2: out of input")
     end
   end
-
-  <% Examples.examples.each do |code, data| %>
-    <%
-    # don't interpolate the token string
-    source = data[:tokens].gsub '#{', '\#{' # yeah, this is stupid
-    delimiter = %w[~ ! @ $ % ^ & * | - _ = + ? / ; : , .].find do |d|
-      !source.include? d
-    end
-    raise <<~MSG if delimiter.nil?
-      couldn't find usable delimiter for #{source}
-    MSG
-    %>
-
-    <%# https://docs.ruby-lang.org/en/2.7.0/syntax/literals_rdoc.html#label-Percent+Strings %>
-    source = %q<%= delimiter %><%= source %><%= delimiter %>
-    code = %q<%= delimiter %><%= code %><%= delimiter %>
-
-    it %q<%= delimiter %><%= code %><%= delimiter %> do
-      <% if data[:valid] == false %>
-      skip
-      <% end %>
-      expected = if ruby_version < 2.6
-                   binding.eval(source, __FILE__, __LINE__)
-                 else
-                   binding.eval(source, *binding.source_location)
-                 end
-
-      tokens = Msh::Lexer.new(code).tokens.map(&:to_s)
-      expect(tokens).to eq expected
-    end
-  <% end %>
 end
