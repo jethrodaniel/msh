@@ -136,22 +136,19 @@ module Msh
           @token.type = :REDIRECT_OUT
         end
       when "<" # could be <, <&n-, <&n, or <>
-        case advance
+        case @scanner.peek
         when "&"
-          case advance
-          when "1".."9"
-            case advance
-            when "-"
-              @token.type = :MOVE
-            end
+          if @scanner.peek(3).match? /&\d+-/
+            3.times { advance }
+            @token.type = :MOVE
           else
-            put_back_char
+            advance
             @token.type = :DUP
           end
         when ">"
+          advance
           @token.type = :OPEN_RW
         else
-          put_back_char
           @token.type = :REDIRECT_IN
         end
       when "|" # could be |, ||, or |&
