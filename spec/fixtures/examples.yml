@@ -639,91 +639,116 @@
          s(:COMMAND,
            s(:WORD, "a"))))
 
-#  #
-#  # redirections
-#  #
+  #
+  # redirections
+  #
 
-#  "2>out 1 4>out":
-#    :valid: false
-#    :tokens: |
-#      ["[1:1-2][REDIRECT_OUT, '2>']",
-#       "[1:3-5][WORD, 'out']",
-#       "[1:7-7][WORD, '1']",
-#       "[1:9-10][REDIRECT_OUT, '4>']",
-#       "[1:11-13][WORD, 'out']",
-#       "[1:14-14][EOF, '']"]
-#    :ast: |
+  "2>out 1 4>out":
+    :valid: true
+    :tokens: |
+      ['[1:1-2][APPEND_OUT, "2>"]',
+       '[1:3-5][WORD, "out"]',
+       '[1:6-6][SPACE, " "]',
+       '[1:8-8][SPACE, " "]',
+       '[1:9-10][APPEND_OUT, "4>"]',
+       '[1:11-13][WORD, "out"]',
+       '[1:14-14][EOF, "\u0000"]']
+    :ast: |
 
-#  "ls a <in 1<in >out 2>out >>foo >|wow 3>|ouch &>un &>>mas 4<&1 <&4 >&5 2>&1 13>&2- 6<>foo":
-#   :valid: true
-#   :tokens: |
-#     ["[1:1-2][WORD, 'ls']",
-#      "[1:4-4][WORD, 'a']",
-#      "[1:6-6][REDIRECT_IN, '<']",
-#      "[1:7-8][WORD, 'in']",
-#      "[1:10-12][REDIRECT_IN, '1<i']",
-#      "[1:13-13][WORD, 'n']",
-#      "[1:15-15][REDIRECT_OUT, '>']",
-#      "[1:16-18][WORD, 'out']",
-#      "[1:20-21][REDIRECT_OUT, '2>']",
-#      "[1:22-24][WORD, 'out']",
-#      "[1:26-27][APPEND_OUT, '>>']",
-#      "[1:28-30][WORD, 'foo']",
-#      "[1:32-33][NO_CLOBBER, '>|']",
-#      "[1:34-36][WORD, 'wow']",
-#      "[1:38-40][NO_CLOBBER, '3>|']",
-#      "[1:41-44][WORD, 'ouch']",
-#      "[1:46-47][AND_REDIRECT_RIGHT, '&>']",
-#      "[1:48-49][WORD, 'un']",
-#      "[1:51-53][AND_D_REDIRECT_RIGHT, '&>>']",
-#      "[1:54-56][WORD, 'mas']",
-#      "[1:58-67][REDIRECT_OUT, '4<&1 <&4 >']",
-#      "[1:68-69][BG, '&5']",
-#      "[1:71-72][REDIRECT_OUT, '2>']",
-#      "[1:73-74][BG, '&1']",
-#      "[1:76-78][REDIRECT_OUT, '13>']",
-#      "[1:79-80][BG, '&2']",
-#      "[1:81-81][WORD, '-']",
-#      "[1:83-85][OPEN_RW, '6<>']",
-#      "[1:86-88][WORD, 'foo']",
-#      "[1:89-89][EOF, '']"]
-#   :ast: |
-#     s(:EXPR,
-#       s(:COMMAND,
-#         s(:WORD, "ls"),
-#         s(:WORD, "a"),
-#         s(:REDIRECTIONS,
-#           s(:REDIRECT, 0, "in"),
-#           s(:REDIRECT, 1, "in"),
-#           s(:REDIRECT, 1, "out"),
-#           s(:REDIRECT, 2, "out"),
-#           s(:APPEND, 1, "foo"),
-#           s(:REDIRECT_NOCLOBBER, 1, "wow"),
-#           s(:REDIRECT, 3, "ouch"),
-#           s(:REDIRECT_BOTH, "un"),
-#           s(:APPEND_BOTH, "mas"),
-#           s(:DUP, 4, 1),
-#           s(:DUP, 0, 4),
-#           s(:REDIRECT_BOTH, "5"),
-#           s(:DUP, 2, 1),
-#           s(:MOVE_FD, 13, 2),
-#           s(:OPEN_RW, 6, "foo"))))
+  "ls a <in 1<in >out 2>out >>foo >|wow 3>|ouch &>un &>>mas 4<&1 <&4 >&5 2>&1 13>&2- 6<>foo":
+   :valid: true
+   :tokens: |
+     ['[1:1-2][WORD, "ls"]',
+      '[1:3-3][SPACE, " "]',
+      '[1:4-4][WORD, "a"]',
+      '[1:5-5][SPACE, " "]',
+      '[1:6-6][REDIRECT_IN, "<"]',
+      '[1:7-8][WORD, "in"]',
+      '[1:9-9][SPACE, " "]',
+      '[1:10-10][REDIRECT_IN, "1"]',
+      '[1:11-11][REDIRECT_IN, "<"]',
+      '[1:12-13][WORD, "in"]',
+      '[1:14-14][SPACE, " "]',
+      '[1:15-15][REDIRECT_OUT, ">"]',
+      '[1:16-18][WORD, "out"]',
+      '[1:19-19][SPACE, " "]',
+      '[1:20-21][APPEND_OUT, "2>"]',
+      '[1:22-24][WORD, "out"]',
+      '[1:25-25][SPACE, " "]',
+      '[1:26-27][APPEND_OUT, ">>"]',
+      '[1:28-30][WORD, "foo"]',
+      '[1:31-31][SPACE, " "]',
+      '[1:32-33][NO_CLOBBER, ">|"]',
+      '[1:34-36][WORD, "wow"]',
+      '[1:37-37][SPACE, " "]',
+      '[1:38-39][APPEND_OUT, "3>"]',
+      '[1:40-40][PIPE, "|"]',
+      '[1:41-44][WORD, "ouch"]',
+      '[1:45-45][SPACE, " "]',
+      '[1:46-47][AND_REDIRECT_RIGHT, "&>"]',
+      '[1:48-49][WORD, "un"]',
+      '[1:50-50][SPACE, " "]',
+      '[1:51-53][AND_D_REDIRECT_RIGHT, "&>>"]',
+      '[1:54-56][WORD, "mas"]',
+      '[1:57-57][SPACE, " "]',
+      '[1:58-58][REDIRECT_IN, "4"]',
+      '[1:59-60][DUP, "<&"]',
+      '[1:62-62][SPACE, " "]',
+      '[1:63-64][DUP, "<&"]',
+      '[1:66-66][SPACE, " "]',
+      '[1:67-67][REDIRECT_OUT, ">"]',
+      '[1:68-68][BG, "&"]',
+      '[1:70-70][SPACE, " "]',
+      '[1:71-72][APPEND_OUT, "2>"]',
+      '[1:73-73][BG, "&"]',
+      '[1:75-75][SPACE, " "]',
+      '[1:76-78][APPEND_OUT, "13>"]',
+      '[1:79-79][BG, "&"]',
+      '[1:81-81][WORD, "-"]',
+      '[1:82-82][SPACE, " "]',
+      '[1:83-83][REDIRECT_IN, "6"]',
+      '[1:84-85][OPEN_RW, "<>"]',
+      '[1:86-88][WORD, "foo"]',
+      '[1:89-89][EOF, "\u0000"]']
+   :ast: |
+     s(:EXPR,
+       s(:COMMAND,
+         s(:WORD, "ls"),
+         s(:WORD, "a"),
+         s(:REDIRECTIONS,
+           s(:REDIRECT, 0, "in"),
+           s(:REDIRECT, 1, "in"),
+           s(:REDIRECT, 1, "out"),
+           s(:REDIRECT, 2, "out"),
+           s(:APPEND, 1, "foo"),
+           s(:REDIRECT_NOCLOBBER, 1, "wow"),
+           s(:REDIRECT, 3, "ouch"),
+           s(:REDIRECT_BOTH, "un"),
+           s(:APPEND_BOTH, "mas"),
+           s(:DUP, 4, 1),
+           s(:DUP, 0, 4),
+           s(:REDIRECT_BOTH, "5"),
+           s(:DUP, 2, 1),
+           s(:MOVE_FD, 13, 2),
+           s(:OPEN_RW, 6, "foo"))))
 
-#  # comments
+  # comments
 
-#  "#":
-#    :valid: true
-#    :tokens: |
-#      ["[1:2-2][EOF, '']"]
-#    :ast: |
-#      s(:NOOP)
+  "#":
+    :valid: true
+    :tokens: |
+      ['[1:1-1][COMMENT, ""]',
+       '[1:2-2][EOF, "\\u0000"]']
+    :ast: |
+      s(:NOOP)
 
-#  "#x":
-#    :valid: true
-#    :tokens: |
-#      ["[1:3-3][EOF, '']"]
-#    :ast: |
-#      s(:NOOP)
+  "#x":
+    :valid: true
+    :tokens: |
+      ['[1:2-2][COMMENT, "x"]',
+       '[1:3-3][EOF, "\\u0000"]']
+    :ast: |
+      s(:NOOP)
 
 #  "# look! # a comment!\n\n\n\n":
 #    :valid: true
