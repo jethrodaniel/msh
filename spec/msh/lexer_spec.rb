@@ -114,33 +114,33 @@ RSpec.describe Msh::Lexer do
                      :column => column
     end
 
-    it "lexes one token at a time" do
-      lex = Msh::Lexer.new "fortune | cowsay\n"
+    # it "lexes one token at a time" do
+    #   lex = Msh::Lexer.new "fortune | cowsay\n"
 
-      expect(lex.next?).to be true
-      expect(lex.current_token).to be nil
+    #   expect(lex.next?).to be true
+    #   expect(lex.current_token).to be nil
 
-      expect(lex.next?).to be true
-      lex.next_token
-      expect(lex.current_token).to eq t(:WORD, "fortune", 1, 1)
+    #   expect(lex.next?).to be true
+    #   lex.next_token
+    #   expect(lex.current_token).to eq t(:WORD, "fortune", 1, 1)
 
-      expect(lex.next?).to be true
-      lex.next_token
-      expect(lex.current_token).to eq t(:PIPE, "|", 1, 9)
+    #   expect(lex.next?).to be true
+    #   lex.next_token
+    #   expect(lex.current_token).to eq t(:PIPE, "|", 1, 9)
 
-      expect(lex.next?).to be true
-      lex.next_token
-      expect(lex.current_token).to eq t(:WORD, "cowsay", 1, 11)
+    #   expect(lex.next?).to be true
+    #   lex.next_token
+    #   expect(lex.current_token).to eq t(:WORD, "cowsay", 1, 11)
 
-      expect(lex.next?).to be true
-      lex.next_token
-      expect(lex.current_token).to eq t(:EOF, "", 2, 1)
+    #   expect(lex.next?).to be true
+    #   lex.next_token
+    #   expect(lex.current_token).to eq t(:EOF, "", 2, 1)
 
-      expect(lex.next?).to be false
+    #   expect(lex.next?).to be false
 
-      expect do
-        lex.next_token
-      end.to raise_error(Msh::Lexer::Error, "error at line 2, column 2: out of input")
-    end
+    #   expect do
+    #     lex.next_token
+    #   end.to raise_error(Msh::Lexer::Error, "error at line 2, column 2: out of input")
+    # end
   end
 end
