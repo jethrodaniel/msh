@@ -125,32 +125,9 @@ module Msh
           @token.type = :BG
         end
       when ">"
-        case @scanner.peek
-        when ">"
-          advance
-          @token.type = :APPEND_OUT
-        when "|"
-          advance
-          @token.type = :NO_CLOBBER
-        else
-          @token.type = :REDIRECT_OUT
-        end
-      when "<" # could be <, <&n-, <&n, or <>
-        case @scanner.peek
-        when "&"
-          if @scanner.peek(3).match? /&\d+-/
-            3.times { advance }
-            @token.type = :MOVE
-          else
-            advance
-            @token.type = :DUP
-          end
-        when ">"
-          advance
-          @token.type = :OPEN_RW
-        else
-          @token.type = :REDIRECT_IN
-        end
+        consume_redir_right
+      when "<"
+        consume_redir_left
       when "|" # could be |, ||, or |&
         case @scanner.peek
         when "|"
@@ -162,44 +139,15 @@ module Msh
         else
           @token.type = :PIPE
         end
-      when "1".."9" # TODO: support more than 9 file descriptors
-        case advance
-        when ">"
-          case advance
-          when ">"
-            @token.type = :APPEND_OUT
-          when "|"
-            @token.type = :NO_CLOBBER
-          else
-            put_back_char
-            @token.type = :REDIRECT_OUT
-            # else
-            #   word can start with a number, why not?
-          end
-        when "<"
-          case advance
-          when "&"
-            case advance
-            when "1".."9"
-              case advance
-              when "-"
-                @token.type = :MOVE
-              end
-            else
-              put_back_char
-              @token.type = :DUP
-            end
+      when "1".."9"
+        while @scanner.peek.match? /\d+/
+          advance
+        end
 
-          when ">"
-            @token.type = :OPEN_RW
-          else
-            # TODO
-            # open_rw n<>
-            # << here strings?
-            # n<&
-            # put_back_char
-            @token.type = :REDIRECT_IN
-          end
+        if @scanner.peek == ">"
+          consume_redir_right
+        elsif @scanner.peek == "<"
+          consume_redir_left
         end
       else
         if @token.value          == "t" &&
@@ -372,6 +320,37 @@ module Msh
       while @scanner.current_char == " " ||
             @scanner.current_char == "\t"
         advance
+      end
+    end
+
+    def consume_redir_right
+      case @scanner.peek
+      when ">"
+        advance
+        @token.type = :APPEND_OUT
+      when "|"
+        advance
+        @token.type = :NO_CLOBBER
+      else
+        @token.type = :REDIRECT_OUT
+      end
+    end
+
+    def consume_redir_left
+      case @scanner.peek
+      when "&"
+        if @scanner.peek(3).match? /&\d+-/
+          3.times { advance }
+          @token.type = :MOVE
+        else
+          advance
+          @token.type = :DUP
+        end
+      when ">"
+        advance
+        @token.type = :OPEN_RW
+      else
+        @token.type = :REDIRECT_IN
       end
     end
   end
