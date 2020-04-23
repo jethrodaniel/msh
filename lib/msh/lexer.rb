@@ -152,13 +152,14 @@ module Msh
           @token.type = :REDIRECT_IN
         end
       when "|" # could be |, ||, or |&
-        case advance
+        case @scanner.peek
         when "|"
+          advance
           @token.type = :OR
         when "&"
+          advance
           @token.type = :PIPE_AND
         else
-          put_back_char
           @token.type = :PIPE
         end
       when "1".."9" # TODO: support more than 9 file descriptors
