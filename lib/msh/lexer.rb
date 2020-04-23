@@ -38,7 +38,7 @@ module Msh
 
     # TODO: there's def more of these
     NON_WORD_CHARS = [
-      "", nil,
+      "\0",
       "#",
       " ",
       "\t",
@@ -102,23 +102,6 @@ module Msh
         @token.value = @scanner.current_char
       when ";"
         @token.type = :SEMI
-      when "t"
-        case advance
-        when "i"
-          case advance
-          when "m"
-            case advance
-            when "e"
-              # TODO: `time -p` here?
-              if @scanner.peek == "-" && @scanner.peek(2) == "p"
-                advance
-                @token.type = :TIME_P
-              else
-                @token.type = :TIME
-              end
-            end
-          end
-        end
       when "{"
         @token.type = :LEFT_BRACE
       when "}"
@@ -222,25 +205,28 @@ module Msh
             @token.type = :REDIRECT_IN
           end
         end
-      else # must be a word, or the end of input
-        advance until NON_WORD_CHARS.include?(@scanner.peek(1))
-
-        # if @token.value == ""
-        #   @token.type = :EOF
-        #   @token.valid = true
-        # else
-        @token.type = :WORD
-        # end
+      else
+        if @token.value          == "t" &&
+           @scanner.peek(3)      == "ime"
+          # TODO: `time -p` here? Pretty sure this needs to be handled by
+          # the parser. Or some hideous lexer state here.
+          #
+          # That is, we need this for the `-p` option
+          #
+          # ```
+          # 1. [TIME, "time"]
+          # 2. [SPACE, "..."]
+          # 3. [WORD, "-p"]
+          # ```
+          3.times { advance }
+          @token.type = :TIME
+        else
+          advance until NON_WORD_CHARS.include?(@scanner.peek(1))
+          @token.type = :WORD
+        end
       end
 
       return next_token if @token.type.nil?
-
-      #
-      # if @token.value == ""
-      #   reset_and_set_start
-      #   @token.type = :EOF
-      #   @token.valid = true
-      # end
 
       @tokens << @token.dup
       @token
@@ -387,7 +373,9 @@ module Msh
       @token.type = :SPACE
       return if @scanner.current_char == "\0"
 
-      while advance.match?(/[ \t]*/) && @scanner.peek != "\0"
+      while @scanner.current_char == " " ||
+            @scanner.current_char == "\t"
+        advance
       end
     end
   end
