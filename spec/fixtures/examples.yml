@@ -37,154 +37,167 @@
           s(:WORD, "so"),
           s(:WORD, "scare")))
 
-#  "/usr/bin/program\\ with\\ space \\but\\ this\\ is\\ an\\ arg":
-#    :valid: false
-#    :tokens: |
-#      [[:WORD, "/usr/bin/program\\ with\\ space"],
-#       [:WORD, "\\but\\ this\\ is\\ an\\ arg"]]
-#    :ast: |
-#      s(:EXPR,
-#        s(:COMMAND,
-#          s(:WORD, "/usr/bin/program\\ with\\ space"),
-#          s(:WORD, "\\but\\ this\\ is\\ an\\ arg")))
+  "/usr/bin/program\\ with\\ space \\but\\ this\\ is\\ an\\ arg":
+    :valid: false
+    :tokens: |
+      [[:WORD, "/usr/bin/program\\ with\\ space"],
+       [:WORD, "\\but\\ this\\ is\\ an\\ arg"]]
+    :ast: |
+      s(:EXPR,
+        s(:COMMAND,
+          s(:WORD, "/usr/bin/program\\ with\\ space"),
+          s(:WORD, "\\but\\ this\\ is\\ an\\ arg")))
 
-#  "a&&b":
-#    :valid: true
-#    :tokens: |
-#      ["[1:1-1][WORD, 'a']",
-#       "[1:2-3][AND, '&&']",
-#       "[1:4-4][WORD, 'b']",
-#       "[1:5-5][EOF, '']"]
-#    :ast: |
+  "a&&b":
+    :valid: true
+    :tokens: |
+      ['[1:1-1][WORD, "a"]',
+       '[1:2-3][AND, "&&"]',
+       '[1:4-4][WORD, "b"]',
+       '[1:5-5][EOF, "\\u0000"]']
+    :ast: |
 
-#  "echo a\\;b":
-#    :valid: false
-#    :tokens: |
-#      [[:WORD, "a"],
-#       [:WORD, "\\but\\ this\\ is\\ an\\ arg"]]
-#    :ast: |
-#      s(:EXPR,
-#        s(:COMMAND,
-#          s(:WORD, "/usr/bin/program\\ with\\ space"),
-#          s(:WORD, "\\but\\ this\\ is\\ an\\ arg")))
+  "echo a\\;b":
+    :valid: false
+    :tokens: |
+      [[:WORD, "a"],
+       [:WORD, "\\but\\ this\\ is\\ an\\ arg"]]
+    :ast: |
+      s(:EXPR,
+        s(:COMMAND,
+          s(:WORD, "/usr/bin/program\\ with\\ space"),
+          s(:WORD, "\\but\\ this\\ is\\ an\\ arg")))
 
-#  "find . -name \"*.rb\" -exec sed -i 's/msh/yas/g' {} \\;)":
-#    :tokens: |
-#      [[:WORD, "find"],
-#       [:WORD, "."],
-#       [:WORD, "-name"],
-#       [:DOUBLE_QUOTE_STR, "*.rb"],
-#       [:WORD, "-exec"],
-#       [:WORD, "sed"],
-#       [:WORD, "-i"],
-#       [:SINGLE_QUOTE_STR, "s/msh/yas/g"],
-#       [:WORD, "{}"],
-#       [:LITERAL, ";"]
-#    :ast: |
+  "find . -name \"*.rb\" -exec sed -i 's/msh/yas/g' {} \\;)":
+    :tokens: |
+      [[:WORD, "find"],
+       [:WORD, "."],
+       [:WORD, "-name"],
+       [:DOUBLE_QUOTE_STR, "*.rb"],
+       [:WORD, "-exec"],
+       [:WORD, "sed"],
+       [:WORD, "-i"],
+       [:SINGLE_QUOTE_STR, "s/msh/yas/g"],
+       [:WORD, "{}"],
+       [:LITERAL, ";"]
+    :ast: |
 
-#  "cd ..":
-#    :valid: true
-#    :tokens: |
-#      ["[1:1-2][WORD, 'cd']",
-#       "[1:4-5][WORD, '..']",
-#       "[1:6-6][EOF, '']"]
-#    :ast: |
-#      s(:EXPR,
-#        s(:COMMAND,
-#          s(:WORD, "cd"),
-#          s(:WORD, "..")))
+  "cd ..":
+    :valid: true
+    :tokens: |
+      ['[1:1-2][WORD, "cd"]',
+       '[1:3-3][SPACE, " "]',
+       '[1:4-5][WORD, ".."]',
+       '[1:6-6][EOF, "\\u0000"]']
+    :ast: |
+      s(:EXPR,
+        s(:COMMAND,
+          s(:WORD, "cd"),
+          s(:WORD, "..")))
 
-#  "...":
-#    :valid: true
-#    :tokens: |
-#      ["[1:1-3][WORD, '...']",
-#       "[1:4-4][EOF, '']"]
-#    :ast: |
-#      s(:EXPR,
-#        s(:COMMAND,
-#          s(:WORD, "...")))
+  "...":
+    :valid: true
+    :tokens: |
+      ['[1:1-3][WORD, "..."]',
+       '[1:4-4][EOF, "\\u0000"]']
+    :ast: |
+      s(:EXPR,
+        s(:COMMAND,
+          s(:WORD, "...")))
 
-#  #
-#  # pipes
-#  #
-#  "fortune | cowsay":
-#    :valid: true
-#    :tokens: |
-#      ["[1:1-7][WORD, 'fortune']",
-#       "[1:9-9][PIPE, '|']",
-#       "[1:11-16][WORD, 'cowsay']",
-#       "[1:17-17][EOF, '']"]
-#    :ast: |
-#      s(:EXPR,
-#        s(:PIPELINE,
-#          s(:COMMAND,
-#            s(:WORD, "fortune")),
-#          s(:COMMAND,
-#            s(:WORD, "cowsay"))))
+  #
+  # pipes
+  #
+  "fortune | cowsay":
+    :valid: true
+    :tokens: |
+      ['[1:1-7][WORD, "fortune"]',
+       '[1:8-8][SPACE, " "]',
+       '[1:9-9][PIPE, "|"]',
+       '[1:10-10][SPACE, " "]',
+       '[1:11-16][WORD, "cowsay"]',
+       '[1:17-17][EOF, "\\u0000"]']
+    :ast: |
+      s(:EXPR,
+        s(:PIPELINE,
+          s(:COMMAND,
+            s(:WORD, "fortune")),
+          s(:COMMAND,
+            s(:WORD, "cowsay"))))
 
 #  # `|&` is sugar for `2>&1 |`
 
-#  "fortune |& cowsay":
-#    :valid: true
-#    :tokens: |
-#      ["[1:1-7][WORD, 'fortune']",
-#       "[1:9-10][PIPE_AND, '|&']",
-#       "[1:12-17][WORD, 'cowsay']",
-#       "[1:18-18][EOF, '']"]
-#    :ast: |
-#      s(:EXPR,
-#        s(:PIPELINE,
-#          s(:COMMAND,
-#            s(:WORD, "fortune"),
-#            s(:REDIRECTIONS,
-#              s(:DUP, 2, 1))),
-#          s(:COMMAND,
-#            s(:WORD, "cowsay"))))
+  "fortune |& cowsay":
+    :valid: true
+    :tokens: |
+      ['[1:1-7][WORD, "fortune"]',
+       '[1:8-8][SPACE, " "]',
+       '[1:9-10][PIPE_AND, "|&"]',
+       '[1:11-11][SPACE, " "]',
+       '[1:12-17][WORD, "cowsay"]',
+       '[1:18-18][EOF, "\\u0000"]']
+    :ast: |
+      s(:EXPR,
+        s(:PIPELINE,
+          s(:COMMAND,
+            s(:WORD, "fortune"),
+            s(:REDIRECTIONS,
+              s(:DUP, 2, 1))),
+          s(:COMMAND,
+            s(:WORD, "cowsay"))))
 
-#  "fortune >out |& cowsay":
-#    :valid: true
-#    :tokens: |
-#      ["[1:1-7][WORD, 'fortune']",
-#       "[1:9-9][REDIRECT_OUT, '>']",
-#       "[1:10-12][WORD, 'out']",
-#       "[1:14-15][PIPE_AND, '|&']",
-#       "[1:17-22][WORD, 'cowsay']",
-#       "[1:23-23][EOF, '']"]
-#    :ast: |
-#      s(:EXPR,
-#        s(:PIPELINE,
-#          s(:COMMAND,
-#            s(:WORD, "fortune"),
-#              s(:REDIRECTIONS,
-#                s(:REDIRECT, 1, "out"),
-#                s(:DUP, 2, 1))),
-#          s(:COMMAND,
-#            s(:WORD, "cowsay"))))
+  "fortune >out |& cowsay":
+    :valid: true
+    :tokens: |
+      ['[1:1-7][WORD, "fortune"]',
+       '[1:8-8][SPACE, " "]',
+       '[1:9-9][REDIRECT_OUT, ">"]',
+       '[1:10-12][WORD, "out"]',
+       '[1:13-13][SPACE, " "]',
+       '[1:14-15][PIPE_AND, "|&"]',
+       '[1:16-16][SPACE, " "]',
+       '[1:17-22][WORD, "cowsay"]',
+       '[1:23-23][EOF, "\\u0000"]']
+    :ast: |
+      s(:EXPR,
+        s(:PIPELINE,
+          s(:COMMAND,
+            s(:WORD, "fortune"),
+              s(:REDIRECTIONS,
+                s(:REDIRECT, 1, "out"),
+                s(:DUP, 2, 1))),
+          s(:COMMAND,
+            s(:WORD, "cowsay"))))
 
-#  "fortune >out | wow |& cowsay":
-#    :valid: true
-#    :tokens: |
-#      ["[1:1-7][WORD, 'fortune']",
-#       "[1:9-9][REDIRECT_OUT, '>']",
-#       "[1:10-12][WORD, 'out']",
-#       "[1:14-14][PIPE, '|']",
-#       "[1:16-18][WORD, 'wow']",
-#       "[1:20-21][PIPE_AND, '|&']",
-#       "[1:23-28][WORD, 'cowsay']",
-#       "[1:29-29][EOF, '']"]
-#    :ast: |
-#      s(:EXPR,
-#        s(:PIPELINE,
-#          s(:COMMAND,
-#            s(:WORD, "fortune"),
-#            s(:REDIRECTIONS,
-#              s(:REDIRECT, 1, "out"))),
-#          s(:COMMAND,
-#            s(:WORD, "wow"),
-#            s(:REDIRECTIONS,
-#              s(:DUP, 2, 1))),
-#          s(:COMMAND,
-#            s(:WORD, "cowsay"))))
+  "fortune >out | wow |& cowsay":
+    :valid: true
+    :tokens: |
+      ['[1:1-7][WORD, "fortune"]',
+       '[1:8-8][SPACE, " "]',
+       '[1:9-9][REDIRECT_OUT, ">"]',
+       '[1:10-12][WORD, "out"]',
+       '[1:13-13][SPACE, " "]',
+       '[1:14-14][PIPE, "|"]',
+       '[1:15-15][SPACE, " "]',
+       '[1:16-18][WORD, "wow"]',
+       '[1:19-19][SPACE, " "]',
+       '[1:20-21][PIPE_AND, "|&"]',
+       '[1:22-22][SPACE, " "]',
+       '[1:23-28][WORD, "cowsay"]',
+       '[1:29-29][EOF, "\\u0000"]']
+    :ast: |
+      s(:EXPR,
+        s(:PIPELINE,
+          s(:COMMAND,
+            s(:WORD, "fortune"),
+            s(:REDIRECTIONS,
+              s(:REDIRECT, 1, "out"))),
+          s(:COMMAND,
+            s(:WORD, "wow"),
+            s(:REDIRECTIONS,
+              s(:DUP, 2, 1))),
+          s(:COMMAND,
+            s(:WORD, "cowsay"))))
 
 #  "fortune >out | wow |& cowsay | wow":
 #    :valid: true
