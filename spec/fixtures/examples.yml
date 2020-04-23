@@ -491,166 +491,153 @@
          s(:COMMAND,
            s(:WORD, "a"))))
 
-#  "{a;b}>out|c":
-#    :valid: true
-#    :tokens: |
-#      ["[1:1-1][LEFT_BRACE, '{']",
-#       "[1:2-2][WORD, 'a']",
-#       "[1:3-3][SEMI, ';']",
-#       "[1:4-4][WORD, 'b']",
-#       "[1:5-5][RIGHT_BRACE, '}']",
-#       "[1:6-6][REDIRECT_OUT, '>']",
-#       "[1:7-9][WORD, 'out']",
-#       "[1:10-10][PIPE, '|']",
-#       "[1:11-11][WORD, 'c']",
-#       "[1:12-12][EOF, '']"]
-#    :ast: |
-#      s(:EXPR,
-#        s(:PIPELINE,
-#          s(:GROUP,
-#            s(:LIST,
-#              s(:COMMAND,
-#                s(:WORD, "a")),
-#              s(:COMMAND,
-#                s(:WORD, "b"))),
-#            s(:REDIRECTIONS,
-#              s(:REDIRECT, 1, "out"))),
-#          s(:COMMAND,
-#            s(:WORD, "c"))))
+  "{a;b}>out|c":
+    :valid: true
+    :tokens: |
+      ['[1:1-1][LEFT_BRACE, "{"]',
+       '[1:2-2][WORD, "a"]',
+       '[1:3-3][SEMI, ";"]',
+       '[1:4-4][WORD, "b"]',
+       '[1:5-5][RIGHT_BRACE, "}"]',
+       '[1:6-6][REDIRECT_OUT, ">"]',
+       '[1:7-9][WORD, "out"]',
+       '[1:10-10][PIPE, "|"]',
+       '[1:11-11][WORD, "c"]',
+       '[1:12-12][EOF, "\\u0000"]']
+    :ast: |
+      s(:EXPR,
+        s(:PIPELINE,
+          s(:GROUP,
+            s(:LIST,
+              s(:COMMAND,
+                s(:WORD, "a")),
+              s(:COMMAND,
+                s(:WORD, "b"))),
+            s(:REDIRECTIONS,
+              s(:REDIRECT, 1, "out"))),
+          s(:COMMAND,
+            s(:WORD, "c"))))
 
-#  #
-#  # subshells
-#  #
+  #
+  # subshells
+  #
 
-#  "(a)":
-#   :valid: true
-#   :tokens: |
-#     ["[1:1-1][LEFT_PAREN, '(']",
-#      "[1:2-2][WORD, 'a']",
-#      "[1:3-3][RIGHT_PAREN, ')']",
-#      "[1:4-4][EOF, '']"]
-#   :ast: |
-#     s(:EXPR,
-#       s(:SUBSHELL,
-#         s(:COMMAND,
-#           s(:WORD, "a"))))
+  "(a)":
+   :valid: true
+   :tokens: |
+     ['[1:1-1][LEFT_PAREN, "("]',
+      '[1:2-2][WORD, "a"]',
+      '[1:3-3][RIGHT_PAREN, ")"]',
+      '[1:4-4][EOF, "\\u0000"]']
+   :ast: |
+     s(:EXPR,
+       s(:SUBSHELL,
+         s(:COMMAND,
+           s(:WORD, "a"))))
 
-#  "(a;b)>out|c":
-#    :valid: true
-#    :tokens: |
-#      ["[1:1-1][LEFT_PAREN, '(']",
-#       "[1:2-2][WORD, 'a']",
-#       "[1:3-3][SEMI, ';']",
-#       "[1:4-4][WORD, 'b']",
-#       "[1:5-5][RIGHT_PAREN, ')']",
-#       "[1:6-6][REDIRECT_OUT, '>']",
-#       "[1:7-9][WORD, 'out']",
-#       "[1:10-10][PIPE, '|']",
-#       "[1:11-11][WORD, 'c']",
-#       "[1:12-12][EOF, '']"]
-#    :ast: |
-#      s(:EXPR,
-#        s(:PIPELINE,
-#          s(:SUBSHELL,
-#            s(:LIST,
-#              s(:COMMAND,
-#                s(:WORD, "a")),
-#              s(:COMMAND,
-#                s(:WORD, "b"))),
-#            s(:REDIRECTIONS,
-#              s(:REDIRECT, 1, "out"))),
-#          s(:COMMAND,
-#            s(:WORD, "c"))))
+  "(a;b)>out|c":
+    :valid: true
+    :tokens: |
+      ['[1:1-1][LEFT_PAREN, "("]',
+       '[1:2-2][WORD, "a"]',
+       '[1:3-3][SEMI, ";"]',
+       '[1:4-4][WORD, "b"]',
+       '[1:5-5][RIGHT_PAREN, ")"]',
+       '[1:6-6][REDIRECT_OUT, ">"]',
+       '[1:7-9][WORD, "out"]',
+       '[1:10-10][PIPE, "|"]',
+       '[1:11-11][WORD, "c"]',
+       '[1:12-12][EOF, "\\u0000"]']
+    :ast: |
+      s(:EXPR,
+        s(:PIPELINE,
+          s(:SUBSHELL,
+            s(:LIST,
+              s(:COMMAND,
+                s(:WORD, "a")),
+              s(:COMMAND,
+                s(:WORD, "b"))),
+            s(:REDIRECTIONS,
+              s(:REDIRECT, 1, "out"))),
+          s(:COMMAND,
+            s(:WORD, "c"))))
 
-#  "{a}|(b)>out&&c||d>t;a;{b;c}>wow":
-#    :valid: true
-#    :tokens: |
-#      ["[1:1-1][LEFT_BRACE, '{']",
-#       "[1:2-2][WORD, 'a']",
-#       "[1:3-3][RIGHT_BRACE, '}']",
-#       "[1:4-4][PIPE, '|']",
-#       "[1:5-5][LEFT_PAREN, '(']",
-#       "[1:6-6][WORD, 'b']",
-#       "[1:7-7][RIGHT_PAREN, ')']",
-#       "[1:8-8][REDIRECT_OUT, '>']",
-#       "[1:9-11][WORD, 'out']",
-#       "[1:12-13][AND, '&&']",
-#       "[1:14-14][WORD, 'c']",
-#       "[1:15-16][OR, '||']",
-#       "[1:17-17][WORD, 'd']",
-#       "[1:18-18][REDIRECT_OUT, '>']",
-#       "[1:19-21][WORD, 't;a']",
-#       "[1:22-22][SEMI, ';']",
-#       "[1:23-23][LEFT_BRACE, '{']",
-#       "[1:24-24][WORD, 'b']",
-#       "[1:25-25][SEMI, ';']",
-#       "[1:26-26][WORD, 'c']",
-#       "[1:27-27][RIGHT_BRACE, '}']",
-#       "[1:28-28][REDIRECT_OUT, '>']",
-#       "[1:29-31][WORD, 'wow']",
-#       "[1:32-32][EOF, '']"]
-#    :ast: |
-#      s(:EXPR,
-#        s(:LIST,
-#          s(:AND,
-#            s(:PIPELINE,
-#              s(:GROUP,
-#                s(:COMMAND,
-#                  s(:WORD, "a"))),
-#              s(:SUBSHELL,
-#                s(:COMMAND,
-#                  s(:WORD, "b")),
-#                s(:REDIRECTIONS,
-#                  s(:REDIRECT, 1, "out")))),
-#            s(:OR,
-#              s(:COMMAND,
-#                s(:WORD, "c")),
-#              s(:COMMAND,
-#                s(:WORD, "d"),
-#                s(:REDIRECTIONS,
-#                  s(:REDIRECT, 1, "t"))))),
-#          s(:COMMAND,
-#            s(:WORD, "a")),
-#          s(:GROUP,
-#            s(:LIST,
-#              s(:COMMAND,
-#                s(:WORD, "b")),
-#              s(:COMMAND,
-#                s(:WORD, "c"))),
-#            s(:REDIRECTIONS,
-#              s(:REDIRECT, 1, "wow")))))
+  "{a}|(b)>out&&c||d>t;a;{b;c}>wow":
+    :valid: true
+    :tokens: |
+      ['[1:1-1][LEFT_BRACE, "{"]',
+       '[1:2-2][WORD, "a"]',
+       '[1:3-3][RIGHT_BRACE, "}"]',
+       '[1:4-4][PIPE, "|"]',
+       '[1:5-5][LEFT_PAREN, "("]',
+       '[1:6-6][WORD, "b"]',
+       '[1:7-7][RIGHT_PAREN, ")"]',
+       '[1:8-8][REDIRECT_OUT, ">"]',
+       '[1:9-11][WORD, "out"]',
+       '[1:12-13][AND, "&&"]',
+       '[1:14-14][WORD, "c"]',
+       '[1:15-16][OR, "||"]',
+       '[1:17-17][WORD, "d"]',
+       '[1:18-18][REDIRECT_OUT, ">"]',
+       '[1:19-19][WORD, "t"]',
+       '[1:20-20][SEMI, ";"]',
+       '[1:21-21][WORD, "a"]',
+       '[1:22-22][SEMI, ";"]',
+       '[1:23-23][LEFT_BRACE, "{"]',
+       '[1:24-24][WORD, "b"]',
+       '[1:25-25][SEMI, ";"]',
+       '[1:26-26][WORD, "c"]',
+       '[1:27-27][RIGHT_BRACE, "}"]',
+       '[1:28-28][REDIRECT_OUT, ">"]',
+       '[1:29-31][WORD, "wow"]',
+       '[1:32-32][EOF, "\u0000"]']
+    :ast: |
+      s(:EXPR,
+        s(:LIST,
+          s(:AND,
+            s(:PIPELINE,
+              s(:GROUP,
+                s(:COMMAND,
+                  s(:WORD, "a"))),
+              s(:SUBSHELL,
+                s(:COMMAND,
+                  s(:WORD, "b")),
+                s(:REDIRECTIONS,
+                  s(:REDIRECT, 1, "out")))),
+            s(:OR,
+              s(:COMMAND,
+                s(:WORD, "c")),
+              s(:COMMAND,
+                s(:WORD, "d"),
+                s(:REDIRECTIONS,
+                  s(:REDIRECT, 1, "t"))))),
+          s(:COMMAND,
+            s(:WORD, "a")),
+          s(:GROUP,
+            s(:LIST,
+              s(:COMMAND,
+                s(:WORD, "b")),
+              s(:COMMAND,
+                s(:WORD, "c"))),
+            s(:REDIRECTIONS,
+              s(:REDIRECT, 1, "wow")))))
 
-#  "{a || b}":
-#   :valid: true
-#   :tokens: |
-#     ["[1:1-1][LEFT_BRACE, '{']",
-#      "[1:2-2][WORD, 'a']",
-#      "[1:4-5][OR, '||']",
-#      "[1:7-7][WORD, 'b']",
-#      "[1:8-8][RIGHT_BRACE, '}']",
-#      "[1:9-9][EOF, '']"]
-#   :ast: |
-#     s(:EXPR,
-#       s(:GROUP,
-#         s(:COMMAND,
-#           s(:WORD, "a"))))
-
-#  #
-#  # subshells
-#  #
-
-#  "(a)":
-#    :valid: true
-#    :tokens: |
-#      ["[1:1-1][LEFT_PAREN, '(']",
-#       "[1:2-2][WORD, 'a']",
-#       "[1:3-3][RIGHT_PAREN, ')']",
-#       "[1:4-4][EOF, '']"]
-#    :ast: |
-#      s(:EXPR,
-#        s(:SUBSHELL,
-#          s(:COMMAND,
-#            s(:WORD, "a"))))
+  "{a || b}":
+   :valid: true
+   :tokens: |
+     ['[1:1-1][LEFT_BRACE, "{"]',
+      '[1:2-2][WORD, "a"]',
+      '[1:3-3][SPACE, " "]',
+      '[1:4-5][OR, "||"]',
+      '[1:6-6][SPACE, " "]',
+      '[1:7-7][WORD, "b"]',
+      '[1:8-8][RIGHT_BRACE, "}"]',
+      '[1:9-9][EOF, "\\u0000"]']
+   :ast: |
+     s(:EXPR,
+       s(:GROUP,
+         s(:COMMAND,
+           s(:WORD, "a"))))
 
 #  #
 #  # redirections
