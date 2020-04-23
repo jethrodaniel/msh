@@ -113,7 +113,7 @@ module Msh
         consume_redir_right
       when "<"
         consume_redir_left
-      when "|" # could be |, ||, or |&
+      when "|"
         case @scanner.peek
         when "|"
           advance
@@ -125,7 +125,7 @@ module Msh
           @token.type = :PIPE
         end
       when "1".."9"
-        while @scanner.peek.match? /\d+/
+        while @scanner.peek.match?(/\d+/)
           advance
         end
 
