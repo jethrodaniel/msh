@@ -124,15 +124,17 @@ module Msh
         else
           @token.type = :BG
         end
-      when ">" # could be >, >>, or >|
-        @token.type = case advance
-                      when ">"
-                        :APPEND_OUT
-                      when "|"
-                        :NO_CLOBBER
-                      else
-                        :REDIRECT_OUT
-                      end
+      when ">"
+        case @scanner.peek
+        when ">"
+          advance
+          @token.type = :APPEND_OUT
+        when "|"
+          advance
+          @token.type = :NO_CLOBBER
+        else
+          @token.type = :REDIRECT_OUT
+        end
       when "<" # could be <, <&n-, <&n, or <>
         case advance
         when "&"
