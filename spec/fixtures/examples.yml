@@ -199,34 +199,41 @@
           s(:COMMAND,
             s(:WORD, "cowsay"))))
 
-#  "fortune >out | wow |& cowsay | wow":
-#    :valid: true
-#    :tokens: |
-#      ["[1:1-7][WORD, 'fortune']",
-#       "[1:9-9][REDIRECT_OUT, '>']",
-#       "[1:10-12][WORD, 'out']",
-#       "[1:14-14][PIPE, '|']",
-#       "[1:16-18][WORD, 'wow']",
-#       "[1:20-21][PIPE_AND, '|&']",
-#       "[1:23-28][WORD, 'cowsay']",
-#       "[1:30-30][PIPE, '|']",
-#       "[1:32-34][WORD, 'wow']",
-#       "[1:35-35][EOF, '']"]
-#    :ast: |
-#      s(:EXPR,
-#        s(:PIPELINE,
-#          s(:COMMAND,
-#            s(:WORD, "fortune"),
-#            s(:REDIRECTIONS,
-#              s(:REDIRECT, 1, "out"))),
-#          s(:COMMAND,
-#            s(:WORD, "wow"),
-#            s(:REDIRECTIONS,
-#              s(:DUP, 2, 1))),
-#          s(:COMMAND,
-#            s(:WORD, "cowsay")),
-#          s(:COMMAND,
-#            s(:WORD, "wow"))))
+  "fortune >out | wow |& cowsay | wow":
+    :valid: true
+    :tokens: |
+      ['[1:1-7][WORD, "fortune"]',
+       '[1:8-8][SPACE, " "]',
+       '[1:9-9][REDIRECT_OUT, ">"]',
+       '[1:10-12][WORD, "out"]',
+       '[1:13-13][SPACE, " "]',
+       '[1:14-14][PIPE, "|"]',
+       '[1:15-15][SPACE, " "]',
+       '[1:16-18][WORD, "wow"]',
+       '[1:19-19][SPACE, " "]',
+       '[1:20-21][PIPE_AND, "|&"]',
+       '[1:22-22][SPACE, " "]',
+       '[1:23-28][WORD, "cowsay"]',
+       '[1:29-29][SPACE, " "]',
+       '[1:30-30][PIPE, "|"]',
+       '[1:31-31][SPACE, " "]',
+       '[1:32-34][WORD, "wow"]',
+       '[1:35-35][EOF, "\\u0000"]']
+    :ast: |
+      s(:EXPR,
+        s(:PIPELINE,
+          s(:COMMAND,
+            s(:WORD, "fortune"),
+            s(:REDIRECTIONS,
+              s(:REDIRECT, 1, "out"))),
+          s(:COMMAND,
+            s(:WORD, "wow"),
+            s(:REDIRECTIONS,
+              s(:DUP, 2, 1))),
+          s(:COMMAND,
+            s(:WORD, "cowsay")),
+          s(:COMMAND,
+            s(:WORD, "wow"))))
 
 #  "a >out | b <in >out |& c |& d":
 #    :valid: true
