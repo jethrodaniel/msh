@@ -31,37 +31,47 @@ Gem::Specification.new do |spec|
   # Don't use the typical `git ls-files` here, since not everyplace has git.
   #
   # Ship the minimal amount of files needed for production.
+  #
+  # :r !echo -e "$(git ls-files lib/)\nreadme.md\nlicense.txt\nmsh.gemspec\n$(git ls-files man/man1)\n$(git ls-files exe)" | sort -r
   spec.files = %w[
-    exe/msh
-    gems.locked
-    gems.rb
-    lib/msh.rb
-    lib/msh/ansi.rb
-    lib/msh/ast.rb
-    lib/msh/cli.rb
-    lib/msh/configuration.rb
-    lib/msh/documentation.rb
-    lib/msh/env.rb
-    lib/msh/error.rb
-    lib/msh/gemspec.rb
-    lib/msh/interpreter.rb
-    lib/msh/lexer.rb
-    lib/msh/logger.rb
-    lib/msh/parser.rb
-    lib/msh/repl
-    lib/msh/repl.rb
-    lib/msh/token.rb
-    lib/msh/version.rb
-    license.txt
-    man/man1/msh-help.1
-    man/man1/msh-history.1
-    man/man1/msh-design.1
-    man/man1/msh-repl.1
-    man/man1/msh-lexer.1
-    man/man1/msh-parser.1
-    man/man1/msh.1
-    msh.gemspec
     readme.md
+    msh.gemspec
+    man/man1/msh-repl.1
+    man/man1/msh-parser.1
+    man/man1/msh-lexer.1
+    man/man1/msh-history.1
+    man/man1/msh-help.1
+    man/man1/msh-design.1
+    man/man1/msh.1
+    license.txt
+    lib/msh/version.rb
+    lib/msh/token.rb
+    lib/msh/scanner.rb
+    lib/msh/repl/simple.rb
+    lib/msh/repl.rb
+    lib/msh/repl/ansi.rb
+    lib/msh.rb
+    lib/msh/parser.rb
+    lib/msh/logger.rb
+    lib/msh/lexer.rb
+    lib/msh/interpreter.rb
+    lib/msh/gemspec.rb
+    lib/msh/error.rb
+    lib/msh/env.rb
+    lib/msh/documentation.rb
+    lib/msh/configuration.rb
+    lib/msh/cli.rb
+    lib/msh/builtins/repl.rb
+    lib/msh/builtins/quit.rb
+    lib/msh/builtins/prompt.rb
+    lib/msh/builtins/parser.rb
+    lib/msh/builtins/lexer.rb
+    lib/msh/builtins/history.rb
+    lib/msh/builtins/help.rb
+    lib/msh/builtins/builtins.rb
+    lib/msh/ast.rb
+    lib/msh/ansi.rb
+    exe/msh
   ]
 
   spec.bindir        = "exe"
