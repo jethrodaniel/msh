@@ -269,8 +269,7 @@ module Msh
     # is to parse the ruby expression inside the interpolation.
     def consume_interpolation
       line = @scanner.line
-      col = @scanner.column
-      reset_and_set_start
+      col = @scanner.column - 1 # we already saw the `#`
       l_brace_stack = []
 
       while c = advance # loop until closing `}`
@@ -278,13 +277,13 @@ module Msh
         when "{"
           l_brace_stack << c
         when "}"
-          if l_brace_stack.empty? # end of interpolation
+          if l_brace_stack.empty?
             break
           else
             l_brace_stack.pop
           end
         end
-        break if @scanner.eof?
+        break if l_brace_stack.empty? || @scanner.eof?
       end
 
       if l_brace_stack.size.positive? # || c.nil? || eof?
@@ -293,9 +292,9 @@ module Msh
         ERR
       end
 
-      @token.value = @token.value[0...-1] # discard the `}`
       @token.type = :INTERPOLATION
-      @token.column += 1
+      @token.column = col
+      @token.line = line
     end
 
     def consume_whitespace

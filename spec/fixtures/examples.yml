@@ -875,61 +875,63 @@
   "a#{#{:b}#{:c}}d":
     :valid: true
     :tokens: |
-      ["[1:1-1][WORD, 'a']",
-       "[1:4-13][INTERPOLATION, '#{:b}#{:c}']",
-       "[1:15-15][WORD, 'd']",
-       "[1:16-16][EOF, '']"]
+      ['[1:1-1][WORD, "a"]',
+       '[1:2-14][INTERPOLATION, "\#{\#{:b}\#{:c}}"]',
+       '[1:15-15][WORD, "d"]',
+       '[1:16-16][EOF, "\u0000"]']
     :ast: |
 
-#  "echo #{:a} #{:b}":
-#    :valid: true
-#    :tokens: |
-#      ["[1:1-4][WORD, 'echo']",
-#       "[1:8-9][INTERPOLATION, ':a']",
-#       "[1:14-15][INTERPOLATION, ':b']",
-#       "[1:17-17][EOF, '']"]
-#    :ast: |
-#      s(:EXPR,
-#        s(:COMMAND,
-#          s(:WORD, "echo"),
-#          s(:INTERPOLATION, ":a"),
-#          s(:INTERPOLATION, ":b")))
+  "echo #{:a} #{:b}":
+    :valid: true
+    :tokens: |
+      ['[1:1-4][WORD, "echo"]',
+       '[1:5-5][SPACE, " "]',
+       '[1:6-10][INTERPOLATION, "\#{:a}"]',
+       '[1:11-11][SPACE, " "]',
+       '[1:12-16][INTERPOLATION, "\#{:b}"]',
+       '[1:17-17][EOF, "\u0000"]']
+    :ast: |
+      s(:EXPR,
+        s(:COMMAND,
+          s(:WORD, "echo"),
+          s(:INTERPOLATION, ":a"),
+          s(:INTERPOLATION, ":b")))
 
-#  # TODO:
-#  #   s(:WORD,
-#  #     s(:LITERAL, "a")) for all the WORDs
-#  "echo a#{:b}c#{:d}e a#{:b} #{:c}d #{1}#{2}":
-#    :valid: true
-#    :tokens: |
-#      ["[1:1-4][WORD, 'echo']",
-#       "[1:6-6][WORD, 'a']",
-#       "[1:9-10][INTERPOLATION, ':b']",
-#       "[1:12-12][WORD, 'c']",
-#       "[1:15-16][INTERPOLATION, ':d']",
-#       "[1:18-18][WORD, 'e']",
-#       "[1:20-20][WORD, 'a']",
-#       "[1:23-24][INTERPOLATION, ':b']",
-#       "[1:29-30][INTERPOLATION, ':c']",
-#       "[1:32-32][WORD, 'd']",
-#       "[1:36-36][INTERPOLATION, '1']",
-#       "[1:40-40][INTERPOLATION, '2']",
-#       "[1:42-42][EOF, '']"]
-#    :ast: |
-#      s(:EXPR,
-#        s(:COMMAND,
-#          s(:WORD, "echo"),
-#          s(:WORD,
-#            s(:LITERAL, "a"),
-#            s(:INTERPOLATION, ":b"),
-#            s(:LITERAL, "c"),
-#            s(:INTERPOLATION, ":d"),
-#            s(:LITERAL, "e")),
-#          s(:WORD,
-#            s(:LITERAL, "a"),
-#            s(:INTERPOLATION, ":b")),
-#          s(:WORD,
-#            s(:INTERPOLATION, ":c"),
-#            s(:LITERAL, "d")),
-#          s(:WORD,
-#            s(:INTERPOLATION, "1"),
-#            s(:INTERPOLATION, "2"))))
+  # TODO:
+  #   s(:WORD,
+  #     s(:LITERAL, "a")) for all the WORDs
+  "echo a#{:b}c#{:d}e a#{:b} #{:c}d #{1}#{2}":
+    :valid: true
+    :tokens: |
+      ["[1:1-4][WORD, 'echo']",
+       "[1:6-6][WORD, 'a']",
+       "[1:9-10][INTERPOLATION, ':b']",
+       "[1:12-12][WORD, 'c']",
+       "[1:15-16][INTERPOLATION, ':d']",
+       "[1:18-18][WORD, 'e']",
+       "[1:20-20][WORD, 'a']",
+       "[1:23-24][INTERPOLATION, ':b']",
+       "[1:29-30][INTERPOLATION, ':c']",
+       "[1:32-32][WORD, 'd']",
+       "[1:36-36][INTERPOLATION, '1']",
+       "[1:40-40][INTERPOLATION, '2']",
+       "[1:42-42][EOF, '']"]
+    :ast: |
+      s(:EXPR,
+        s(:COMMAND,
+          s(:WORD, "echo"),
+          s(:WORD,
+            s(:LITERAL, "a"),
+            s(:INTERPOLATION, ":b"),
+            s(:LITERAL, "c"),
+            s(:INTERPOLATION, ":d"),
+            s(:LITERAL, "e")),
+          s(:WORD,
+            s(:LITERAL, "a"),
+            s(:INTERPOLATION, ":b")),
+          s(:WORD,
+            s(:INTERPOLATION, ":c"),
+            s(:LITERAL, "d")),
+          s(:WORD,
+            s(:INTERPOLATION, "1"),
+            s(:INTERPOLATION, "2"))))
