@@ -1,7 +1,14 @@
 inherit_from:
   - https://raw.githubusercontent.com/jethrodaniel/dotfiles/master/home/.config/rubocop/config.yml
 
+AllCops:
+  Excluded:
+    - 'bin/console'
+
 Style/SpecialGlobalVars:
+  Enabled: false
+
+Style/AsciiComments:
   Enabled: false
 
 Metrics/BlockLength:

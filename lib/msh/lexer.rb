@@ -128,9 +128,7 @@ module Msh
           @token.type = :PIPE
         end
       when "1".."9"
-        while @scanner.peek.match?(/\d+/)
-          advance
-        end
+        advance while @scanner.peek.match?(/\d+/)
 
         if @scanner.peek == ">"
           consume_redir_right
@@ -219,7 +217,8 @@ module Msh
     #
     # @raise [Error]
     def error msg = nil
-      raise Error, "error at line #{@token.line}, column #{@token.column}: #{msg}"
+      raise Error, "error at line #{@token.line}, " \
+                   "column #{@token.column}: #{msg}"
     end
 
     def set_token_start
@@ -280,11 +279,9 @@ module Msh
         when "{"
           l_brace_stack << c
         when "}"
-          if l_brace_stack.empty?
-            break
-          else
-            l_brace_stack.pop
-          end
+          break if l_brace_stack.empty?
+
+          l_brace_stack.pop
         end
         break if l_brace_stack.empty? || @scanner.eof?
       end

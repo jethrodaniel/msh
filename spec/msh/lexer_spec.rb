@@ -138,9 +138,10 @@ RSpec.describe Msh::Lexer do
 
     #   expect(lex.next?).to be false
 
+    #   err = "error at line 2, column 2: out of input"
     #   expect do
     #     lex.next_token
-    #   end.to raise_error(Msh::Lexer::Error, "error at line 2, column 2: out of input")
+    #   end.to raise_error(Msh::Lexer::Error, err)
     # end
   end
 end

@@ -77,9 +77,9 @@ module Msh
   #
   # Commands are resolved by checking if any of the following match, in order
   #
-  # 	1. aliases
-  # 	1. functions / builtins
-  # 	1. executables
+  #   1. aliases
+  #   1. functions / builtins
+  #   1. executables
   #
   # If any match, the first match is used as the command. If any of the three
   # aren't matched, then the command is unresolved, or _not found_.

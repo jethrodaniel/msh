@@ -51,7 +51,7 @@ module Msh
 
     # @param n [Integer]
     # @return [String, nil] nth character past the scanner head
-    def peek n = 1
+    def peek n = 1 # rubocop:disable Naming/MethodParameterName
       c = @scanner.peek n
       c.size.zero? ? "\0" : c
     end

@@ -87,10 +87,10 @@ module Msh
     REDIRECT_OPS = %i[
       REDIRECT_OUT
     ].freeze
-      # REDIRECT_LEFT
-      # REDIRECT_RIGHT
-      # D_REDIRECT_LEFT
-      # D_REDIRECT_RIGHT
+    # REDIRECT_LEFT
+    # REDIRECT_RIGHT
+    # D_REDIRECT_LEFT
+    # D_REDIRECT_RIGHT
 
     # @return [Array<Token>]
     attr_reader :tokens
@@ -173,11 +173,11 @@ module Msh
         case peek.type
         when :INTERPOLATION
           # if words.last&.type == :WORD
-            # puts "word started"
-            # words << s(:WORD, advance.value)
+          # puts "word started"
+          # words << s(:WORD, advance.value)
           # else
-            # puts "not word started"
-            words << s(:INTERPOLATION, advance.value)
+          # puts "not word started"
+          words << s(:INTERPOLATION, advance.value)
           # end
         when :WORD, :TIME
           # puts "word"
@@ -224,6 +224,38 @@ module Msh
       advance if match? :IO_NUMBER
     end
 
+    # Run the parser interactively, i.e, run a loop and parser user input.
+    def self.interactive
+      while line = Readline.readline("parser> ", true)&.chomp
+        case line
+        when "q", "quit", "exit"
+          puts "goodbye! <3"
+          return
+        else
+          begin
+            lexer = Msh::Lexer.new line
+            parser = Msh::Parser.new lexer.tokens
+            p parser.parse
+          rescue Error => e
+            puts e.message
+          end
+        end
+      end
+    end
+
+    # Parse each file passed as input (if any), or run interactively
+    def self.start args = ARGV
+      return Msh::Parser.interactive if args.size.zero?
+
+      args.each do |file|
+        raise Error, "#{file} is not a file!" unless File.file?(file)
+
+        lexer = Msh::Lexer.new File.read(file)
+        parser = Msh::Parser.new lexer.tokens
+        p parser.parse
+      end
+    end
+
     private
 
     # Raise an error with helpful output.
@@ -267,38 +299,6 @@ module Msh
     # @return [Token]
     def prev
       @tokens[@pos - 1]
-    end
-
-    # Run the parser interactively, i.e, run a loop and parser user input.
-    def self.interactive
-      while line = Readline.readline("parser> ", true)&.chomp
-        case line
-        when "q", "quit", "exit"
-          puts "goodbye! <3"
-          return
-        else
-          begin
-            lexer = Msh::Lexer.new line
-            parser = Msh::Parser.new lexer.tokens
-            p parser.parse
-          rescue Error => e
-            puts e.message
-          end
-        end
-      end
-    end
-
-    # Parse each file passed as input (if any), or run interactively
-    def self.start args = ARGV
-      return Msh::Parser.interactive if args.size.zero?
-
-      args.each do |file|
-        raise Error, "#{file} is not a file!" unless File.file?(file)
-
-        lexer = Msh::Lexer.new File.read(file)
-        parser = Msh::Parser.new lexer.tokens
-        p parser.parse
-      end
     end
   end
 end

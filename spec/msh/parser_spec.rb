@@ -23,39 +23,39 @@ RSpec.describe Msh::Parser do
   end
 end
 
-  # # **note**: testing a private method here
-  # describe "#expand_PIPE_AND" do
-  #   it ":COMMAND |& :COMMAND" do
-  #     a = s(:COMMAND, s(:WORD, "foo"))
-  #     b = s(:COMMAND, s(:WORD, "bar"))
-  #     p = Msh::Parser.new.send :expand_PIPE_AND, :left => a, :right => b
+# # **note**: testing a private method here
+# describe "#expand_PIPE_AND" do
+#   it ":COMMAND |& :COMMAND" do
+#     a = s(:COMMAND, s(:WORD, "foo"))
+#     b = s(:COMMAND, s(:WORD, "bar"))
+#     p = Msh::Parser.new.send :expand_PIPE_AND, :left => a, :right => b
 
-  #     expect(p).to eq \
-  #       s(:PIPELINE,
-  #         s(:COMMAND,
-  #           s(:WORD, "foo"),
-  #           s(:REDIRECTIONS,
-  #             s(:DUP, 2, 1))),
-  #         s(:COMMAND,
-  #           s(:WORD, "bar")))
-  #   end
+#     expect(p).to eq \
+#       s(:PIPELINE,
+#         s(:COMMAND,
+#           s(:WORD, "foo"),
+#           s(:REDIRECTIONS,
+#             s(:DUP, 2, 1))),
+#         s(:COMMAND,
+#           s(:WORD, "bar")))
+#   end
 
-  #   it ":COMMAND <redirections> |& :COMMAND" do
-  #     a = s(:COMMAND, s(:WORD, "foo"), s(:REDIRECTIONS, s(:DUP, 3, 4)))
-  #     b = s(:COMMAND, s(:WORD, "bar"))
-  #     p = Msh::Parser.new.send :expand_PIPE_AND, :left => a, :right => b
+#   it ":COMMAND <redirections> |& :COMMAND" do
+#     a = s(:COMMAND, s(:WORD, "foo"), s(:REDIRECTIONS, s(:DUP, 3, 4)))
+#     b = s(:COMMAND, s(:WORD, "bar"))
+#     p = Msh::Parser.new.send :expand_PIPE_AND, :left => a, :right => b
 
-  #     expect(p).to eq \
-  #       s(:PIPELINE,
-  #         s(:COMMAND,
-  #           s(:WORD, "foo"),
-  #           s(:REDIRECTIONS,
-  #             s(:DUP, 3, 4),
-  #             s(:DUP, 2, 1))),
-  #         s(:COMMAND,
-  #           s(:WORD, "bar")))
-  #   end
-  # end
+#     expect(p).to eq \
+#       s(:PIPELINE,
+#         s(:COMMAND,
+#           s(:WORD, "foo"),
+#           s(:REDIRECTIONS,
+#             s(:DUP, 3, 4),
+#             s(:DUP, 2, 1))),
+#         s(:COMMAND,
+#           s(:WORD, "bar")))
+#   end
+# end
 # end
 #
 
@@ -73,4 +73,3 @@ end
 #      expect { subject.parse(code) }.to raise_error(error_class, error_msg)
 #    end
 #  end
-

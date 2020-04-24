@@ -15,4 +15,3 @@ require "msh/parser"
 l = Msh::Lexer.new "cowsay"
 p = Msh::Parser.new lex.tokens
 i = Msh::Interpreter.new parser.parse
-

@@ -21,7 +21,7 @@ require "rspec/core/rake_task"
 require "rubocop/rake_task"
 require "rake/clean"
 
-CLEAN << 'docs' << 'pkg' << 'spec/msh/lexer_spec.rb'
+CLEAN << "docs" << "pkg" << "spec/msh/lexer_spec.rb"
 
 # need these to generate the manpages and readme
 require "erb"
@@ -98,7 +98,8 @@ namespace :spec do
     file f do |t|
       puts "#{t.name}.erb -> #{t.name}"
       erb t.name
-      sh "bundle exec rubocop -a #{t.name} 2>/dev/null | grep '1 file inspected' || true"
+      sh "bundle exec rubocop -a #{t.name} " \
+         "2>/dev/null | grep '1 file inspected' || true"
     end
   end
 end
