@@ -22,6 +22,9 @@ module Msh
   #
   # The match attempt logic is {#next_token}, which is just a a big switch
   # statement on the next character, more or less.
+  #
+  # Note: this lexer is lossless, i.e, the completed tokens contain the entire
+  # source code, including tabs, spaces, and comments.
   class Lexer
     include Msh::Logger
 
