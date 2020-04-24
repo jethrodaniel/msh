@@ -9,6 +9,7 @@ RSpec.describe Msh::Parser do
 
   Examples.passing.each do |code, data|
     it code do
+      skip
       ast = if ruby_version < 2.6
               binding.eval(data[:ast], __FILE__, __LINE__)
             else

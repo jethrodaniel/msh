@@ -15,6 +15,7 @@ RSpec.describe Msh::Interpreter do
   # end
 
   it ".process" do
+    skip
     ast = s(:EXPR, s(:COMMAND, s(:WORD, "echo")))
     out = subject.process(ast)
     expect(out).to be_zero
@@ -27,6 +28,7 @@ RSpec.describe Msh::Interpreter do
   describe "builtins" do
     describe "help" do
       it "shows `msh` when called with no args" do
+        skip
         man = File.read(Msh.root + "spec/fixtures/help/msh.txt")
         expect(sh("MANPAGER=cat msh -c help")).to eq(man)
       end
@@ -37,6 +39,7 @@ RSpec.describe Msh::Interpreter do
 
       Msh::Documentation.help_topics.each do |topic|
         it topic do
+          skip
           man = File.read(Msh.root + "spec/fixtures/help/#{topic}.txt")
           expect(sh("MANPAGER=cat msh -c 'help #{topic}'")).to eq(man)
         end

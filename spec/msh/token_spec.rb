@@ -36,7 +36,7 @@ RSpec.describe Msh::Token do
   end
 
   it ".to_s" do
-    expect(subject.to_s).to eq("[6:2-5][WORD, 'echo']")
+    expect(subject.to_s).to eq('[6:2-5][WORD, "echo"]')
   end
 
   it ".==" do
