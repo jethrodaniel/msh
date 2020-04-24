@@ -63,18 +63,18 @@ Most of these come from a [single YAML file](./spec/fixtures/examples.yml)...
   "echo such wow":
     :valid: true
     :tokens: |
-      ["[1:1-4][WORD, 'echo']",
-       "[1:6-9][WORD, 'such']",
-       "[1:11-13][WORD, 'wow']",
-       "[1:14-14][EOF, '']"]
+      ['[1:1-4][WORD, "echo"]',
+       '[1:5-5][SPACE, " "]',
+       '[1:6-9][WORD, "such"]',
+       '[1:10-10][SPACE, " "]',
+       '[1:11-13][WORD, "wow"]',
+       '[1:14-14][EOF, "\\u0000"]']
     :ast: |
       s(:EXPR,
         s(:COMMAND,
           s(:WORD, "echo"),
           s(:WORD, "such"),
           s(:WORD, "wow")))
-
-  "echo so scare":
 ...
 ```
 
