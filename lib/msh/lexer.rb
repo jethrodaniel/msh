@@ -261,6 +261,8 @@ module Msh
       c
     end
 
+    # @note we've just seen a `#`
+    #
     # Start at the `{` of a `#{...}`, gredily match a `}` such that we have
     # paired braces.
     #
@@ -300,6 +302,7 @@ module Msh
       @token.line = line
     end
 
+    # @note we've just seen either a ` ` or a `\t`
     def consume_whitespace
       @token.type = :SPACE
       return if @scanner.current_char == "\0"
@@ -350,7 +353,7 @@ module Msh
       end
     end
 
-    # @note we've just seen the first character
+    # @note we've just seen the first character of a WORD
     def consume_word
       advance until NON_WORD_CHARS.include?(@scanner.peek(1))
       @token.type = :WORD
