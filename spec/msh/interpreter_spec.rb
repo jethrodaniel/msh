@@ -5,14 +5,16 @@ require "msh/interpreter"
 RSpec.describe Msh::Interpreter do
   subject { Msh::Interpreter.new }
 
-  # Examples.passing.take(1).each do |code, data|
-  #   it code do
-  #     ast = binding.eval(data[:ast], *binding.source_location)
-  #     out = subject.process(ast)
+  Examples.each do |code, data|
+    it code do
+      skip unless data[:interpreter_passing]
 
-  #     expect(out.existatus).to eq 1
-  #   end
-  # end
+      ast = binding.eval(data[:ast], *binding.source_location)
+      out = subject.process(ast)
+
+      expect(out.existatus).to eq 1
+    end
+  end
 
   it ".process" do
     skip

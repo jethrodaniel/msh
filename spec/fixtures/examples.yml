@@ -6,7 +6,9 @@
   # words, filenames, options, etc
 
   "echo such wow":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
        '[1:5-5][SPACE, " "]',
@@ -22,7 +24,9 @@
           s(:WORD, "wow")))
 
   "echo so scare":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
        '[1:5-5][SPACE, " "]',
@@ -49,7 +53,9 @@
           s(:WORD, "\\but\\ this\\ is\\ an\\ arg")))
 
   "a&&b":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-1][WORD, "a"]',
        '[1:2-3][AND, "&&"]',
@@ -83,7 +89,9 @@
     :ast: |
 
   "cd ..":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-2][WORD, "cd"]',
        '[1:3-3][SPACE, " "]',
@@ -96,7 +104,9 @@
           s(:WORD, "..")))
 
   "...":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-3][WORD, "..."]',
        '[1:4-4][EOF, "\\u0000"]']
@@ -109,7 +119,9 @@
   # pipes
   #
   "fortune | cowsay":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-7][WORD, "fortune"]',
        '[1:8-8][SPACE, " "]',
@@ -128,7 +140,9 @@
 #  # `|&` is sugar for `2>&1 |`
 
   "fortune |& cowsay":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-7][WORD, "fortune"]',
        '[1:8-8][SPACE, " "]',
@@ -149,7 +163,9 @@
   # redirections
 
   "2>&1":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-4][DUP_OUT_FD, "2>&1"]',
        '[1:5-5][EOF, "\\u0000"]']
@@ -157,7 +173,9 @@
       s(:NOOP)
 
   "fortune >out |& cowsay":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-7][WORD, "fortune"]',
        '[1:8-8][SPACE, " "]',
@@ -180,7 +198,9 @@
             s(:WORD, "cowsay"))))
 
   "fortune >out | wow |& cowsay":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-7][WORD, "fortune"]',
        '[1:8-8][SPACE, " "]',
@@ -210,7 +230,9 @@
             s(:WORD, "cowsay"))))
 
   "fortune >out | wow |& cowsay | wow":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-7][WORD, "fortune"]',
        '[1:8-8][SPACE, " "]',
@@ -246,7 +268,9 @@
             s(:WORD, "wow"))))
 
   "a >out | b <in >out |& c |& d":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-1][WORD, "a"]',
        '[1:2-2][SPACE, " "]',
@@ -292,7 +316,9 @@
             s(:WORD, "d"))))
 
   "! fortune | cowsay":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-1][BANG, "!"]',
        '[1:2-2][SPACE, " "]',
@@ -311,7 +337,9 @@
             s(:WORD, "cowsay"))))
 
   "time echo":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-4][TIME, "time"]',
        '[1:5-5][SPACE, " "]',
@@ -339,7 +367,9 @@
           s(:WORD, "echo")))
 
   "echo time":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
        '[1:5-5][SPACE, " "]',
@@ -352,7 +382,9 @@
          s(:WORD, "time")))
 
   "time ! fortune | cowsay":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-4][TIME, "time"]',
        '[1:5-5][SPACE, " "]',
@@ -373,7 +405,9 @@
             s(:WORD, "cowsay"))))
 
   "time -p ! fortune | cowsay":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-4][TIME, "time"]',
        '[1:5-5][SPACE, " "]',
@@ -423,7 +457,9 @@
   #
 
   "a || b":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-1][WORD, "a"]',
        '[1:2-2][SPACE, " "]',
@@ -440,7 +476,9 @@
             s(:WORD, "b"))))
 
   "a && b":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-1][WORD, "a"]',
        '[1:2-2][SPACE, " "]',
@@ -461,7 +499,9 @@
   #
 
   "date && date | cowsay":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-4][WORD, "date"]',
        '[1:5-5][SPACE, " "]',
@@ -502,7 +542,9 @@
            s(:WORD, "a"))))
 
   "{a;b}>out|c":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-1][LEFT_BRACE, "{"]',
        '[1:2-2][WORD, "a"]',
@@ -546,7 +588,9 @@
            s(:WORD, "a"))))
 
   "(a;b)>out|c":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-1][LEFT_PAREN, "("]',
        '[1:2-2][WORD, "a"]',
@@ -573,7 +617,9 @@
             s(:WORD, "c"))))
 
   "{a}|(b)>out&&c||d>t;a;{b;c}>wow":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-1][LEFT_BRACE, "{"]',
        '[1:2-2][WORD, "a"]',
@@ -654,7 +700,9 @@
   #
 
   "42>out":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-3][REDIRECT_OUT, "42>"]',
        '[1:4-6][WORD, "out"]',
@@ -662,7 +710,9 @@
     :ast: |
 
   "2>out 1 4>out":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-2][REDIRECT_OUT, "2>"]',
        '[1:3-5][WORD, "out"]',
@@ -749,7 +799,9 @@
   #
 
   "#":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-1][COMMENT, "#"]',
        '[1:2-2][EOF, "\\u0000"]']
@@ -757,7 +809,9 @@
       s(:NOOP)
 
   "#x":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-2][COMMENT, "#x"]',
        '[1:3-3][EOF, "\\u0000"]']
@@ -765,7 +819,9 @@
       s(:NOOP)
 
   "# look! # a comment!\n\n\n\n":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-20][COMMENT, "# look! # a comment!"]',
        '[1:21-21][NEWLINE, "\n"]',
@@ -777,7 +833,9 @@
        s(:NOOP)
 
   "fortune # comments continue until one or more newlines":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-7][WORD, "fortune"]',
        '[1:8-8][SPACE, " "]',
@@ -791,7 +849,9 @@
   # job control
 
   "a &":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-1][WORD, "a"]',
        '[1:2-2][SPACE, " "]',
@@ -805,7 +865,9 @@
   #
 
   "ls|wow 3>doggo 2>&1 >/dev/null;wow&&wow||o>out&&goose|&duck":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-2][WORD, "ls"]',
        '[1:3-3][PIPE, "|"]',
@@ -871,7 +933,9 @@
     wow newlines
     yay
   :
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-2][WORD, "ls"]',
        '[1:3-3][NEWLINE, "\n"]',
@@ -897,7 +961,9 @@
   #
 
   "a#{#{:b}#{:c}}d":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-1][WORD, "a"]',
        '[1:2-14][INTERPOLATION, "\#{\#{:b}\#{:c}}"]',
@@ -906,7 +972,9 @@
     :ast: |
 
   "echo #{:a} #{:b}":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
        '[1:5-5][SPACE, " "]',
@@ -925,7 +993,9 @@
   #   s(:WORD,
   #     s(:LITERAL, "a")) for all the WORDs
   "echo a#{:b}c#{:d}e a#{:b} #{:c}d #{1}#{2}":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: false
+    :interpreter_valid: false
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
        '[1:5-5][SPACE, " "]',

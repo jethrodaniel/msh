@@ -7,9 +7,10 @@ RSpec.describe Msh::Parser do
 
   let(:ruby_version) { RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01 }
 
-  Examples.passing.each do |code, data|
+  Examples.each do |code, data|
     it code do
-      skip
+      skip unless data[:parser_passing]
+
       ast = if ruby_version < 2.6
               binding.eval(data[:ast], __FILE__, __LINE__)
             else

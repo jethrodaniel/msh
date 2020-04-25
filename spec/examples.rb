@@ -1,12 +1,32 @@
 # frozen_string_literal: true
 
 class Examples
-  def self.passing
-    examples.select { |_k, v| v[:valid] }
+  def self.lexer_passing
+    examples.select { |_k, v| v[:lexer_valid] }
   end
 
-  def self.failing
-    examples.reject { |_k, v| v[:valid] }
+  def self.lexer_failing
+    examples.reject { |_k, v| v[:lexer_valid] }
+  end
+
+  def self.parser_passing
+    examples.select { |_k, v| v[:parser_valid] }
+  end
+
+  def self.parser_failing
+    examples.reject { |_k, v| v[:parser_valid] }
+  end
+
+  def self.interpreter_passing
+    examples.select { |_k, v| v[:interpreter_valid] }
+  end
+
+  def self.interpreter_failing
+    examples.reject { |_k, v| v[:interpreter_valid] }
+  end
+
+  def self.each &block
+    examples.each &block
   end
 
   def self.examples
