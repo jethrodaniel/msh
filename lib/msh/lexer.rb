@@ -131,9 +131,13 @@ module Msh
         advance while @scanner.peek.match?(/\d+/)
 
         if @scanner.peek == ">"
+          advance
           consume_redir_right
         elsif @scanner.peek == "<"
+          advance
           consume_redir_left
+        else
+          consume_word
         end
       else
         if @token.value          == "t" &&
@@ -151,8 +155,7 @@ module Msh
           3.times { advance }
           @token.type = :TIME
         else
-          advance until NON_WORD_CHARS.include?(@scanner.peek(1))
-          @token.type = :WORD
+          consume_word
         end
       end
 
@@ -307,6 +310,7 @@ module Msh
       end
     end
 
+    # @note we've just seen a `>`
     def consume_redir_right
       case @scanner.peek
       when ">"
@@ -316,10 +320,17 @@ module Msh
         advance
         @token.type = :NO_CLOBBER
       else
-        @token.type = :REDIRECT_OUT
+        if @scanner.peek == "&"
+          advance
+          advance while @scanner.peek.match? /\d+/
+          @token.type = :DUP_OUT_FD
+        else
+          @token.type = :REDIRECT_OUT
+        end
       end
     end
 
+    # @note we've just seen a `<`
     def consume_redir_left
       case @scanner.peek
       when "&"
@@ -328,7 +339,8 @@ module Msh
           @token.type = :MOVE
         else
           advance
-          @token.type = :DUP
+          advance while @scanner.peek.match? /\d+/
+          @token.type = :DUP_IN_FD
         end
       when ">"
         advance
@@ -336,6 +348,12 @@ module Msh
       else
         @token.type = :REDIRECT_IN
       end
+    end
+
+    # @note we've just seen the first character
+    def consume_word
+      advance until NON_WORD_CHARS.include?(@scanner.peek(1))
+      @token.type = :WORD
     end
   end
 end
