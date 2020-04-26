@@ -60,7 +60,7 @@ require "expect"
 require "yaml"
 
 # spec/fixtures/examples.yml uses this
-require "ast"
-include AST::Sexp # rubocop:disable Style/MixinUsage
+require "msh/ast"
+include Msh::AST::Sexp # rubocop:disable Style/MixinUsage
 
 require_relative "../spec/examples"

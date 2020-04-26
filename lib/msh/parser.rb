@@ -2,7 +2,7 @@
 
 require "readline"
 
-require "ast"
+require "msh/ast"
 require "msh/error"
 require "msh/lexer"
 
@@ -81,9 +81,7 @@ module Msh
   # Note that an AST is generated, _not_ a parse tree.
   #
   class Parser
-    # AST::Sexp allows us to easily create AST nodes, using s-expression syntax,
-    # i.e, `s(:TOKEN)`, or `s(:TOKEN, [children...])`.
-    include ::AST::Sexp
+    include Msh::AST::Sexp
 
     class Error < Msh::Error; end
 

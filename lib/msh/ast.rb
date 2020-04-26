@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "ast"
+
 module Msh
   # This AST class contains more specialized AST command representations, like
   #
@@ -11,6 +13,30 @@ module Msh
   #     p = Pipeline.new :piped => [cond, b]
   #
   module AST
+    # subclassing AST::Node to provide meta-information
+    class Node < ::AST::Node
+      # @return [Integer]
+      attr_reader :line
+
+      # @return [Integer]
+      attr_reader :column
+    end
+
+    # AST::Sexp allows us to easily create AST nodes, using s-expression syntax,
+    # i.e, `s(:TOKEN)`, or `s(:TOKEN, [children...])`.
+    #
+    # Msh::AST::Sexp extends it to allow setting meta-information available in
+    # {Msh::AST::Node}.
+    module Sexp
+      # @param type [Symbol]
+      # @param children [Array]
+      # @param properties [Hash]
+      # @return [Msh::AST::Node]
+      def s type, *children, **properties
+        Msh::AST::Node.new type, children, properties
+      end
+    end
+
     class Pipeline
       attr_reader :piped
 

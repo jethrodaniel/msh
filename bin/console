@@ -12,6 +12,13 @@ Pry.start
 
 require "msh/lexer"
 require "msh/parser"
-l = Msh::Lexer.new "cowsay"
-p = Msh::Parser.new lex.tokens
-i = Msh::Interpreter.new parser.parse
+L = Msh::Lexer.new "cowsay"
+P = Msh::Parser.new lex.tokens
+I = Msh::Interpreter.new parser.parse
+
+n = AST::Node.new :INTERP, [], :line => 2, column: 3
+
+require 'pry';require 'pry-byebug';binding.pry;nil
+puts
+
+
