@@ -86,7 +86,7 @@ module Msh
       def self.from_node node
         words = node.children.map do |word|
           if word.children.size > 1
-            raise "expected only 1 child, got #{command.children.inspect}"
+            raise "expected only 1 child, got #{word.children.inspect}"
           end
 
           word.children.first

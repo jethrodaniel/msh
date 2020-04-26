@@ -9,7 +9,7 @@ RSpec.describe Msh::Parser do
 
   Examples.each do |code, data|
     it code do
-      skip unless data[:parser_passing]
+      skip unless data[:parser_valid]
 
       ast = if ruby_version < 2.6
               binding.eval(data[:ast], __FILE__, __LINE__)
@@ -20,6 +20,9 @@ RSpec.describe Msh::Parser do
       lexer = Msh::Lexer.new code
       parser = Msh::Parser.new lexer.tokens
       expect(parser.parse).to eq ast
+      require 'pry';require 'pry-byebug';binding.pry;nil
+      puts
+
     end
   end
 end

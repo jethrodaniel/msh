@@ -7,8 +7,9 @@
 
   "echo such wow":
     :lexer_valid: true
-    :parser_valid: false
-    :interpreter_valid: false
+    :parser_valid:
+    :interpreter_valid: true
+    :exit_code: 0
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
        '[1:5-5][SPACE, " "]',
@@ -19,9 +20,10 @@
     :ast: |
       s(:EXPR,
         s(:COMMAND,
-          s(:WORD, "echo"),
-          s(:WORD, "such"),
-          s(:WORD, "wow")))
+          s(:WORD,
+            s(:LITERAL, "echo"),
+            s(:LITERAL, "such"),
+            s(:LITERAL, "wow"))))
 
   "echo so scare":
     :lexer_valid: true

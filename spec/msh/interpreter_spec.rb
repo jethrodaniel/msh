@@ -7,12 +7,12 @@ RSpec.describe Msh::Interpreter do
 
   Examples.each do |code, data|
     it code do
-      skip unless data[:interpreter_passing]
+      skip unless data[:interpreter_valid]
 
       ast = binding.eval(data[:ast], *binding.source_location)
       out = subject.process(ast)
 
-      expect(out.existatus).to eq 1
+      expect(out).to eq data[:exit_code]
     end
   end
 
@@ -22,9 +22,9 @@ RSpec.describe Msh::Interpreter do
     out = subject.process(ast)
     expect(out).to be_zero
 
-    # ast = s(:EXPR, s(:COMMAND, s(:WORD, "notarealcommand")))
-    # out = subject.process(ast)
-    # expect(out).to be_zero
+    ast = s(:EXPR, s(:COMMAND, s(:WORD, "notarealcommand")))
+    out = subject.process(ast)
+    expect(out).to be_zero
   end
 
   describe "builtins" do

@@ -27,6 +27,7 @@ module Msh
   # ```
   # expr -> pipeline
   #       | command
+  #       |
   #
   # pipeline -> pipe_prefix pipeline
   #           | pipeline
@@ -77,6 +78,8 @@ module Msh
   # Each parsing method returns an AST - we collect these as we traverse the
   # tokens, to build up the final AST.
   #
+  # Note that an AST is generated, _not_ a parse tree.
+  #
   class Parser
     # AST::Sexp allows us to easily create AST nodes, using s-expression syntax,
     # i.e, `s(:TOKEN)`, or `s(:TOKEN, [children...])`.
@@ -84,13 +87,16 @@ module Msh
 
     class Error < Msh::Error; end
 
-    REDIRECT_OPS = %i[
-      REDIRECT_OUT
+    REDIRECT_OPS = [
+      :REDIRECT_OUT,         # [n]>
+      :REDIRECT_IN,          # [n]<
+      :APPEND_OUT,           # [n]>>
+      :AND_REDIRECT_RIGHT,   # [n]&>
+      :AND_D_REDIRECT_RIGHT, # [n]&>>
+      :DUP_OUT_FD,           # [n]>&n
+      :DUP_IN_FD,            # [n]<&n
+      :NO_CLOBBER            # [n]>|
     ].freeze
-    # REDIRECT_LEFT
-    # REDIRECT_RIGHT
-    # D_REDIRECT_LEFT
-    # D_REDIRECT_RIGHT
 
     # @return [Array<Token>]
     attr_reader :tokens
@@ -117,26 +123,35 @@ module Msh
       expression
     end
 
-    # NOTE: Root of the grammar.
+    # @note Root of the grammar.
     #
     # @return [AST]
     def expression
+      skip_whitespace
+
+      return s(:NOOP) if eof?
+
       s(:EXPR, pipeline_or_command)
     end
 
     # @return [AST]
     def pipeline_or_command
+      skip_whitespace
+
       prefix = if match? :TIME
                  p = s(:TIME)
                  advance
                  p
                end
 
+      skip_whitespace
+
       commands = []
       commands << (c = command)
 
       while match? :PIPE
         advance # skip pipe
+        skip_whitespace
 
         if match? :WORD
           commands << command
@@ -169,7 +184,7 @@ module Msh
 
       prefix = redirection
 
-      while match? :WORD, :TIME, :INTERPOLATION
+      while match? :WORD, :TIME, :INTERPOLATION, :NEWLINE, :SPACE
         case peek.type
         when :INTERPOLATION
           # if words.last&.type == :WORD
@@ -182,13 +197,15 @@ module Msh
         when :WORD, :TIME
           # puts "word"
           words << s(:WORD, advance.value)
+        else
+          advance
         end
       end
 
       suffix = redirection
 
       if prefix.size.zero? && words.size.zero? && suffix.size.zero?
-        error "expected a command, got #{current_token}"
+        error "expected a command, got #{current_token.value.inspect}"
       elsif prefix.size.zero? && suffix.size.zero?
         s(:COMMAND, *words)
       else
@@ -203,17 +220,25 @@ module Msh
       io_num = io_number
 
       while match? *REDIRECT_OPS
-        redirect = advance.value
+        redirect = advance
+        skip_whitespace
 
-        error "expected a filename" unless match?(:WORD)
+        io_num = current_token.value.match(/\d+/).to_a.first
+
+        if io_num.nil?
+          io_num = case redirect.type
+                   when :REDIRECT_OUT then 1
+                   when :REDIRECT_IN then 0
+                     # when :AND_REDIRECT_RIGHT then 0
+                   end
+        end
+
+        error "expected a filename, got #{current_token}" unless match?(:WORD)
 
         filename = advance.value
 
-        redirections << if io_num
-                          s(:REDIRECTION, io_num, redirect, filename)
-                        else
-                          s(:REDIRECTION, redirect, filename)
-                        end
+        redirect = redirect.value.delete_prefix(io_num.to_s)
+        redirections << s(:REDIRECTION, io_num, redirect, filename)
       end
 
       redirections
@@ -299,6 +324,10 @@ module Msh
     # @return [Token]
     def prev
       @tokens[@pos - 1]
+    end
+
+    def skip_whitespace
+      advance while match? :SPACE
     end
   end
 end
