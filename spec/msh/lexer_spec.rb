@@ -95,7 +95,7 @@ RSpec.describe Msh::Lexer do
     source = data[:tokens].gsub '#{', '\#{' # yeah, this is stupid
 
     it code do
-      skip unless data[:lexer_passing]
+      skip unless data[:lexer_valid]
 
       expected = if ruby_version < 2.6
                    binding.eval(source, __FILE__, __LINE__)
