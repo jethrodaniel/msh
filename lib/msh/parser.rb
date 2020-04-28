@@ -53,10 +53,10 @@ module Msh
   # spaces -> SPACE spaces
   #         |
   #
-  # skip_space -> spaces
-  #             |
+  # skip_whitespace -> spaces
+  #                  |
   #
-  # _ -> skip_space # for convenience of notation
+  # _ -> skip_space # for convenience of notation in this BNF
   #
   # #
   # # start of grammar
@@ -117,6 +117,17 @@ module Msh
   # Each parsing method returns an AST - we collect these as we traverse the
   # tokens, to build up the final AST.
   #
+  # @note Parse methods here use are underscore-prefixed.
+  #
+  # @todo Parse methods here use a DSL to generate underscore-prefixed method names
+  #   ```
+  #   rule :expr do # defines a `_expr` method
+  #     rules(:skip_whitespace)
+  #     rules(:pipeline)
+  #     ...
+  #   end
+  #   ```
+  #
   # Note that an AST is generated, _not_ a parse tree.
   #
   class Parser
@@ -163,39 +174,43 @@ module Msh
     #
     # @return [AST]
     def parse
-      expression
+      _expression
+    end
+
+    def _skip_whitespace
+      advance while match? :SPACE
     end
 
     # @note Root of the grammar.
     #
     # @return [AST]
-    def expression
-      skip_whitespace
+    def _expression
+      _skip_whitespace
 
       return s(:NOOP) if eof?
 
-      s(:EXPR, pipeline_or_command)
+      s(:EXPR, _pipeline_or_command)
     end
 
     # @return [AST]
-    def pipeline_or_command
+    def _pipeline_or_command
       prefix = if match? :TIME
                  p = s(:TIME)
                  advance
                  p
                end
 
-      skip_whitespace
+      _skip_whitespace
 
       commands = []
-      commands << (c = command)
+      commands << (c = _command)
 
       while match? :PIPE
         advance # skip pipe
-        skip_whitespace
+        _skip_whitespace
 
         if match? :WORD
-          commands << command
+          commands << _command
         else
           error "expected a command after '|'"
         end
@@ -220,10 +235,10 @@ module Msh
     end
 
     # @return [AST]
-    def command
+    def _command
       words = []
 
-      prefix = redirection
+      prefix = _redirection
 
       while match? :WORD, :TIME, :INTERPOLATION, :NEWLINE, :SPACE
         case peek.type
@@ -243,7 +258,7 @@ module Msh
         end
       end
 
-      suffix = redirection
+      suffix = _redirection
 
       if prefix.size.zero? && words.size.zero? && suffix.size.zero?
         error "expected a command, got #{current_token.value.inspect}"
@@ -255,14 +270,14 @@ module Msh
     end
 
     # @return [AST]
-    def redirection
+    def _redirection
       redirections = []
 
-      io_num = io_number
+      io_num = _io_number
 
       while match? *REDIRECT_OPS
         redirect = advance
-        skip_whitespace
+        _skip_whitespace
 
         io_num = current_token.value.match(/\d+/).to_a.first
 
@@ -286,7 +301,7 @@ module Msh
     end
 
     # @return [AST]
-    def io_number
+    def _io_number
       advance if match? :IO_NUMBER
     end
 
@@ -365,10 +380,6 @@ module Msh
     # @return [Token]
     def prev
       @tokens[@pos - 1]
-    end
-
-    def skip_whitespace
-      advance while match? :SPACE
     end
   end
 end
