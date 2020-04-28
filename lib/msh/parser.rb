@@ -25,37 +25,19 @@ module Msh
   # The grammar parsed is as follows
   #
   # ```
-  # expr -> pipeline
-  #       | command
-  #       |
+  # # basic BNF-like notation with comments. Tokens are UPCASE.
+  # #
+  # # # comments after `#`
+  # # rule -> production_1 TOKEN
+  # #       | production_2
+  # #       | # empty
   #
-  # pipeline -> pipe_prefix pipeline
-  #           | pipeline
+  # #
+  # # basics
+  # #
   #
-  # pipe_prefix -> time
-  #              |
-  #
-  # pipeline -> command PIPE pipeline
-  #           | command
-  #
-  # command -> redir word command redir
-  #          | redir word redir
-  #
-  # redir -> io_number redir_op io_number
-  #        |
-  #
-  # redir_op -> REDIRECT_LEFT
-  #           | D_REDIRECT_LEFT
-  #           | REDIRECT_RIGHT
-  #           | D_REDIRECT_RIGHT
-  #
-  # io_number -> digit io_number
-  #        | digit
-  #        |
-  #
-  # word -> INTERPOLATION
-  #       | WORD
-  #       |
+  # digits -> digit digits
+  #         | digit
   #
   # digit -> 0
   #        | 1
@@ -67,6 +49,63 @@ module Msh
   #        | 7
   #        | 8
   #        | 9
+  #
+  # spaces -> SPACE spaces
+  #         |
+  #
+  # skip_space -> spaces
+  #             |
+  #
+  # _ -> skip_space # for convenience of notation
+  #
+  # #
+  # # start of grammar
+  # #
+  #
+  # root -> _ expr
+  #
+  # expr -> pipeline
+  #       | command
+  #       | EOF
+  #
+  # pipeline_prefix -> time
+  #                  |
+  #
+  # pipeline -> command _ PIPE _ pipeline_prefix _ pipeline_cmd
+  #           | command
+  #
+  # command_part -> redirect
+  #               | word
+  #
+  # command -> command_part _ command
+  #          | command_part
+  #
+  # # Note: `word`s here are actually "built" up into WORDS - consider
+  # #
+  # #    echo a#{b}c$(d)e
+  # #
+  # # Which yields
+  # #
+  # #    s(:WORD,
+  # #      s(:LITERAL, "a"),
+  # #      s(:INTERPOLATION, "#{b}"),
+  # #      s(:LITERAL, "c"),
+  # #      s(:SUBSTITUTION, "d"),
+  # #      s(:LITERAL, "e"))
+  # #
+  # #           | No whitespace here
+  # #           |
+  # word -> WORD word
+  #       | WORD
+  #
+  # redirect -> REDIRECT_OUT          # [n]>
+  #           | REDIRECT_IN           # [n]<
+  #           | APPEND_OUT            # [n]>>
+  #           | AND_REDIRECT_RIGHT    # [n]&>
+  #           | AND_D_REDIRECT_RIGHT  # [n]&>>
+  #           | DUP_OUT_FD            # [n]>&n
+  #           | DUP_IN_FD             # [n]<&n
+  #           | NO_CLOBBER            # [n]>|
   # ```
   #
   # This implementation is a recursive descent parser, which starts matching at
@@ -94,6 +133,12 @@ module Msh
       :DUP_OUT_FD,           # [n]>&n
       :DUP_IN_FD,            # [n]<&n
       :NO_CLOBBER            # [n]>|
+    ].freeze
+
+    WORDS = [
+      :WORD,         # echo
+      :TIME,         # echo time
+      :INTERPOLATION # echo the time is #{Time.now}
     ].freeze
 
     # @return [Array<Token>]
@@ -134,8 +179,6 @@ module Msh
 
     # @return [AST]
     def pipeline_or_command
-      skip_whitespace
-
       prefix = if match? :TIME
                  p = s(:TIME)
                  advance
