@@ -271,7 +271,7 @@ module Msh
       s(:PIPELINE, *commands)
     end
 
-    # Run the parser interactively, i.e, run a loop and parser user input.
+    # Run the parser interactively, i.e, run a loop and parse user input.
     def self.interactive
       while line = Readline.readline("parser> ", true)&.chomp
         case line
