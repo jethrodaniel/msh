@@ -14,12 +14,14 @@ module Msh
   # parser = Parser.new lexer.tokens
   # parser.parse
   # #=>
-  #   s(:EXPR,
+  #  s(:EXPR,
   #    s(:PIPELINE,
   #      s(:COMMAND,
-  #        s(:WORD, "fortune")),
+  #        s(:WORD,
+  #          s(:LITERAL, "fortune"))),
   #      s(:COMMAND,
-  #        s(:WORD, "cowsay"))))
+  #        s(:WORD,
+  #          s(:LITERAL, "cowsay")))))
   # ```
   #
   # The grammar parsed is as follows
@@ -66,7 +68,7 @@ module Msh
   #
   # expr -> pipeline
   #       | command
-  #       | EOF
+  #       |
   #
   # pipeline_prefix -> time
   #                  |
@@ -119,20 +121,15 @@ module Msh
   #
   # @note Parse methods here use are underscore-prefixed.
   #
-  # @todo Parse methods here use a DSL to generate underscore-prefixed method names
+  # @todo Use fancy DSL here instead of underscore prefixing?
+  #
   #   ```
   #   rule :expr do # defines a `_expr` method
-  #     rules(:skip_whitespace)
-  #     rules(:pipeline)
+  #     rules(:skip_whitespace) # calls `_skip_whitespace`
   #     ...
   #   end
   #   ```
-  #
-  # Note that an AST is generated, _not_ a parse tree.
-  #
   class Parser
-    include Msh::AST::Sexp
-
     class Error < Msh::Error; end
 
     REDIRECT_OPS = [
@@ -170,6 +167,19 @@ module Msh
       current_token.column
     end
 
+    # DSL to create an AST node, like {AST::Sexp}, but adds line/column info.
+    #
+    # @param type [Symbol]
+    # @param children [Array]
+    # @return [Msh::AST::Node]
+    def s type, *children
+      Msh::AST::Node.new \
+        type,
+        children,
+        :line => current_token.line,
+        :column => current_token.column
+    end
+
     # Parse all tokens into an AST
     #
     # @return [AST]
@@ -177,132 +187,88 @@ module Msh
       _expression
     end
 
+    # @return [AST, nil]
     def _skip_whitespace
       advance while match? :SPACE
     end
 
-    # @note Root of the grammar.
-    #
+    # @return [AST]
+    def _root
+      _skip_whitespace
+      _expression
+    end
+
     # @return [AST]
     def _expression
-      _skip_whitespace
+      c = _command
 
-      return s(:NOOP) if eof?
+      return s(:EXPR, s(:PIPELINE, c, *_pipeline.children)) if match? :PIPE
 
-      s(:EXPR, _pipeline_or_command)
+      return s(:EXPR, c) if c
+
+      s(:NOOP)
     end
 
-    # @return [AST]
-    def _pipeline_or_command
-      prefix = if match? :TIME
-                 p = s(:TIME)
-                 advance
-                 p
-               end
-
-      _skip_whitespace
-
-      commands = []
-      commands << (c = _command)
-
-      while match? :PIPE
-        advance # skip pipe
-        _skip_whitespace
-
-        if match? :WORD
-          commands << _command
-        else
-          error "expected a command after '|'"
-        end
-      end
-
-      case commands.size
-      when 0
-        error "expected a command"
-      when 1
-        if prefix
-          s(:PIPELINE, prefix, *commands)
-        else
-          c # return :COMMAND
-        end
-      else
-        if prefix
-          s(:PIPELINE, prefix, *commands)
-        else
-          s(:PIPELINE, *commands)
-        end
-      end
-    end
-
-    # @return [AST]
+    # @return [AST, nil]
     def _command
-      words = []
+      cmd = s(:COMMAND, _command_part)
 
-      prefix = _redirection
+      _skip_whitespace
 
-      while match? :WORD, :TIME, :INTERPOLATION, :NEWLINE, :SPACE
-        case peek.type
-        when :INTERPOLATION
-          # if words.last&.type == :WORD
-          # puts "word started"
-          # words << s(:WORD, advance.value)
-          # else
-          # puts "not word started"
-          words << s(:INTERPOLATION, advance.value)
-          # end
-        when :WORD, :TIME
-          # puts "word"
-          words << s(:WORD, advance.value)
-        else
-          advance
-        end
-      end
+      return cmd if eof? || match?(:PIPE)
 
-      suffix = _redirection
+      c = _command
 
-      if prefix.size.zero? && words.size.zero? && suffix.size.zero?
-        error "expected a command, got #{current_token.value.inspect}"
-      elsif prefix.size.zero? && suffix.size.zero?
-        s(:COMMAND, *words)
+      if cmd.children.compact.empty?
+        s(:COMMAND, *c.children)
       else
-        s(:COMMAND, *prefix, *words, *suffix)
+        s(:COMMAND, *cmd.children, *c.children)
       end
     end
 
+    # @return [AST, nil]
+    def _command_part
+      return advance if match?(:REDIRECT)
+
+      _word
+    end
+
+    # @return [AST, nil]
+    def _word
+      return nil unless match? *WORDS
+
+      word_pieces = []
+
+      c = advance
+
+      case c.type
+      when :WORD, :TIME
+        word_pieces << s(:LITERAL, c.value)
+      when :INTERPOLATION
+        word_pieces << s(:INTERPOLATION, c.value)
+      end
+
+      return s(:WORD, *word_pieces, *_word.children) if match? *WORDS
+
+      return nil if word_pieces.empty?
+
+      s(:WORD, *word_pieces)
+    end
+
     # @return [AST]
-    def _redirection
-      redirections = []
+    def _pipeline
+      commands = []
+      while match? :PIPE
+        advance
+        c = _command
 
-      io_num = _io_number
-
-      while match? *REDIRECT_OPS
-        redirect = advance
-        _skip_whitespace
-
-        io_num = current_token.value.match(/\d+/).to_a.first
-
-        if io_num.nil?
-          io_num = case redirect.type
-                   when :REDIRECT_OUT then 1
-                   when :REDIRECT_IN then 0
-                     # when :AND_REDIRECT_RIGHT then 0
-                   end
+        if c.children.compact.empty?
+          error "expected a command after `|`"
+        else
+          commands << c
         end
-
-        error "expected a filename, got #{current_token}" unless match?(:WORD)
-
-        filename = advance.value
-
-        redirect = redirect.value.delete_prefix(io_num.to_s)
-        redirections << s(:REDIRECTION, io_num, redirect, filename)
       end
-
-      redirections
-    end
-
-    # @return [AST]
-    def _io_number
-      advance if match? :IO_NUMBER
+      s(:PIPELINE, *commands)
     end
 
     # Run the parser interactively, i.e, run a loop and parser user input.
@@ -379,7 +345,9 @@ module Msh
 
     # @return [Token]
     def prev
-      @tokens[@pos - 1]
+      index = @pos - 1
+      index = 0 if index.negative?
+      @tokens[index]
     end
   end
 end

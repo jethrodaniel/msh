@@ -11,6 +11,11 @@ Style/SpecialGlobalVars:
 Style/AsciiComments:
   Enabled: false
 
+# `return c if c = _command`, etc
+Lint/UselessAssignment:
+  Exclude:
+    - 'lib/msh/parser.rb'
+
 Metrics/BlockLength:
   Exclude:
     - 'spec/msh*/**/*_spec.rb'

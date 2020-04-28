@@ -8,7 +8,7 @@
   "echo such wow":
     :lexer_valid: true
     :parser_valid: true
-    :interpreter_valid: true
+    :interpreter_valid: false
     :exit_code: 0
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
@@ -21,8 +21,10 @@
       s(:EXPR,
         s(:COMMAND,
           s(:WORD,
-            s(:LITERAL, "echo"),
-            s(:LITERAL, "such"),
+            s(:LITERAL, "echo")),
+          s(:WORD,
+            s(:LITERAL, "such")),
+          s(:WORD,
             s(:LITERAL, "wow"))))
 
   "echo so scare":
@@ -987,7 +989,7 @@
 
   "echo #{:a} #{:b}":
     :lexer_valid: true
-    :parser_valid: false
+    :parser_valid: true
     :interpreter_valid: false
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
@@ -999,9 +1001,12 @@
     :ast: |
       s(:EXPR,
         s(:COMMAND,
-          s(:WORD, "echo"),
-          s(:INTERPOLATION, ":a"),
-          s(:INTERPOLATION, ":b")))
+          s(:WORD,
+            s(:LITERAL, "echo")),
+          s(:WORD,
+            s(:INTERPOLATION, "\#{:a}")),
+          s(:WORD,
+            s(:INTERPOLATION, "\#{:b}"))))
 
   # TODO:
   #   s(:WORD,

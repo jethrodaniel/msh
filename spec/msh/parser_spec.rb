@@ -20,9 +20,6 @@ RSpec.describe Msh::Parser do
       lexer = Msh::Lexer.new code
       parser = Msh::Parser.new lexer.tokens
       expect(parser.parse).to eq ast
-      require 'pry';require 'pry-byebug';binding.pry;nil
-      puts
-
     end
   end
 end

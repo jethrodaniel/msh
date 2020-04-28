@@ -8,6 +8,19 @@ msh is a ruby shell.
 
 **NOTE**: still in early stages, subject to breaking changes until `v1.0.0`.
 
+## Goals
+
+Use ruby in the shell
+
+- global interpolation
+- use ruby methods as functions, aliases, and in interpolation
+- use ruby variables for environment variables
+
+Be as simple and understandable as possible, while doing as much as possible
+without external dependencies.
+
+- dependencies should be lightweight, with no gem extensions
+
 ## Dependencies
 
 💯 percent Ruby, no C dependencies. Only 2 runtime dependencies
@@ -61,7 +74,10 @@ Most of these come from a [single YAML file](./spec/fixtures/examples.yml)...
   # words, filenames, options, etc
 
   "echo such wow":
-    :valid: true
+    :lexer_valid: true
+    :parser_valid: true
+    :interpreter_valid: false
+    :exit_code: 0
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
        '[1:5-5][SPACE, " "]',
@@ -72,9 +88,6 @@ Most of these come from a [single YAML file](./spec/fixtures/examples.yml)...
     :ast: |
       s(:EXPR,
         s(:COMMAND,
-          s(:WORD, "echo"),
-          s(:WORD, "such"),
-          s(:WORD, "wow")))
 ...
 ```
 
