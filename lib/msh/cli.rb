@@ -40,9 +40,9 @@ module Msh
         opts.on "-c  <cmd_string>", String, "runs <cmd_string> as shell input" do |cmd_string|
           cmd_string = ARGV.prepend(cmd_string).join " "
           interpreter = Msh::Interpreter.new
-          parser = Msh::Parser.new Msh::Lexer.new(cmd_string).tokens
-          result = interpreter.process parser.parse
-          exit result
+          lexer = Msh::Lexer.new(cmd_string)
+          parser = Msh::Parser.new lexer.tokens
+          exit interpreter.process parser.parse
         end
       end
     end

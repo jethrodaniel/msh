@@ -40,7 +40,7 @@ module Msh
       # pry-byebug has an issue here, and would appear as a repl evaluated in
       # the wrong context here (in the AST gem, actually).  This is likely a
       # byebug-specific issue. IRB works fine here.
-      e = @binding.eval("\"#{input}\"", *@binding.source_location)
+      e = @binding.eval(input, *@binding.source_location)
       e
     end
 

@@ -231,7 +231,7 @@ module Msh
     # @return [AST]
     def _redirect
       r = consume *REDIRECTS, "expected a redirection operator"
-      n = r.value.match(/\A(\d+)/)&.captures&.first || "1"
+      n = r.value.match(/\A(\d+)/)&.captures&.first&.to_i || 1
 
       _skip_whitespace
 

@@ -19,7 +19,7 @@
   "echo such wow":
     :lexer_valid: true
     :parser_valid: true
-    :interpreter_valid: false
+    :interpreter_valid: true
     :exit_code: 0
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
@@ -198,7 +198,9 @@
     :ast: |
       s(:EXPR,
         s(:COMMAND,
-          s(:REDIRECT, "1", :REDIRECT_OUT, "out")))
+          s(:REDIRECT, 1, :REDIRECT_OUT, "out")))
+    # :interpreter_spec: |
+    #   File.exists?("out") && File.read("out") == ""
 
   "2>&1":
     :lexer_valid: true
@@ -210,7 +212,7 @@
     :ast: |
       s(:EXPR,
         s(:COMMAND,
-          s(:REDIRECT, "2", :DUP_OUT_FD)))
+          s(:REDIRECT, 2, :DUP_OUT_FD)))
 
   "fortune >out |& cowsay":
     :lexer_valid: true

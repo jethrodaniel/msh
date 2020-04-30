@@ -118,38 +118,7 @@ module Msh
     end
 
     def on_EXPR node
-      node.children.each do |node|
-        case node.type
-        when :PIPELINE
-          process node
-        when :OR
-          or_expr = process node
-
-          run(*or_expr.left.words)
-          run(*or_expr.right.words) unless $CHILD_STATUS.exitstatus.zero?
-        when :AND
-          and_expr = process node
-
-          run(*and_expr.left.words)
-          return unless $CHILD_STATUS.exitstatus.zero?
-
-          run(*and_expr.right.words)
-        when :COMMAND
-          cmd = process node
-
-          begin
-            return @env.send(*cmd.words) if @env.respond_to?(cmd.words.first)
-          rescue ArgumentError => e
-            puts e
-            return 1
-          end
-
-          run *cmd.words
-        else
-          abort "expected one of :PIPELINE, :AND, :OR, :COMMAND"
-        end
-      end
-      $CHILD_STATUS.exitstatus
+      process_all(node).last
     end
 
     # Modified from https://gist.github.com/JoshCheek/61769bfa05d52609e15948fabfad3381
@@ -235,10 +204,39 @@ module Msh
     alias on_OR  process_conditional
     alias on_AND process_conditional
 
+    # 1. Perform redirects
+    # 2. Expand words
+    #   - could be command substitution or string interpolation
+    # 3. Execute the command, first checking if a function, else ...
+    #   - function
+    #   - builtin
+    #   - executable
+    #
     # @param node [AST::Node] a :COMMAND node
-    # @return [Msh::Command]
     def on_COMMAND node
-      Msh::AST::Command.from_node node
+      redirs, words = node.children.partition { |n| n.type == :REDIRECT }
+
+      redirs.each do |redir|
+        # @todo perform the redirection
+      end
+
+      words.map! do |word|
+        word.children.map do |w|
+          case w.type
+          when :INTERPOLATION
+            value = w.children.first[2..-2]
+            begin
+              @env._evaluate value
+            rescue NoMethodError => e
+              puts e
+            end
+          when :LITERAL
+            w.children.first
+          end
+        end.join
+      end
+
+      run *words
     end
 
     private
