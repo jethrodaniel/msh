@@ -187,15 +187,30 @@
 
   # redirections
 
+  ">out":
+    :lexer_valid: true
+    :parser_valid: true
+    :interpreter_valid: false
+    :tokens: |
+      ['[1:1-1][REDIRECT_OUT, ">"]',
+       '[1:2-4][WORD, "out"]',
+       '[1:5-5][EOF, "\\u0000"]']
+    :ast: |
+      s(:EXPR,
+        s(:COMMAND,
+          s(:REDIRECT, "1", :REDIRECT_OUT, "out")))
+
   "2>&1":
     :lexer_valid: true
-    :parser_valid: false
+    :parser_valid: true
     :interpreter_valid: false
     :tokens: |
       ['[1:1-4][DUP_OUT_FD, "2>&1"]',
        '[1:5-5][EOF, "\\u0000"]']
     :ast: |
-      s(:NOOP)
+      s(:EXPR,
+        s(:COMMAND,
+          s(:REDIRECT, "2", :DUP_OUT_FD)))
 
   "fortune >out |& cowsay":
     :lexer_valid: true

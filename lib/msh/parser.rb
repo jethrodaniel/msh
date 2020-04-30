@@ -196,7 +196,7 @@ module Msh
       s(:EXPR, c) if c
     end
 
-    # @return [AST, nil]
+    # @return [AST]
     def _command
       cmd_parts = []
 
@@ -210,7 +210,7 @@ module Msh
       s(:COMMAND, *cmd_parts)
     end
 
-    # @return [AST, nil]
+    # @return [AST]
     def _word
       word_pieces = []
 
@@ -226,6 +226,22 @@ module Msh
       end
 
       s(:WORD, *word_pieces)
+    end
+
+    # @return [AST]
+    def _redirect
+      r = consume *REDIRECTS, "expected a redirection operator"
+      n = r.value.match(/\A(\d+)/)&.captures&.first || "1"
+
+      _skip_whitespace
+
+      case r.type
+      when :DUP_OUT_FD # 2>&1
+        s(:REDIRECT, n, r.type)
+      else
+        f = consume *WORDS, "expected a filename to complete redirection #{r}"
+        s(:REDIRECT, n, r.type, f.value)
+      end
     end
 
     # @return [AST]
@@ -324,6 +340,16 @@ module Msh
       index = @pos - 1
       index = 0 if index.negative?
       @tokens[index]
+    end
+
+    # @param type [...Symbol]
+    # @param msg [String]
+    def consume *types, msg
+      if match? *types
+        advance
+      else
+        error msg
+      end
     end
   end
 end
