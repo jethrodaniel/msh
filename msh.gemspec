@@ -36,43 +36,9 @@ Gem::Specification.new do |spec|
   spec.files = %w[
     readme.md
     msh.gemspec
-    man/man1/msh-repl.1
-    man/man1/msh-parser.1
-    man/man1/msh-lexer.1
-    man/man1/msh-history.1
-    man/man1/msh-help.1
-    man/man1/msh-design.1
-    man/man1/msh.1
     license.txt
-    lib/msh/version.rb
-    lib/msh/token.rb
-    lib/msh/scanner.rb
-    lib/msh/repl/simple.rb
-    lib/msh/repl.rb
-    lib/msh/repl/ansi.rb
-    lib/msh.rb
-    lib/msh/parser.rb
-    lib/msh/logger.rb
-    lib/msh/lexer.rb
-    lib/msh/interpreter.rb
-    lib/msh/gemspec.rb
-    lib/msh/error.rb
-    lib/msh/env.rb
-    lib/msh/documentation.rb
-    lib/msh/configuration.rb
-    lib/msh/cli.rb
-    lib/msh/builtins/repl.rb
-    lib/msh/builtins/quit.rb
-    lib/msh/builtins/prompt.rb
-    lib/msh/builtins/parser.rb
-    lib/msh/builtins/lexer.rb
-    lib/msh/builtins/history.rb
-    lib/msh/builtins/help.rb
-    lib/msh/builtins/builtins.rb
-    lib/msh/ast.rb
-    lib/msh/ansi.rb
     exe/msh
-  ]
+  ] + Dir.glob("man/man1/*.1") + Dir.glob("lib/**/*.rb")
 
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
