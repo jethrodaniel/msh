@@ -31,8 +31,6 @@ Gem::Specification.new do |spec|
   # Don't use the typical `git ls-files` here, since not everyplace has git.
   #
   # Ship the minimal amount of files needed for production.
-  #
-  # :r !echo -e "$(git ls-files lib/)\nreadme.md\nlicense.txt\nmsh.gemspec\n$(git ls-files man/man1)\n$(git ls-files exe)" | sort -r
   spec.files = %w[
     readme.md
     msh.gemspec
