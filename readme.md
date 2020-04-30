@@ -70,8 +70,9 @@ msh has more tests than you can shake a stick at.
 Most of these come from a [single YAML file](./spec/fixtures/examples.yml)...
 
 ```yml
-:examples:
+  #
   # words, filenames, options, etc
+  #
 
   "echo such wow":
     :lexer_valid: true
@@ -88,6 +89,12 @@ Most of these come from a [single YAML file](./spec/fixtures/examples.yml)...
     :ast: |
       s(:EXPR,
         s(:COMMAND,
+          s(:WORD,
+            s(:LITERAL, "echo")),
+          s(:WORD,
+            s(:LITERAL, "such")),
+          s(:WORD,
+            s(:LITERAL, "wow"))))
 ...
 ```
 
@@ -105,7 +112,7 @@ Bug reports and pull requests are welcome on [GitHub](https://github.com/jethrod
 
 ```sh
 git clone https://github.com/jethrodaniel/msh
-cd msh && bundle exec rake
+cd msh && bundle && bundle exec rake
 ```
 
 ## License
