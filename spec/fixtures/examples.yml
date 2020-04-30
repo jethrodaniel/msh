@@ -1,9 +1,20 @@
 ---
 
+# large YAML seems to get out of hand quickly, so remember
+#
+# > Flat is better than nested.
+# > Sparse is better than dense.
+# > Readability counts.
+# >
+# > Tim Peters
+
 # TODO: add `:msg:` key for failing examples
+#
 
 :examples:
+  #
   # words, filenames, options, etc
+  #
 
   "echo such wow":
     :lexer_valid: true
@@ -51,13 +62,13 @@
   "/usr/bin/program\\ with\\ space \\but\\ this\\ is\\ an\\ arg":
     :valid: false
     :tokens: |
-      [[:WORD, "/usr/bin/program\\ with\\ space"],
-       [:WORD, "\\but\\ this\\ is\\ an\\ arg"]]
     :ast: |
       s(:EXPR,
         s(:COMMAND,
-          s(:WORD, "/usr/bin/program\\ with\\ space"),
-          s(:WORD, "\\but\\ this\\ is\\ an\\ arg")))
+          s(:WORD,
+            s(:LITERAL, "/usr/bin/program\\ with\\ space")),
+          s(:WORD,
+            s(:LITERAL, "\\but\\ this\\ is\\ an\\ arg"))))
 
   "a&&b":
     :lexer_valid: true
@@ -97,7 +108,7 @@
 
   "cd ..":
     :lexer_valid: true
-    :parser_valid: false
+    :parser_valid: true
     :interpreter_valid: false
     :tokens: |
       ['[1:1-2][WORD, "cd"]',
@@ -107,8 +118,10 @@
     :ast: |
       s(:EXPR,
         s(:COMMAND,
-          s(:WORD, "cd"),
-          s(:WORD, "..")))
+          s(:WORD,
+            s(:LITERAL, "cd")),
+          s(:WORD,
+            s(:LITERAL, ".."))))
 
   "...":
     :lexer_valid: true
@@ -120,14 +133,15 @@
     :ast: |
       s(:EXPR,
         s(:COMMAND,
-          s(:WORD, "...")))
+          s(:WORD,
+            s(:LITERAL, "..."))))
 
   #
   # pipes
   #
   "fortune | cowsay":
     :lexer_valid: true
-    :parser_valid: false
+    :parser_valid: true
     :interpreter_valid: false
     :tokens: |
       ['[1:1-7][WORD, "fortune"]',
@@ -140,11 +154,15 @@
       s(:EXPR,
         s(:PIPELINE,
           s(:COMMAND,
-            s(:WORD, "fortune")),
+            s(:WORD,
+              s(:LITERAL, "fortune"))),
           s(:COMMAND,
-            s(:WORD, "cowsay"))))
+            s(:WORD,
+              s(:LITERAL, "cowsay")))))
 
-#  # `|&` is sugar for `2>&1 |`
+  #
+  # `|&` is sugar for `2>&1 |`
+  #
 
   "fortune |& cowsay":
     :lexer_valid: true
