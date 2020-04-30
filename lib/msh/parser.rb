@@ -27,38 +27,24 @@ module Msh
   # The grammar parsed is as follows
   #
   # ```
-  # # basic BNF-like notation with comments. Tokens are UPCASE.
+  # # basic EBNF-like notation with comments. Tokens are UPCASE.
   # #
   # # # comments after `#`
   # # rule -> production_1 TOKEN
   # #       | production_2
+  # #       | {a} # zero or more timres
   # #       | # empty
+  # #
+  # # {...} leads to while-loops
+  # # .. | .. leads to if-else/case
   #
   # #
   # # basics
   # #
   #
-  # digits -> digit digits
-  #         | digit
+  # spaces -> {SPACE}
   #
-  # digit -> 0
-  #        | 1
-  #        | 2
-  #        | 3
-  #        | 4
-  #        | 5
-  #        | 6
-  #        | 7
-  #        | 8
-  #        | 9
-  #
-  # spaces -> SPACE spaces
-  #         |
-  #
-  # skip_whitespace -> spaces
-  #                  |
-  #
-  # _ -> skip_space # for convenience of notation in this BNF
+  # _ -> spaces # for convenience of notation in this BNF
   #
   # #
   # # start of grammar
@@ -70,17 +56,13 @@ module Msh
   #       | command
   #       |
   #
-  # pipeline_prefix -> time
-  #                  |
-  #
-  # pipeline -> command _ PIPE _ pipeline_prefix _ pipeline_cmd
+  # pipeline -> command _ PIPE _ pipeline
   #           | command
   #
-  # command_part -> redirect
-  #               | word
+  # command -> cmd_part _ command # {cmd_part}+, but skipping whitespace
+  #          | cmd_part
   #
-  # command -> command_part _ command
-  #          | command_part
+  # cmd_part -> redirect | word
   #
   # # Note: `word`s here are actually "built" up into WORDS - consider
   # #
@@ -97,7 +79,7 @@ module Msh
   # #
   # #           | No whitespace here
   # #           |
-  # word -> WORD word
+  # word -> WORD word  # equivalent to {WORD}+
   #       | WORD
   #
   # redirect -> REDIRECT_OUT          # [n]>
@@ -132,7 +114,7 @@ module Msh
   class Parser
     class Error < Msh::Error; end
 
-    REDIRECT_OPS = [
+    REDIRECTS = [
       :REDIRECT_OUT,         # [n]>
       :REDIRECT_IN,          # [n]<
       :APPEND_OUT,           # [n]>>
@@ -184,7 +166,7 @@ module Msh
     #
     # @return [AST]
     def parse
-      _expression
+      _expr
     end
 
     # @return [AST, nil]
@@ -195,62 +177,53 @@ module Msh
     # @return [AST]
     def _root
       _skip_whitespace
-      _expression
+      _expr
     end
 
     # @return [AST]
-    def _expression
+    def _expr
+      return s(:NOOP) if eof?
+
       c = _command
+
+      _skip_whitespace
 
       return s(:EXPR, s(:PIPELINE, c, *_pipeline.children)) if match? :PIPE
 
-      return s(:EXPR, c) if c
+      # error "failed to parse to EOF, stopped at #{current_token}" unless eof?
+      error "unexpected #{current_token}" unless eof?
 
-      s(:NOOP)
+      s(:EXPR, c) if c
     end
 
     # @return [AST, nil]
     def _command
-      cmd = s(:COMMAND, _command_part)
+      cmd_parts = []
 
-      _skip_whitespace
-
-      return cmd if eof? || match?(:PIPE)
-
-      c = _command
-
-      if cmd.children.compact.empty?
-        s(:COMMAND, *c.children)
-      else
-        s(:COMMAND, *cmd.children, *c.children)
+      while match? *WORDS, *REDIRECTS
+        cmd_parts << _word if match? *WORDS
+        _skip_whitespace
+        cmd_parts << _redirect if match? *REDIRECTS
+        _skip_whitespace
       end
-    end
 
-    # @return [AST, nil]
-    def _command_part
-      return advance if match?(:REDIRECT)
-
-      _word
+      s(:COMMAND, *cmd_parts)
     end
 
     # @return [AST, nil]
     def _word
-      return nil unless match? *WORDS
-
       word_pieces = []
 
-      c = advance
+      while match? *WORDS
+        c = advance
 
-      case c.type
-      when :WORD, :TIME
-        word_pieces << s(:LITERAL, c.value)
-      when :INTERPOLATION
-        word_pieces << s(:INTERPOLATION, c.value)
+        case c.type
+        when :WORD, :TIME
+          word_pieces << s(:LITERAL, c.value)
+        when :INTERPOLATION
+          word_pieces << s(:INTERPOLATION, c.value)
+        end
       end
-
-      return s(:WORD, *word_pieces, *_word.children) if match? *WORDS
-
-      return nil if word_pieces.empty?
 
       s(:WORD, *word_pieces)
     end
@@ -258,16 +231,19 @@ module Msh
     # @return [AST]
     def _pipeline
       commands = []
+
       while match? :PIPE
         advance
-        c = _command
 
-        if c.children.compact.empty?
-          error "expected a command after `|`"
+        _skip_whitespace
+
+        if match? *WORDS, *REDIRECTS
+          commands << _command
         else
-          commands << c
+          error "expected a command after `|`"
         end
       end
+
       s(:PIPELINE, *commands)
     end
 

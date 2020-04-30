@@ -29,7 +29,7 @@
 
   "echo so scare":
     :lexer_valid: true
-    :parser_valid: false
+    :parser_valid: true
     :interpreter_valid: false
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
@@ -41,9 +41,12 @@
     :ast: |
       s(:EXPR,
         s(:COMMAND,
-          s(:WORD, "echo"),
-          s(:WORD, "so"),
-          s(:WORD, "scare")))
+          s(:WORD,
+            s(:LITERAL, "echo")),
+          s(:WORD,
+            s(:LITERAL, "so")),
+          s(:WORD,
+            s(:LITERAL, "scare"))))
 
   "/usr/bin/program\\ with\\ space \\but\\ this\\ is\\ an\\ arg":
     :valid: false
@@ -986,6 +989,12 @@
        '[1:15-15][WORD, "d"]',
        '[1:16-16][EOF, "\u0000"]']
     :ast: |
+      s(:EXPR,
+        s(:COMMAND,
+          s(:WORD,
+            s(:LITERAL, "a"),
+            s(:INTERPOLATION, "\#{\#{:b}\#{:c}}"),
+            s(:LITERAL, "d"))))
 
   "echo #{:a} #{:b}":
     :lexer_valid: true
