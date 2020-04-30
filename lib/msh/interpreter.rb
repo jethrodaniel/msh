@@ -108,22 +108,14 @@ module Msh
       @env.prompt
     end
 
-    # @param input [String]
-    # @return [String]
-    def preprocess input
-      @env._evaluate input
-    rescue NoMethodError => e
-      puts e
-      input
-    end
-
+    # {#parse} calls this on unknown nodes
     def handler_missing node
       error "no handler for node: #{node}"
     end
 
-    # def on_NOOP _node
-    #   0
-    # end
+    def on_NOOP _node
+      0
+    end
 
     def on_EXPR node
       node.children.each do |node|

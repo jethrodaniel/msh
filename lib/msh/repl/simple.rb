@@ -13,7 +13,9 @@ module Msh
 
           abort "^D" if line.nil?
 
-          puts line
+          lexer = Msh::Lexer.new line
+          parser = Msh::Parser.new lexer.tokens
+          interpreter.process parser.parse
         end
       rescue Interrupt
         puts
