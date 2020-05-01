@@ -25,6 +25,7 @@ CLEAN << "docs" << "pkg" << "spec/msh/lexer_spec.rb"
 
 # need these to generate the manpages and readme
 require "erb"
+require "msh/backports"
 require "msh/version"
 require "msh/gemspec"
 require "msh/documentation"

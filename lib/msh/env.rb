@@ -4,7 +4,7 @@ require "irb"
 require "pry"
 require "pp"
 
-require "msh/extensions"
+require "msh/backports"
 require "msh/error"
 require "msh/configuration"
 require "msh/ansi"
@@ -58,8 +58,10 @@ module Msh
         abort "expected Array<String>, got `#{args.class}:#{args.inspect}`"
       end
 
-      pid = fork do
-        exec *args
+      begin
+        pid = fork do
+          exec *args
+        end
       rescue Errno::ENOENT => e
         puts e.message
       end

@@ -11,3 +11,17 @@ if version <= 2.6
     end
   end
 end
+
+if version <= 2.5
+  class String
+    def delete_suffix suffix
+      self[0..size - suffix.size - 1]
+    end
+  end
+
+  class Pathname
+    def glob glob
+      Dir.glob(glob)
+    end
+  end
+end
