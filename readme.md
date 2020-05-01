@@ -2,6 +2,7 @@
 
 ![](https://github.com/jethrodaniel/msh/workflows/ci/badge.svg)
 ![](https://img.shields.io/github/license/jethrodaniel/msh.svg)
+
 ![](https://img.shields.io/github/stars/jethrodaniel/msh?style=social)
 
 msh is a ruby shell.
@@ -45,6 +46,7 @@ Options:
     -V, --version                    show the version   (0.1.0)
         --copyright, --license       show the copyright (MIT)
     -c  <cmd_string>                 runs <cmd_string> as shell input
+
 ```
 
 ## Roadmap
@@ -70,31 +72,28 @@ msh has more tests than you can shake a stick at.
 Most of these come from a [single YAML file](./spec/fixtures/examples.yml)...
 
 ```yml
-  #
-  # words, filenames, options, etc
-  #
-
-  "echo such wow":
+  "echo #{Math::PI}":
     :lexer_valid: true
     :parser_valid: true
-    :interpreter_valid: false
-    :exit_code: 0
+    :interpreter_valid: true
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
        '[1:5-5][SPACE, " "]',
-       '[1:6-9][WORD, "such"]',
-       '[1:10-10][SPACE, " "]',
-       '[1:11-13][WORD, "wow"]',
-       '[1:14-14][EOF, "\\u0000"]']
+       '[1:6-16][INTERPOLATION, "\#{Math::PI}"]',
+       '[1:17-17][EOF, "\u0000"]']
     :ast: |
       s(:EXPR,
         s(:COMMAND,
           s(:WORD,
             s(:LITERAL, "echo")),
           s(:WORD,
-            s(:LITERAL, "such")),
-          s(:WORD,
-            s(:LITERAL, "wow"))))
+            s(:INTERPOLATION, "\#{Math::PI}"))))
+    :exit_code: 0
+    :output: |
+      3.141592653589793
+    :error: |
+
+
 ...
 ```
 
