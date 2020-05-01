@@ -4,6 +4,7 @@ require "irb"
 require "pry"
 require "pp"
 
+require "msh/extensions"
 require "msh/error"
 require "msh/configuration"
 require "msh/ansi"

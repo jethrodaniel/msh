@@ -3,7 +3,7 @@
 require "msh/interpreter"
 
 require "stringio"
-require 'tempfile'
+require "tempfile"
 
 # https://github.com/seattlerb/minitest/blob/6257210b7accfeb218b4388aaa36d3d45c5c41a5/lib/minitest/assertions.rb#L546
 #
@@ -14,9 +14,11 @@ require 'tempfile'
 #     end
 #
 def capture_subprocess_io
-  captured_stdout, captured_stderr = Tempfile.new("out"), Tempfile.new("err")
+  captured_stdout = Tempfile.new("out")
+  captured_stderr = Tempfile.new("err")
 
-  orig_stdout, orig_stderr = $stdout.dup, $stderr.dup
+  orig_stdout = $stdout.dup
+  orig_stderr = $stderr.dup
   $stdout.reopen captured_stdout
   $stderr.reopen captured_stderr
 
@@ -25,7 +27,7 @@ def capture_subprocess_io
   $stdout.rewind
   $stderr.rewind
 
-  return captured_stdout.read, captured_stderr.read
+  [captured_stdout.read, captured_stderr.read]
 ensure
   captured_stdout.unlink
   captured_stderr.unlink
@@ -45,7 +47,7 @@ RSpec.describe Msh::Interpreter do
       orig = $stdout
       buffer = StringIO.new
 
-       out, err = capture_subprocess_io do
+      out, err = capture_subprocess_io do
         out = subject.process(ast)
         expect(out).to eq data[:exit_code]
       end
