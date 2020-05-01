@@ -1014,6 +1014,27 @@
   # interpolation
   #
 
+  "echo #{Math::PI}":
+    :lexer_valid: true
+    :parser_valid: true
+    :interpreter_valid: true
+    :tokens: |
+      ['[1:1-4][WORD, "echo"]',
+       '[1:5-5][SPACE, " "]',
+       '[1:6-16][INTERPOLATION, "\#{Math::PI}"]',
+       '[1:17-17][EOF, "\u0000"]']
+    :ast: |
+      s(:EXPR,
+        s(:COMMAND,
+          s(:WORD,
+            s(:LITERAL, "echo")),
+          s(:WORD,
+            s(:INTERPOLATION, "\#{Math::PI}"))))
+    :exit_code: 0
+    :output: |
+      3.141592653589793
+    :error: |
+
   "a#{#{:b}#{:c}}d":
     :lexer_valid: true
     :parser_valid: false
