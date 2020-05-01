@@ -37,11 +37,14 @@
             s(:LITERAL, "such")),
           s(:WORD,
             s(:LITERAL, "wow"))))
+    :output: |
+      such wow
+    :error: |
 
   "echo so scare":
     :lexer_valid: true
     :parser_valid: true
-    :interpreter_valid: false
+    :interpreter_valid: true
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
        '[1:5-5][SPACE, " "]',
@@ -58,6 +61,10 @@
             s(:LITERAL, "so")),
           s(:WORD,
             s(:LITERAL, "scare"))))
+    :exit_code: 0
+    :output: |
+      so scare
+    :error: |
 
   "/usr/bin/program\\ with\\ space \\but\\ this\\ is\\ an\\ arg":
     :valid: false

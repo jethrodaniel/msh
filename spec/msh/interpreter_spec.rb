@@ -52,10 +52,8 @@ RSpec.describe Msh::Interpreter do
         expect(out).to eq data[:exit_code]
       end
 
-      if data[:output]
-        expect(out).to eq data[:output]
-        expect(err).to eq data[:error]
-      end
+      expect(out).to eq data[:output]
+      expect(err).to eq data[:error]
     end
   end
 
