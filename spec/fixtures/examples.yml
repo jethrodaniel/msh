@@ -28,14 +28,15 @@
        '[1:11-13][WORD, "wow"]',
        '[1:14-14][EOF, "\\u0000"]']
     :ast: |
-      s(:EXPR,
-        s(:COMMAND,
-          s(:WORD,
-            s(:LITERAL, "echo")),
-          s(:WORD,
-            s(:LITERAL, "such")),
-          s(:WORD,
-            s(:LITERAL, "wow"))))
+      s(:PROG,
+        s(:EXPR,
+          s(:CMD,
+            s(:WORD,
+              s(:LIT, "echo")),
+            s(:WORD,
+              s(:LIT, "such")),
+            s(:WORD,
+              s(:LIT, "wow")))))
     :exit_code: 0
     :output: |
       such wow
@@ -53,14 +54,15 @@
        '[1:9-13][WORD, "scare"]',
        '[1:14-14][EOF, "\\u0000"]']
     :ast: |
-      s(:EXPR,
-        s(:COMMAND,
-          s(:WORD,
-            s(:LITERAL, "echo")),
-          s(:WORD,
-            s(:LITERAL, "so")),
-          s(:WORD,
-            s(:LITERAL, "scare"))))
+      s(:PROG,
+        s(:EXPR,
+          s(:CMD,
+            s(:WORD,
+              s(:LIT, "echo")),
+            s(:WORD,
+              s(:LIT, "so")),
+            s(:WORD,
+              s(:LIT, "scare")))))
     :exit_code: 0
     :output: |
       so scare
@@ -71,11 +73,11 @@
     :tokens: |
     :ast: |
       s(:EXPR,
-        s(:COMMAND,
+        s(:CMD,
           s(:WORD,
-            s(:LITERAL, "/usr/bin/program\\ with\\ space")),
+            s(:LIT, "/usr/bin/program\\ with\\ space")),
           s(:WORD,
-            s(:LITERAL, "\\but\\ this\\ is\\ an\\ arg"))))
+            s(:LIT, "\\but\\ this\\ is\\ an\\ arg"))))
 
   "a&&b":
     :lexer_valid: true
@@ -95,7 +97,7 @@
        [:WORD, "\\but\\ this\\ is\\ an\\ arg"]]
     :ast: |
       s(:EXPR,
-        s(:COMMAND,
+        s(:CMD,
           s(:WORD, "/usr/bin/program\\ with\\ space"),
           s(:WORD, "\\but\\ this\\ is\\ an\\ arg")))
 
@@ -110,7 +112,7 @@
        [:WORD, "-i"],
        [:SINGLE_QUOTE_STR, "s/msh/yas/g"],
        [:WORD, "{}"],
-       [:LITERAL, ";"]
+       [:LIT, ";"]
     :ast: |
 
   "cd ..":
@@ -123,12 +125,13 @@
        '[1:4-5][WORD, ".."]',
        '[1:6-6][EOF, "\\u0000"]']
     :ast: |
-      s(:EXPR,
-        s(:COMMAND,
-          s(:WORD,
-            s(:LITERAL, "cd")),
-          s(:WORD,
-            s(:LITERAL, ".."))))
+      s(:PROG,
+        s(:EXPR,
+          s(:CMD,
+            s(:WORD,
+              s(:LIT, "cd")),
+            s(:WORD,
+              s(:LIT, "..")))))
 
   "...":
     :lexer_valid: true
@@ -139,9 +142,9 @@
        '[1:4-4][EOF, "\\u0000"]']
     :ast: |
       s(:EXPR,
-        s(:COMMAND,
+        s(:CMD,
           s(:WORD,
-            s(:LITERAL, "..."))))
+            s(:LIT, "..."))))
 
   #
   # pipes
@@ -162,18 +165,19 @@
        '[1:17-18][WORD, "-l"]',
        '[1:19-19][EOF, "\\u0000"]']
     :ast: |
-      s(:EXPR,
-        s(:PIPELINE,
-          s(:COMMAND,
-            s(:WORD,
-              s(:LITERAL, "echo")),
-            s(:WORD,
-              s(:LITERAL, "hello"))),
-          s(:COMMAND,
-            s(:WORD,
-              s(:LITERAL, "wc")),
-            s(:WORD,
-              s(:LITERAL, "-l")))))
+      s(:PROG,
+        s(:EXPR,
+          s(:PIPELINE,
+            s(:CMD,
+              s(:WORD,
+                s(:LIT, "echo")),
+              s(:WORD,
+                s(:LIT, "hello"))),
+            s(:CMD,
+              s(:WORD,
+                s(:LIT, "wc")),
+              s(:WORD,
+                s(:LIT, "-l"))))))
     :exit_code: 0
     :output: |
       1
@@ -197,11 +201,11 @@
     :ast: |
       s(:EXPR,
         s(:PIPELINE,
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "fortune"),
             s(:REDIRECTIONS,
               s(:DUP, 2, 1))),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "cowsay"))))
 
   # redirections
@@ -215,9 +219,10 @@
        '[1:2-4][WORD, "out"]',
        '[1:5-5][EOF, "\\u0000"]']
     :ast: |
-      s(:EXPR,
-        s(:COMMAND,
-          s(:REDIRECT, 1, :REDIRECT_OUT, "out")))
+      s(:PROG,
+        s(:EXPR,
+          s(:CMD,
+            s(:REDIRECT, 1, :REDIRECT_OUT, "out"))))
     # :interpreter_spec: |
     #   File.exists?("out") && File.read("out") == ""
 
@@ -229,9 +234,10 @@
       ['[1:1-4][DUP_OUT_FD, "2>&1"]',
        '[1:5-5][EOF, "\\u0000"]']
     :ast: |
-      s(:EXPR,
-        s(:COMMAND,
-          s(:REDIRECT, 2, :DUP_OUT_FD)))
+      s(:PROG,
+        s(:EXPR,
+          s(:CMD,
+            s(:REDIRECT, 2, :DUP_OUT_FD))))
 
   "fortune >out |& cowsay":
     :lexer_valid: true
@@ -250,12 +256,12 @@
     :ast: |
       s(:EXPR,
         s(:PIPELINE,
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "fortune"),
               s(:REDIRECTIONS,
                 s(:REDIRECT, 1, "out"),
                 s(:DUP, 2, 1))),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "cowsay"))))
 
   "fortune >out | wow |& cowsay":
@@ -279,15 +285,15 @@
     :ast: |
       s(:EXPR,
         s(:PIPELINE,
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "fortune"),
             s(:REDIRECTIONS,
               s(:REDIRECT, 1, "out"))),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "wow"),
             s(:REDIRECTIONS,
               s(:DUP, 2, 1))),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "cowsay"))))
 
   "fortune >out | wow |& cowsay | wow":
@@ -315,17 +321,17 @@
     :ast: |
       s(:EXPR,
         s(:PIPELINE,
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "fortune"),
             s(:REDIRECTIONS,
               s(:REDIRECT, 1, "out"))),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "wow"),
             s(:REDIRECTIONS,
               s(:DUP, 2, 1))),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "cowsay")),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "wow"))))
 
   "a >out | b <in >out |& c |& d":
@@ -359,21 +365,21 @@
     :ast: |
       s(:EXPR,
         s(:PIPELINE,
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "a"),
             s(:REDIRECTIONS,
               s(:REDIRECT, 1, "out"))),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "b"),
             s(:REDIRECTIONS,
               s(:REDIRECT, 0, "in"),
               s(:REDIRECT, 1, "out"),
               s(:DUP, 2, 1))),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "c"),
             s(:REDIRECTIONS,
               s(:DUP, 2, 1))),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "d"))))
 
   "! fortune | cowsay":
@@ -392,9 +398,9 @@
     :ast: |
       s(:EXPR,
         s(:NEG_PIPELINE,
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "fortune")),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "cowsay"))))
 
   "time echo":
@@ -440,7 +446,7 @@
        '[1:10-10][EOF, "\\u0000"]']
     :ast: |
       s(:EXPR,
-        s(:COMMAND,
+        s(:CMD,
          s(:WORD, "echo"),
          s(:WORD, "time")))
 
@@ -462,9 +468,9 @@
     :ast: |
       s(:EXPR,
         s(:NEG_PIPELINE,
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "fortune")),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "cowsay"))))
 
   "time -p ! fortune | cowsay":
@@ -487,9 +493,9 @@
     :ast: |
       s(:EXPR,
         s(:NEG_PIPELINE,
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "fortune")),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "cowsay"))))
 
   "a | b | c":
@@ -510,11 +516,11 @@
    :ast: |
      s(:EXPR,
        s(:PIPELINE,
-         s(:COMMAND,
+         s(:CMD,
            s(:WORD, "a")),
-         s(:COMMAND,
+         s(:CMD,
            s(:WORD, "b")),
-         s(:COMMAND,
+         s(:CMD,
            s(:WORD, "c"))))
 
   #
@@ -535,9 +541,9 @@
     :ast: |
       s(:EXPR,
         s(:OR,
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "a")),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "b"))))
 
   "a && b":
@@ -554,9 +560,9 @@
     :ast: |
       s(:EXPR,
         s(:AND,
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "a")),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "b"))))
 
   #
@@ -581,12 +587,12 @@
     :ast: |
       s(:EXPR,
         s(:AND,
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "date")),
           s(:PIPELINE,
-            s(:COMMAND,
+            s(:CMD,
               s(:WORD, "date")),
-            s(:COMMAND,
+            s(:CMD,
               s(:WORD, "cowsay")))))
 
   #
@@ -605,7 +611,7 @@
    :ast: |
      s(:EXPR,
        s(:GROUP,
-         s(:COMMAND,
+         s(:CMD,
            s(:WORD, "a"))))
 
   "{a;b}>out|c":
@@ -628,13 +634,13 @@
         s(:PIPELINE,
           s(:GROUP,
             s(:LIST,
-              s(:COMMAND,
+              s(:CMD,
                 s(:WORD, "a")),
-              s(:COMMAND,
+              s(:CMD,
                 s(:WORD, "b"))),
             s(:REDIRECTIONS,
               s(:REDIRECT, 1, "out"))),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "c"))))
 
   #
@@ -653,7 +659,7 @@
    :ast: |
      s(:EXPR,
        s(:SUBSHELL,
-         s(:COMMAND,
+         s(:CMD,
            s(:WORD, "a"))))
 
   "(a;b)>out|c":
@@ -676,13 +682,13 @@
         s(:PIPELINE,
           s(:SUBSHELL,
             s(:LIST,
-              s(:COMMAND,
+              s(:CMD,
                 s(:WORD, "a")),
-              s(:COMMAND,
+              s(:CMD,
                 s(:WORD, "b"))),
             s(:REDIRECTIONS,
               s(:REDIRECT, 1, "out"))),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "c"))))
 
   "{a}|(b)>out&&c||d>t;a;{b;c}>wow":
@@ -722,27 +728,27 @@
           s(:AND,
             s(:PIPELINE,
               s(:GROUP,
-                s(:COMMAND,
+                s(:CMD,
                   s(:WORD, "a"))),
               s(:SUBSHELL,
-                s(:COMMAND,
+                s(:CMD,
                   s(:WORD, "b")),
                 s(:REDIRECTIONS,
                   s(:REDIRECT, 1, "out")))),
             s(:OR,
-              s(:COMMAND,
+              s(:CMD,
                 s(:WORD, "c")),
-              s(:COMMAND,
+              s(:CMD,
                 s(:WORD, "d"),
                 s(:REDIRECTIONS,
                   s(:REDIRECT, 1, "t"))))),
-          s(:COMMAND,
+          s(:CMD,
             s(:WORD, "a")),
           s(:GROUP,
             s(:LIST,
-              s(:COMMAND,
+              s(:CMD,
                 s(:WORD, "b")),
-              s(:COMMAND,
+              s(:CMD,
                 s(:WORD, "c"))),
             s(:REDIRECTIONS,
               s(:REDIRECT, 1, "wow")))))
@@ -763,7 +769,7 @@
    :ast: |
      s(:EXPR,
        s(:GROUP,
-         s(:COMMAND,
+         s(:CMD,
            s(:WORD, "a"))))
 
   #
@@ -847,7 +853,7 @@
       '[1:89-89][EOF, "\u0000"]']
    :ast: |
      s(:EXPR,
-       s(:COMMAND,
+       s(:CMD,
          s(:WORD, "ls"),
          s(:WORD, "a"),
          s(:REDIRECTIONS,
@@ -916,7 +922,7 @@
        '[1:55-55][EOF, "\u0000"]']
     :ast: |
       s(:EXPR,
-        s(:COMMAND,
+        s(:CMD,
           s(:WORD, "fortune")))
 
   # job control
@@ -970,31 +976,31 @@
       s(:EXPR,
         s(:LIST,
           s(:PIPELINE,
-            s(:COMMAND,
+            s(:CMD,
               s(:WORD, "ls")),
-            s(:COMMAND,
+            s(:CMD,
               s(:WORD, "wow"),
               s(:REDIRECTIONS,
                 s(:REDIRECT, 3, "doggo"),
                 s(:DUP, 2, 1),
                 s(:REDIRECT, 1, "/dev/null")))),
           s(:AND,
-            s(:COMMAND,
+            s(:CMD,
               s(:WORD, "wow")),
             s(:OR,
-              s(:COMMAND,
+              s(:CMD,
                 s(:WORD, "wow")),
               s(:AND,
-                s(:COMMAND,
+                s(:CMD,
                   s(:WORD, "o"),
                   s(:REDIRECTIONS,
                     s(:REDIRECT, 1, "out"))),
                 s(:PIPELINE,
-                  s(:COMMAND,
+                  s(:CMD,
                     s(:WORD, "goose"),
                     s(:REDIRECTIONS,
                       s(:DUP, 2, 1))),
-                  s(:COMMAND,
+                  s(:CMD,
                     s(:WORD, "duck"))))))))
 
   #
@@ -1021,12 +1027,12 @@
        '[4:1-1][EOF, "\u0000"]']
     :ast: |
       s(:EXPR,
-        s(:COMMAND,
+        s(:CMD,
           s(:WORD, "ls")),
-        s(:COMMAND,
+        s(:CMD,
           s(:WORD, "wow"),
           s(:WORD, "newlines")),
-        s(:COMMAND,
+        s(:CMD,
           s(:WORD, "yay")))
 
   #
@@ -1040,15 +1046,16 @@
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
        '[1:5-5][SPACE, " "]',
-       '[1:6-16][INTERPOLATION, "\#{Math::PI}"]',
+       '[1:6-16][INTERP, "\#{Math::PI}"]',
        '[1:17-17][EOF, "\u0000"]']
     :ast: |
-      s(:EXPR,
-        s(:COMMAND,
-          s(:WORD,
-            s(:LITERAL, "echo")),
-          s(:WORD,
-            s(:INTERPOLATION, "\#{Math::PI}"))))
+      s(:PROG,
+        s(:EXPR,
+          s(:CMD,
+            s(:WORD,
+              s(:LIT, "echo")),
+            s(:WORD,
+              s(:INTERP, "\#{Math::PI}")))))
     :exit_code: 0
     :output: |
       3.141592653589793
@@ -1060,16 +1067,16 @@
     :interpreter_valid: false
     :tokens: |
       ['[1:1-1][WORD, "a"]',
-       '[1:2-14][INTERPOLATION, "\#{\#{:b}\#{:c}}"]',
+       '[1:2-14][INTERP, "\#{\#{:b}\#{:c}}"]',
        '[1:15-15][WORD, "d"]',
        '[1:16-16][EOF, "\u0000"]']
     :ast: |
       s(:EXPR,
-        s(:COMMAND,
+        s(:CMD,
           s(:WORD,
-            s(:LITERAL, "a"),
-            s(:INTERPOLATION, "\#{\#{:b}\#{:c}}"),
-            s(:LITERAL, "d"))))
+            s(:LIT, "a"),
+            s(:INTERP, "\#{\#{:b}\#{:c}}"),
+            s(:LIT, "d"))))
 
   "echo #{:a} #{:b}":
     :lexer_valid: true
@@ -1078,23 +1085,24 @@
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
        '[1:5-5][SPACE, " "]',
-       '[1:6-10][INTERPOLATION, "\#{:a}"]',
+       '[1:6-10][INTERP, "\#{:a}"]',
        '[1:11-11][SPACE, " "]',
-       '[1:12-16][INTERPOLATION, "\#{:b}"]',
+       '[1:12-16][INTERP, "\#{:b}"]',
        '[1:17-17][EOF, "\u0000"]']
     :ast: |
-      s(:EXPR,
-        s(:COMMAND,
-          s(:WORD,
-            s(:LITERAL, "echo")),
-          s(:WORD,
-            s(:INTERPOLATION, "\#{:a}")),
-          s(:WORD,
-            s(:INTERPOLATION, "\#{:b}"))))
+      s(:PROG,
+        s(:EXPR,
+          s(:CMD,
+            s(:WORD,
+              s(:LIT, "echo")),
+            s(:WORD,
+              s(:INTERP, "\#{:a}")),
+            s(:WORD,
+              s(:INTERP, "\#{:b}")))))
 
   # TODO:
   #   s(:WORD,
-  #     s(:LITERAL, "a")) for all the WORDs
+  #     s(:LIT, "a")) for all the WORDs
   "echo a#{:b}c#{:d}e a#{:b} #{:c}d #{1}#{2}":
     :lexer_valid: true
     :parser_valid: false
@@ -1103,36 +1111,36 @@
       ['[1:1-4][WORD, "echo"]',
        '[1:5-5][SPACE, " "]',
        '[1:6-6][WORD, "a"]',
-       '[1:7-11][INTERPOLATION, "\#{:b}"]',
+       '[1:7-11][INTERP, "\#{:b}"]',
        '[1:12-12][WORD, "c"]',
-       '[1:13-17][INTERPOLATION, "\#{:d}"]',
+       '[1:13-17][INTERP, "\#{:d}"]',
        '[1:18-18][WORD, "e"]',
        '[1:19-19][SPACE, " "]',
        '[1:20-20][WORD, "a"]',
-       '[1:21-25][INTERPOLATION, "\#{:b}"]',
+       '[1:21-25][INTERP, "\#{:b}"]',
        '[1:26-26][SPACE, " "]',
-       '[1:27-31][INTERPOLATION, "\#{:c}"]',
+       '[1:27-31][INTERP, "\#{:c}"]',
        '[1:32-32][WORD, "d"]',
        '[1:33-33][SPACE, " "]',
-       '[1:34-37][INTERPOLATION, "\#{1}"]',
-       '[1:38-41][INTERPOLATION, "\#{2}"]',
+       '[1:34-37][INTERP, "\#{1}"]',
+       '[1:38-41][INTERP, "\#{2}"]',
        '[1:42-42][EOF, "\u0000"]']
     :ast: |
       s(:EXPR,
-        s(:COMMAND,
+        s(:CMD,
           s(:WORD, "echo"),
           s(:WORD,
-            s(:LITERAL, "a"),
-            s(:INTERPOLATION, ":b"),
-            s(:LITERAL, "c"),
-            s(:INTERPOLATION, ":d"),
-            s(:LITERAL, "e")),
+            s(:LIT, "a"),
+            s(:INTERP, ":b"),
+            s(:LIT, "c"),
+            s(:INTERP, ":d"),
+            s(:LIT, "e")),
           s(:WORD,
-            s(:LITERAL, "a"),
-            s(:INTERPOLATION, ":b")),
+            s(:LIT, "a"),
+            s(:INTERP, ":b")),
           s(:WORD,
-            s(:INTERPOLATION, ":c"),
-            s(:LITERAL, "d")),
+            s(:INTERP, ":c"),
+            s(:LIT, "d")),
           s(:WORD,
-            s(:INTERPOLATION, "1"),
-            s(:INTERPOLATION, "2"))))
+            s(:INTERP, "1"),
+            s(:INTERP, "2"))))

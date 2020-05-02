@@ -16,12 +16,12 @@ module Msh
   # #=>
   #  s(:EXPR,
   #    s(:PIPELINE,
-  #      s(:COMMAND,
+  #      s(:CMD,
   #        s(:WORD,
-  #          s(:LITERAL, "fortune"))),
-  #      s(:COMMAND,
+  #          s(:LIT, "fortune"))),
+  #      s(:CMD,
   #        s(:WORD,
-  #          s(:LITERAL, "cowsay")))))
+  #          s(:LIT, "cowsay")))))
   # ```
   #
   # The grammar parsed is as follows
@@ -32,7 +32,8 @@ module Msh
   # # # comments after `#`
   # # rule -> production_1 TOKEN
   # #       | production_2
-  # #       | {a} # zero or more timres
+  # #       | {a} # zero or more times
+  # #       | {a}+ # one or more times
   # #       | # empty
   # #
   # # {...} leads to while-loops
@@ -50,11 +51,15 @@ module Msh
   # # start of grammar
   # #
   #
-  # root -> _ expr
+  # program -> _ expr _ SEMI _ expr
+  #          | _ expr _ {SEMI}
+  #          | EOF
   #
-  # expr -> pipeline
-  #       | command
-  #       |
+  # expr -> and_or
+  #       | pipeline
+  #
+  # and_or -> pipeline AND pipeline
+  #         | pipeline OR pipeline
   #
   # pipeline -> command _ PIPE _ pipeline
   #           | command
@@ -71,11 +76,11 @@ module Msh
   # # Which yields
   # #
   # #    s(:WORD,
-  # #      s(:LITERAL, "a"),
-  # #      s(:INTERPOLATION, "#{b}"),
-  # #      s(:LITERAL, "c"),
+  # #      s(:LIT, "a"),
+  # #      s(:INTERP, "#{b}"),
+  # #      s(:LIT, "c"),
   # #      s(:SUBSTITUTION, "d"),
-  # #      s(:LITERAL, "e"))
+  # #      s(:LIT, "e"))
   # #
   # #           | No whitespace here
   # #           |
@@ -128,7 +133,7 @@ module Msh
     WORDS = [
       :WORD,         # echo
       :TIME,         # echo time
-      :INTERPOLATION # echo the time is #{Time.now}
+      :INTERP # echo the time is #{Time.now}
     ].freeze
 
     # @return [Array<Token>]
@@ -166,7 +171,7 @@ module Msh
     #
     # @return [AST]
     def parse
-      _expr
+      _program
     end
 
     # @return [AST, nil]
@@ -175,25 +180,61 @@ module Msh
     end
 
     # @return [AST]
-    def _root
+    def _program
       _skip_whitespace
-      _expr
+
+      return s(:NOOP) if eof?
+
+      exprs = []
+
+      until eof?
+        exprs << _expr
+        _skip_whitespace
+        if match? :SEMI
+          advance
+          _skip_whitespace
+          next
+        end
+        _skip_whitespace
+      end
+
+      s(:PROG, *exprs)
     end
 
     # @return [AST]
     def _expr
-      return s(:NOOP) if eof?
-
-      c = _command
+      c = _pipeline
 
       _skip_whitespace
 
+      if match? :AND, :OR
+        op = advance
+        _skip_whitespace
+        right = _pipeline
+        return s(:EXPR, s(op.type, c, right))
+      end
+
       return s(:EXPR, s(:PIPELINE, c, *_pipeline.children)) if match? :PIPE
 
-      # error "failed to parse to EOF, stopped at #{current_token}" unless eof?
-      error "unexpected #{current_token}" unless eof?
+      s(:EXPR, c)
+    end
 
-      s(:EXPR, c) if c
+    # @return [AST]
+    def _and_or
+      cmds = []
+
+      c = advance
+
+      _skip_whitespace
+
+      case c.type
+      when :AND
+        return s(:AND, _pipeline, _pipeline)
+      when :OR
+        return s(:OR, _pipeline, _pipeline)
+      end
+
+      _skip_whitespace
     end
 
     # @return [AST]
@@ -207,7 +248,7 @@ module Msh
         _skip_whitespace
       end
 
-      s(:COMMAND, *cmd_parts)
+      s(:CMD, *cmd_parts)
     end
 
     # @return [AST]
@@ -219,9 +260,9 @@ module Msh
 
         case c.type
         when :WORD, :TIME
-          word_pieces << s(:LITERAL, c.value)
-        when :INTERPOLATION
-          word_pieces << s(:INTERPOLATION, c.value)
+          word_pieces << s(:LIT, c.value)
+        when :INTERP
+          word_pieces << s(:INTERP, c.value)
         end
       end
 
@@ -244,7 +285,7 @@ module Msh
       end
     end
 
-    # @return [AST]
+    # @return [AST] type :PIPELINE or :CMD
     def _pipeline
       commands = []
 
@@ -259,6 +300,8 @@ module Msh
           error "expected a command after `|`"
         end
       end
+
+      return _command if commands.size.zero?
 
       s(:PIPELINE, *commands)
     end

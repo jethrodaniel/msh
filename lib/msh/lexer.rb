@@ -297,7 +297,7 @@ module Msh
         ERR
       end
 
-      @token.type = :INTERPOLATION
+      @token.type = :INTERP
       @token.column = col
       @token.line = line
     end

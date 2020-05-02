@@ -110,21 +110,29 @@ module Msh
 
     # {#parse} calls this on unknown nodes
     def handler_missing node
-      error "no handler for node: #{node}"
+      raise "no handler for node: #{node}"
+      # error "no handler for node: #{node}"
     end
 
+    # @return [Integer] exit status
+    def on_PROG node
+      process_all(node).last
+    end
+
+    # @return [Integer] exit status
     def on_NOOP _node
       0
     end
 
+    # @return [Integer] exit status
     def on_EXPR node
       process_all(node).last
     end
 
     # Run commands in a pipeline, i.e, in parallel with connected io streams.
     #
-    # @param node [AST::Node] a :PIPELINE node
-    # @return [AST::Node] the input node
+    # @param node [Msh::AST::Node] a :PIPELINE node
+    # @return [Integer] exit status
     def on_PIPELINE node
       stdin = $stdin
       stdout = $stdout
@@ -160,13 +168,14 @@ module Msh
       $CHILD_STATUS.exitstatus
     end
 
-    # @param node [AST::Node] an :OR or :AND node
-    # @return [Msh::AST::AndOr]
+    # @param node [Msh::AST::Node] an :AND or :OR node
+    # @return [Integer] exit status
     def process_conditional node
       left, right = *process_all(node)
 
       case node.type
       when :OR
+
         Msh::AST::Or.new :left => left, :right => right
       when :AND
         Msh::AST::And.new :left => left, :right => right
@@ -185,8 +194,9 @@ module Msh
     #   - builtin
     #   - executable
     #
-    # @param node [AST::Node] a :COMMAND node
-    def on_COMMAND node
+    # @param node [Msh::AST::Node] a :CMD node
+    # @return [Integer] exit status
+    def on_CMD node
       begin
         fork do
           exec *command_exec_args(node)
@@ -204,7 +214,7 @@ module Msh
 
     # Convert
     #
-    #     s(:COMMAND,
+    #     s(:CMD,
     #       ...
     #
     # Into a string array
@@ -221,14 +231,14 @@ module Msh
       words.map! do |word|
         word.children.map do |w|
           case w.type
-          when :INTERPOLATION
+          when :INTERP
             value = w.children.first[2..-2]
             begin
               @env._evaluate value
             rescue NoMethodError => e
               puts e
             end
-          when :LITERAL
+          when :LIT
             w.children.first
           end
         end.join
