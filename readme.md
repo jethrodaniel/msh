@@ -5,9 +5,22 @@
 
 ![](https://img.shields.io/github/stars/jethrodaniel/msh?style=social)
 
-msh is a ruby shell.
+
 
 **NOTE**: still in early stages, subject to breaking changes until `v1.0.0`.
+
+```
+$ echo π is #{Math::PI}
+ ________________________
+< π is 3.141592653589793 >
+ ------------------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+```
 
 ## Goals
 

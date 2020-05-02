@@ -192,7 +192,7 @@ end
 def erb template_filename
   template = File.read "#{template_filename}.erb"
   # trim mode of `<>` removes newlines and blank lines
-  erb_string = ERB.new(template, nil, :trim_mode => "<>").result # rubocop:disable Lint/ErbNewArguments
+  erb_string = ERB.new(template, nil, :trim_mode => "-").result
   File.open(template_filename, "w") { |f| f.puts erb_string }
 end
 
