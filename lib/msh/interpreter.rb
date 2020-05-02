@@ -19,28 +19,24 @@ module Msh
   # parser = Parser.new lex.tokens
   # interpreter = Interpreter.new parser.parse
   # ```
-  # It also maintains its own environment, and has access to a user's config.
   #
   # == It operates like so:
   #
-  # At startup, read the user's config.
-  #
   # When {#process} is called, traverse the given AST, executing while
-  # traversing each node.
+  # visiting each node.
   #
   # ==== command substitution
   #
   # TODO
   #
-  # Command substitution works the same way as sh, i.e, a backtick string is
-  # evaluated as the std out of running the string as a command.
+  # Command substitution substitutes text inside `$(text)` as standard out of
+  # running msh recursively with `text` as input.
   #
   # ```
-  # echo `echo UP | tr '[:upper:]' '[:lower:]'` #=> `up`
+  # echo $(echo UP | tr '[:upper:]' '[:lower:]') #=> `up`
   # ```
   #
-  # Bash encourages the alternate `$()` syntax, which is admittedly, easier to
-  # read.
+  # The older backticks style is supported, but
   #
   # ==== ruby interpolation
   #
@@ -58,7 +54,7 @@ module Msh
   # TODO
   #
   # Subshells are the same as those in sh, i.e, they work like command
-  # substitution, but run in a separate instance of the shell
+  # substitution, but run don't return any output.
   #
   # ```
   # (exit 1) #=> only exits the subshell, not the current shell
@@ -71,7 +67,7 @@ module Msh
   # These WORD-like tokens can be regular literals, string interpolation,
   # subshells, single and double quotes, or command substitution.
   #
-  # Expansions occur just before the word is used, as in sh.
+  # Expansions occur just before the word is used.
   #
   # === command resolution
   #
@@ -113,6 +109,8 @@ module Msh
       raise "no handler for node: #{node}"
       # error "no handler for node: #{node}"
     end
+
+    # rubocop:disable Naming/MethodName
 
     # @return [Integer] exit status
     def on_PROG node
@@ -170,24 +168,21 @@ module Msh
 
     # @param node [Msh::AST::Node] an :AND or :OR node
     # @return [Integer] exit status
-    def process_conditional node
-      case node.type
-      when :OR
-        process node.children.first
-        return $CHILD_STATUS if $CHILD_STATUS.exitstatus.zero?
+    def on_OR node
+      process node.children.first
+      return $CHILD_STATUS if $CHILD_STATUS.exitstatus.zero?
 
-        process node.children.last
-      when :AND
-        process node.children.first
-        return $CHILD_STATUS unless $CHILD_STATUS.exitstatus.zero?
-
-        process node.children.last
-      else
-        abort "unknown AST node #{node.type}, expected :OR or :AND"
-      end
+      process node.children.last
     end
-    alias on_OR  process_conditional
-    alias on_AND process_conditional
+
+    # @param node [Msh::AST::Node] an :AND or :OR node
+    # @return [Integer] exit status
+    def on_AND node
+      process node.children.first
+      return $CHILD_STATUS unless $CHILD_STATUS.exitstatus.zero?
+
+      process node.children.last
+    end
 
     # 1. Perform redirects
     # 2. Expand words
@@ -212,6 +207,8 @@ module Msh
 
       $CHILD_STATUS.exitstatus
     end
+
+    # rubocop:enable Naming/MethodName
 
     private
 
