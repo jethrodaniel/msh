@@ -24,4 +24,8 @@ if version <= 2.5
       Dir.glob(glob)
     end
   end
+
+  class Array
+    alias prepend unshift
+  end
 end
