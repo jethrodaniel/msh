@@ -44,32 +44,6 @@ module Msh
       e = @binding.eval(input, *@binding.source_location)
       e
     end
-
-    private
-
-    # Execute a command via `fork`, wait for the command to finish
-    #
-    # TODO: spawn, so this can be more platform-independent
-    #
-    # @param args [Array<String>] args to execute
-    # @return [Void]
-    def run *args
-      unless args.all? { |a| a.is_a? String }
-        abort "expected Array<String>, got `#{args.class}:#{args.inspect}`"
-      end
-
-      begin
-        pid = fork do
-          exec *args
-        end
-      rescue Errno::ENOENT => e
-        puts e.message
-      end
-
-      Process.wait pid
-
-      $CHILD_STATUS.exitstatus
-    end
   end
 end
 

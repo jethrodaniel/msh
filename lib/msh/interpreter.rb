@@ -121,69 +121,42 @@ module Msh
       process_all(node).last
     end
 
-    # Modified from https://gist.github.com/JoshCheek/61769bfa05d52609e15948fabfad3381
+    # Run commands in a pipeline, i.e, in parallel with connected io streams.
     #
     # @param node [AST::Node] a :PIPELINE node
     # @return [AST::Node] the input node
     def on_PIPELINE node
-      # Convert nodes in `Msh::AST::Command, Msh::AST::Or, etc
-      pipeline = process_all node
+      stdin = $stdin
+      stdout = $stdout
+      pipe = []
 
-      # Setup piped commands.
-      #
-      # The first and last piped commands need to inherit our stdin/out/err, and
-      # should close their in/out
-      pipeline = pipeline.map do |cmd|
-        Msh::AST::Piped.new :command => cmd,
-                            :stdin => $stdin,
-                            :stdout => $stdout,
-                            :stderr => $stderr,
-                            :close_stdin => false,
-                            :close_stdout => false
-      end
-
-      # for each piped command that isn't the first or the last, connect stdout
-      # to the next command's stdin
-      pipeline.each_cons(2) do |(left, right)|
-        right.stdin, left.stdout = IO.pipe
-        right.close_stdin = true
-        left.close_stdout = true
-      end
-
-      # execute each command as a child process
-      pipeline.each do |piped|
-        pid = fork do
-          # Subprocess sets the file descriptors and execs the command
-          $stdin.reopen  piped.stdin
-          $stdout.reopen piped.stdout
-          $stderr.reopen piped.stderr
-
-          command = piped.command
-
-          if command.is_a? Msh::AST::Command
-            run *command.words
-          elsif command.is_a? Msh::AST::Or
-            abort "unimplemented"
-          elsif command.is_a? Msh::AST::And
-            abort "unimplemented"
-          else
-            abort "shouldn't be here, ouch"
-          end
+      node.children.each_with_index do |cmd, index|
+        if index < node.children.size - 1
+          pipe = IO.pipe
+          stdout = pipe.last
+        else
+          stdout = $stdout
         end
 
-        # Document the pid, close the piped file descriptors, on to the next
-        piped.pid = pid
-        piped.stdin.close  if piped.close_stdin
-        piped.stdout.close if piped.close_stdout
+        fork do
+          if stdout != $stdout
+            $stdout.reopen stdout
+            stdout.close
+          end
+          if stdin != $stdin
+            $stdin.reopen stdin
+            stdin.close
+          end
+          exec *command_exec_args(cmd)
+        end
+
+        stdout.close unless stdout == $stdout
+        stdin.close  unless stdin == $stdin
+        stdin = pipe.first
       end
 
-      # Wait for the children to finish, record their exit statuses
-      pipeline.each do |piped|
-        Process.wait piped.pid
-        piped.status = $CHILD_STATUS.exitstatus
-      end
+      Process.waitall
 
-      # pipeline.last.status
       $CHILD_STATUS.exitstatus
     end
 
@@ -214,6 +187,31 @@ module Msh
     #
     # @param node [AST::Node] a :COMMAND node
     def on_COMMAND node
+      begin
+        fork do
+          exec *command_exec_args(node)
+        end
+      rescue Errno::ENOENT => e
+        puts e.message
+      end
+
+      Process.waitall
+
+      $CHILD_STATUS.exitstatus
+    end
+
+    private
+
+    # Convert
+    #
+    #     s(:COMMAND,
+    #       ...
+    #
+    # Into a string array
+    #
+    # @param node [Msh::AST::Node]
+    # @return [Array<String>]
+    def command_exec_args node
       redirs, words = node.children.partition { |n| n.type == :REDIRECT }
 
       redirs.each do |redir|
@@ -235,15 +233,6 @@ module Msh
           end
         end.join
       end
-
-      run *words
-    end
-
-    private
-
-    # @see {Msh::Env#run}
-    def run *args
-      @env.send :run, *args # NOTE: calling a private method here
     end
   end
 end

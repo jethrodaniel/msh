@@ -20,7 +20,6 @@
     :lexer_valid: true
     :parser_valid: true
     :interpreter_valid: true
-    :exit_code: 0
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
        '[1:5-5][SPACE, " "]',
@@ -37,6 +36,7 @@
             s(:LITERAL, "such")),
           s(:WORD,
             s(:LITERAL, "wow"))))
+    :exit_code: 0
     :output: |
       such wow
     :error: |
@@ -146,26 +146,38 @@
   #
   # pipes
   #
-  "fortune | cowsay":
+  "echo hello | wc -l":
     :lexer_valid: true
     :parser_valid: true
-    :interpreter_valid: false
+    :interpreter_valid: true
     :tokens: |
-      ['[1:1-7][WORD, "fortune"]',
-       '[1:8-8][SPACE, " "]',
-       '[1:9-9][PIPE, "|"]',
-       '[1:10-10][SPACE, " "]',
-       '[1:11-16][WORD, "cowsay"]',
-       '[1:17-17][EOF, "\\u0000"]']
+      ['[1:1-4][WORD, "echo"]',
+       '[1:5-5][SPACE, " "]',
+       '[1:6-10][WORD, "hello"]',
+       '[1:11-11][SPACE, " "]',
+       '[1:12-12][PIPE, "|"]',
+       '[1:13-13][SPACE, " "]',
+       '[1:14-15][WORD, "wc"]',
+       '[1:16-16][SPACE, " "]',
+       '[1:17-18][WORD, "-l"]',
+       '[1:19-19][EOF, "\\u0000"]']
     :ast: |
       s(:EXPR,
         s(:PIPELINE,
           s(:COMMAND,
             s(:WORD,
-              s(:LITERAL, "fortune"))),
+              s(:LITERAL, "echo")),
+            s(:WORD,
+              s(:LITERAL, "hello"))),
           s(:COMMAND,
             s(:WORD,
-              s(:LITERAL, "cowsay")))))
+              s(:LITERAL, "wc")),
+            s(:WORD,
+              s(:LITERAL, "-l")))))
+    :exit_code: 0
+    :output: |
+      1
+    :error: |
 
   #
   # `|&` is sugar for `2>&1 |`
