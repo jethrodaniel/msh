@@ -171,14 +171,17 @@ module Msh
     # @param node [Msh::AST::Node] an :AND or :OR node
     # @return [Integer] exit status
     def process_conditional node
-      left, right = *process_all(node)
-
       case node.type
       when :OR
+        process node.children.first
+        return $CHILD_STATUS if $CHILD_STATUS.exitstatus.zero?
 
-        Msh::AST::Or.new :left => left, :right => right
+        process node.children.last
       when :AND
-        Msh::AST::And.new :left => left, :right => right
+        process node.children.first
+        return $CHILD_STATUS unless $CHILD_STATUS.exitstatus.zero?
+
+        process node.children.last
       else
         abort "unknown AST node #{node.type}, expected :OR or :AND"
       end

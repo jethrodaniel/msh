@@ -131,16 +131,78 @@
           s(:WORD,
             s(:LIT, "\\but\\ this\\ is\\ an\\ arg"))))
 
-  "a&&b":
+  #
+  # conditionals
+  #
+
+  "echo a && echo b":
     :lexer_valid: true
-    :parser_valid: false
-    :interpreter_valid: false
+    :parser_valid: true
+    :interpreter_valid: true
     :tokens: |
-      ['[1:1-1][WORD, "a"]',
-       '[1:2-3][AND, "&&"]',
-       '[1:4-4][WORD, "b"]',
-       '[1:5-5][EOF, "\\u0000"]']
+      ['[1:1-4][WORD, "echo"]',
+       '[1:5-5][SPACE, " "]',
+       '[1:6-6][WORD, "a"]',
+       '[1:7-7][SPACE, " "]',
+       '[1:8-9][AND, "&&"]',
+       '[1:10-10][SPACE, " "]',
+       '[1:11-14][WORD, "echo"]',
+       '[1:15-15][SPACE, " "]',
+       '[1:16-16][WORD, "b"]',
+       '[1:17-17][EOF, "\u0000"]']
     :ast: |
+      s(:PROG,
+        s(:EXPR,
+          s(:AND,
+            s(:CMD,
+              s(:WORD,
+                s(:LIT, "echo")),
+              s(:WORD,
+                s(:LIT, "a"))),
+            s(:CMD,
+              s(:WORD,
+                s(:LIT, "echo")),
+              s(:WORD,
+                s(:LIT, "b"))))))
+    :exit_code: 0
+    :output: |
+      a
+      b
+    :error: |
+
+  "echo a || echo b":
+    :lexer_valid: true
+    :parser_valid: true
+    :interpreter_valid: true
+    :tokens: |
+      ['[1:1-4][WORD, "echo"]',
+       '[1:5-5][SPACE, " "]',
+       '[1:6-6][WORD, "a"]',
+       '[1:7-7][SPACE, " "]',
+       '[1:8-9][OR, "||"]',
+       '[1:10-10][SPACE, " "]',
+       '[1:11-14][WORD, "echo"]',
+       '[1:15-15][SPACE, " "]',
+       '[1:16-16][WORD, "b"]',
+       '[1:17-17][EOF, "\u0000"]']
+    :ast: |
+      s(:PROG,
+        s(:EXPR,
+          s(:OR,
+            s(:CMD,
+              s(:WORD,
+                s(:LIT, "echo")),
+              s(:WORD,
+                s(:LIT, "a"))),
+            s(:CMD,
+              s(:WORD,
+                s(:LIT, "echo")),
+              s(:WORD,
+                s(:LIT, "b"))))))
+    :exit_code: 0
+    :output: |
+      a
+    :error: |
 
   "echo a\\;b":
     :valid: false
