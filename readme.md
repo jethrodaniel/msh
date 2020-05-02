@@ -72,25 +72,54 @@ msh has more tests than you can shake a stick at.
 Most of these come from a [single YAML file](./spec/fixtures/examples.yml)...
 
 ```yml
-  "echo #{Math::PI}":
+  #
+  # multiple expressions
+  #
+
+  "echo a; echo b; echo c":
     :lexer_valid: true
     :parser_valid: true
     :interpreter_valid: true
     :tokens: |
       ['[1:1-4][WORD, "echo"]',
        '[1:5-5][SPACE, " "]',
-       '[1:6-16][INTERPOLATION, "\#{Math::PI}"]',
-       '[1:17-17][EOF, "\u0000"]']
+       '[1:6-6][WORD, "a"]',
+       '[1:7-7][SEMI, ";"]',
+       '[1:8-8][SPACE, " "]',
+       '[1:9-12][WORD, "echo"]',
+       '[1:13-13][SPACE, " "]',
+       '[1:14-14][WORD, "b"]',
+       '[1:15-15][SEMI, ";"]',
+       '[1:16-16][SPACE, " "]',
+       '[1:17-20][WORD, "echo"]',
+       '[1:21-21][SPACE, " "]',
+       '[1:22-22][WORD, "c"]',
+       '[1:23-23][EOF, "\u0000"]']
     :ast: |
-      s(:EXPR,
-        s(:COMMAND,
-          s(:WORD,
-            s(:LITERAL, "echo")),
-          s(:WORD,
-            s(:INTERPOLATION, "\#{Math::PI}"))))
+      s(:PROG,
+        s(:EXPR,
+          s(:CMD,
+            s(:WORD,
+              s(:LIT, "echo")),
+            s(:WORD,
+              s(:LIT, "a")))),
+        s(:EXPR,
+          s(:CMD,
+            s(:WORD,
+              s(:LIT, "echo")),
+            s(:WORD,
+              s(:LIT, "b")))),
+        s(:EXPR,
+          s(:CMD,
+            s(:WORD,
+              s(:LIT, "echo")),
+            s(:WORD,
+              s(:LIT, "c")))))
     :exit_code: 0
     :output: |
-      3.141592653589793
+      a
+      b
+      c
     :error: |
 
 

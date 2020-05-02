@@ -62,7 +62,7 @@ msh has more tests than you can shake a stick at.
 Most of these come from a [single YAML file](./spec/fixtures/examples.yml)...
 
 ```yml
-<%= `grep -r -A 20 'echo \#{Math::PI}' ./spec/fixtures/examples.yml` %>
+<%= `sed -n '16,65p' spec/fixtures/examples.yml` %>
 ...
 ```
 
