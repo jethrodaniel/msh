@@ -112,16 +112,19 @@ module Msh
 
     # rubocop:disable Naming/MethodName
 
+    # @param node [Msh::AST::Node] :PROG
     # @return [Integer] exit status
     def on_PROG node
       process_all(node).last
     end
 
+    # @param node [Msh::AST::Node] :AND or :OR
     # @return [Integer] exit status
     def on_NOOP _node
       0
     end
 
+    # @param node [Msh::AST::Node] :COMMAND, :PIPELINE
     # @return [Integer] exit status
     def on_EXPR node
       process_all(node).last
@@ -129,7 +132,7 @@ module Msh
 
     # Run commands in a pipeline, i.e, in parallel with connected io streams.
     #
-    # @param node [Msh::AST::Node] a :PIPELINE node
+    # @param node [Msh::AST::Node] :PIPELINE
     # @return [Integer] exit status
     def on_PIPELINE node
       stdin = $stdin
@@ -166,7 +169,7 @@ module Msh
       $CHILD_STATUS.exitstatus
     end
 
-    # @param node [Msh::AST::Node] an :AND or :OR node
+    # @param node [Msh::AST::Node] :OR
     # @return [Integer] exit status
     def on_OR node
       process node.children.first
@@ -175,7 +178,7 @@ module Msh
       process node.children.last
     end
 
-    # @param node [Msh::AST::Node] an :AND or :OR node
+    # @param node [Msh::AST::Node] :AND
     # @return [Integer] exit status
     def on_AND node
       process node.children.first
@@ -192,7 +195,7 @@ module Msh
     #   - builtin
     #   - executable
     #
-    # @param node [Msh::AST::Node] a :CMD node
+    # @param node [Msh::AST::Node] :CMD
     # @return [Integer] exit status
     def on_CMD node
       begin
