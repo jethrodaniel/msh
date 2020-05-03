@@ -2,8 +2,15 @@ inherit_from:
   - https://raw.githubusercontent.com/jethrodaniel/dotfiles/master/home/.config/rubocop/config.yml
 
 AllCops:
+  TargetRubyVersion: 2.4
   Excluded:
     - 'bin/console'
+
+Style/Alias:
+  EnforcedStyle: prefer_alias
+
+Style/RedundantBegin:
+  Enabled: false
 
 Style/SpecialGlobalVars:
   Enabled: false
