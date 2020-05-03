@@ -156,7 +156,12 @@ module Msh
             $stdin.reopen stdin
             stdin.close
           end
-          exec *command_exec_args(cmd)
+
+          begin
+            exec *command_exec_args(cmd)
+          rescue Errno::ENOENT => e # No such file or directory
+            puts e.message
+          end
         end
 
         stdout.close unless stdout == $stdout
@@ -198,12 +203,12 @@ module Msh
     # @param node [Msh::AST::Node] :CMD
     # @return [Integer] exit status
     def on_CMD node
-      begin
-        fork do
+      fork do
+        begin
           exec *command_exec_args(node)
+        rescue Errno::ENOENT => e # No such file or directory
+          puts e.message
         end
-      rescue Errno::ENOENT => e
-        puts e.message
       end
 
       Process.waitall
