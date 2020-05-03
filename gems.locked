@@ -17,7 +17,7 @@ GEM
     method_source (1.0.0)
     paint (2.2.0)
     parallel (1.19.1)
-    parser (2.7.1.1)
+    parser (2.7.1.2)
       ast (~> 2.4.0)
     pry (0.13.1)
       coderay (~> 1.1)
@@ -68,4 +68,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   2.1.2
+   2.1.4
