@@ -5,11 +5,11 @@ module Msh
     # MAN
     # ```
     # ```
-    def exit
+    def quit
       puts "goodbye! <3"
       abort
     end
-    alias quit exit
-    alias q exit
+    alias exit quit
+    alias q quit
   end
 end

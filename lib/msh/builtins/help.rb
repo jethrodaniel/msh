@@ -11,7 +11,16 @@ module Msh
             else
               %w[man] + topics.map { |t| "msh-#{t}" }
             end
-      run(*cmd)
+
+      pid = fork do
+        begin
+          exec *cmd
+        rescue Errno::ENOENT => e # No such file or directory
+          puts e.message
+        end
+      end
+
+      Process.wait pid
     end
 
     alias_method :'?', :help # rubocop:disable Style/Alias

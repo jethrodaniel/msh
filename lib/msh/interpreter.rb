@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require "English"
-require "ast"
 require "paint"
 
 require "msh/logger"
+require "msh/configuration"
 require "msh/env"
-require "msh/documentation"
+# require "msh/documentation"
 require "msh/ast"
 require "msh/lexer"
 require "msh/parser"
@@ -203,6 +203,13 @@ module Msh
     # @param node [Msh::AST::Node] :CMD
     # @return [Integer] exit status
     def on_CMD node
+      cmd, *args = command_exec_args(node)
+
+      if @env.respond_to? cmd.to_sym
+        @env.send cmd.to_sym, *args
+        return
+      end
+
       fork do
         begin
           exec *command_exec_args(node)

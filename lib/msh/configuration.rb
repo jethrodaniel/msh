@@ -9,17 +9,11 @@ module Msh
   # - `$XDG_CONFIG_HOME/msh/config.rb`
   # - `~/.config/msh/config.rb`
   #
-  # It is Ruby, and is executed in the current shell, like string interpolation.
-  #
-  # A typical example might be
+  # @example
   #
   # ```
   # Msh.configure do |c|
   #   c.repl = :pry
-  # end
-  #
-  # def prompt
-  #   "$ "
   # end
   # ```
   class Configuration
