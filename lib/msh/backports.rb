@@ -28,4 +28,10 @@ if version <= 2.5
   class Array
     alias prepend unshift
   end
+
+  class Symbol
+    def start_with? prefix
+      to_s.start_with? prefix
+    end
+  end
 end
