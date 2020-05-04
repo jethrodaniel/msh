@@ -42,7 +42,7 @@ BUILTIN_CMDS = Dir.glob("lib/msh/builtins/*")
 BUILTIN_FILES = BUILTIN_CMDS.map { |cmd| "man/man1/msh-#{cmd}.1" }
 
 desc "generate the man pages"
-task :man => ["man:msh", *BUILTIN_FILES.map(&:to_s), "man:dump_help_for_specs"]
+task :man => ["man:msh", *BUILTIN_FILES.map(&:to_s)]
 
 namespace :man do
   task :msh do
@@ -54,26 +54,6 @@ namespace :man do
     file "man/man1/msh-#{cmd}.1" do
       puts "-> man/man1/msh-#{cmd}.1"
       create_manpage "msh-#{cmd}", YARD::Registry.at("Msh::Env##{cmd}").docstring
-    end
-  end
-
-  # stolen from bundler with love:
-  #   - https://github.com/rubygems/bundler/blob/788a4071cf4e0b42f83e25ba2aedaf0b63546866/Rakefile#L138
-  desc "verify man pages are in sync"
-  task :check => :man do
-    sh "git diff --quiet --ignore-all-space man" do |outcome, _|
-      if outcome
-        puts "\nManpages are in sync!\n"
-      else
-        sh "GIT_PAGER=cat git diff --ignore-all-space man"
-
-        puts "\nMan pages are out of sync. " \
-             "Above you can see the diff that got generated from " \
-             "rebuilding them. " \
-             "Please review and commit the results.\n"
-
-        exit 1
-      end
     end
   end
 
