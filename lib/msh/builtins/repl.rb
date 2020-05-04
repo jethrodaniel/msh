@@ -6,7 +6,7 @@ module Msh
     # ```
     # ```
     def repl
-      _evaluate "#\{@binding.#{Msh.configuration.repl}\}"
+      @binding.send Msh.configuration.repl
     end
   end
 end
