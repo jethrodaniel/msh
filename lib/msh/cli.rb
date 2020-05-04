@@ -2,6 +2,7 @@
 
 require "optparse"
 
+require "msh/version"
 require "msh/gemspec"
 require "msh/parser"
 require "msh/interpreter"
@@ -40,9 +41,7 @@ module Msh
         opts.on "-c  <cmd_string>", String, "runs <cmd_string> as shell input" do |cmd_string|
           cmd_string = ARGV.prepend(cmd_string).join " "
           interpreter = Msh::Interpreter.new
-          lexer = Msh::Lexer.new(cmd_string)
-          parser = Msh::Parser.new lexer.tokens
-          exit interpreter.process parser.parse
+          exit interpreter.interpret cmd_string
         end
       end
     end
