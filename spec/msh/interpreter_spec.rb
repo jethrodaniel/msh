@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "msh/documentation"
 require "msh/interpreter"
 
 require "stringio"

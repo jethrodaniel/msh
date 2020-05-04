@@ -119,11 +119,7 @@ module Msh
     Msh::CLI.handle_options!
 
     if ARGV.size.zero?
-      if ENV["NO_READLINE"]
-        Msh::Repl::Simple.new
-      else
-        Msh::Repl::Ansi.new
-      end
+      Msh::Repl.new
     else
       interpreter = Msh::Interpreter.new
       ARGV.each do |file|

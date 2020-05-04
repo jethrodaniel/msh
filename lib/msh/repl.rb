@@ -31,9 +31,38 @@ module Msh
     def initialize
       @interpreter = Msh::Interpreter.new
       puts "Welcome to msh v#{Msh::VERSION} (`?` for help)"
+
+      input_loop do |line|
+        add_to_history line
+
+        lexer = Msh::Lexer.new line
+        parser = Msh::Parser.new lexer.tokens
+        interpreter.process parser.parse
+      end
+    end
+
+    private
+
+    # @yield [String]
+    def input_loop
+      if ENV["NO_READLINE"]
+        while line = gets&.chomp
+          yield line
+        end
+      else
+        while line = ::Readline.readline(interpreter.prompt, true)&.chomp
+          yield line
+        end
+      end
+    end
+
+    def add_to_history line
+      return if ENV["NO_READLINE"]
+
+      # don't add blank lines or duplicates to history
+      return unless /\A\s*\z/ =~ line || Readline::HISTORY.to_a.dig(-2) == line
+
+      Readline::HISTORY.pop
     end
   end
 end
-
-require "msh/repl/simple"
-require "msh/repl/ansi"
