@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-require "irb"
-require "pry"
-require "pp"
-
 require "msh/backports"
 require "msh/error"
 require "msh/configuration"
@@ -51,11 +47,4 @@ module Msh
   end
 end
 
-require "msh/builtins/builtins"
-require "msh/builtins/help"
-require "msh/builtins/history"
-require "msh/builtins/lexer"
-require "msh/builtins/parser"
-require "msh/builtins/prompt"
-require "msh/builtins/quit"
-require "msh/builtins/repl"
+Dir.glob(File.join(Msh.root, "lib/msh/builtins", "**/*.rb"), &method(:require))

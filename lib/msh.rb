@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+module Msh
+  def self.root
+    Pathname.new(__dir__).join '..'
+  end
+end
+
 require "msh/cli"
 require "msh/documentation"
 require "msh/repl"
