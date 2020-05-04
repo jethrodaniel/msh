@@ -29,6 +29,8 @@ def create_manpage cmd, man_src
     :doctype => "manpage",
     :backend => "manpage"
   )
+
+  sh "gzip man/man1/#{cmd}.1"
 end
 
 YARD::Registry.load_all
