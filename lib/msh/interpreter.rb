@@ -97,6 +97,7 @@ module Msh
     def initialize
       log.debug { "initialized new interpreter" }
       @env = Env.new
+      Configuration.load!
     end
 
     # @return [String]

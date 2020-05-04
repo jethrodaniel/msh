@@ -20,4 +20,8 @@ RSpec.describe Msh::Configuration do
     expect(Msh.configuration.history_lines).to eq(1_000)
     expect(Msh.configuration.repl).to eq(:pry)
   end
+
+  it 'looks for startup files' do
+    skip
+  end
 end
