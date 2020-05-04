@@ -12,12 +12,3 @@
 
 # the gemspec is for this
 .ruby-version
-
-# racc generates `parser.output` files on error
-*.output
-
-# generated msh stuff
-spec/fixtures/good/*.msh
-spec/fixtures/bad/*.msh
-man/msh*.adoc
-spec/msh/lexer_spec.rb
