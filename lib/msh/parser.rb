@@ -9,20 +9,20 @@ require "msh/lexer"
 module Msh
   # The parser converts a series of tokens into an abstract syntax tree (AST).
   #
-  # ```
-  # lexer = Lexer.new "fortune | cowsay\n"
-  # parser = Parser.new lexer.tokens
-  # parser.parse
-  # #=>
-  #  s(:EXPR,
-  #    s(:PIPELINE,
-  #      s(:CMD,
-  #        s(:WORD,
-  #          s(:LIT, "fortune"))),
-  #      s(:CMD,
-  #        s(:WORD,
-  #          s(:LIT, "cowsay")))))
-  # ```
+  # @example
+  #     lexer = Msh::Lexer.new "fortune | cowsay"
+  #     parser = Msh::Parser.new lexer.tokens
+  #     ast = \
+  #       s(:PROG,
+  #         s(:EXPR,
+  #           s(:PIPELINE,
+  #             s(:CMD,
+  #               s(:WORD,
+  #                 s(:LIT, "fortune"))),
+  #             s(:CMD,
+  #               s(:WORD,
+  #                 s(:LIT, "cowsay"))))))
+  #     parser.parse == ast #=> true
   #
   # The grammar parsed is as follows
   #
@@ -154,7 +154,7 @@ module Msh
       current_token.column
     end
 
-    # DSL to create an AST node, like {AST::Sexp}, but adds line/column info.
+    # DSL to create an AST node, like {::AST::Sexp}, but adds line/column info.
     #
     # @param type [Symbol]
     # @param children [Array]
@@ -385,7 +385,7 @@ module Msh
       @tokens[index]
     end
 
-    # @param type [...Symbol]
+    # @param types [...Symbol]
     # @param msg [String]
     def consume *types, msg
       if match? *types

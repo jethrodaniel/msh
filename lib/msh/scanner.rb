@@ -56,7 +56,7 @@ module Msh
       c.size.zero? ? "\0" : c
     end
 
-    # @param [Boolean]
+    # @return [Boolean]
     def eof?
       current_char == "\0"
     end

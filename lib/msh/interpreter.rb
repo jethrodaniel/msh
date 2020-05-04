@@ -13,12 +13,11 @@ require "msh/parser"
 module Msh
   # The interpreter executes an AST.
   #
-  # ```
-  # msh = Interpreter.new
-  # msh.interpret "fortune | cowsay\n"
-  # ```
+  # @example
+  #     msh = Msh::Interpreter.new
+  #     msh.interpret "echo hi from msh!" #=> 0
   #
-  # ==== command substitution
+  # == command substitution
   #
   # TODO
   #
@@ -31,7 +30,7 @@ module Msh
   #
   # The older backticks style is supported, but
   #
-  # ==== ruby interpolation
+  # == ruby interpolation
   #
   # Ruby interpolation is allowed anywhere using the familiar `#{}` syntax.
   # It is evaluated into WORDs, i.e, it can be used wherever command
@@ -40,7 +39,7 @@ module Msh
   # ```
   # echo #{1 + 1} #=> 2
   # ```
-  # ==== subshells
+  # == subshells
   #
   # TODO
   #
@@ -50,7 +49,7 @@ module Msh
   # ```
   # (exit 1) #=> only exits the subshell, not the current shell
   # ```
-  # === what's in a WORD? that which..
+  # == what's in a WORD? that which..
   #
   # A command shell's main job is to execute commands. A "command" is just a
   # series of WORD-like tokens, with optional redirections.
@@ -60,7 +59,7 @@ module Msh
   #
   # Expansions occur just before the word is used.
   #
-  # === command resolution
+  # == command resolution
   #
   # Commands are resolved by checking if any of the following match, in order
   #
@@ -104,7 +103,7 @@ module Msh
       @env.prompt
     end
 
-    # {#parse} calls this on unknown nodes
+    # Called on unknown node types
     def handler_missing node
       raise "no handler for node: #{node}"
       # error "no handler for node: #{node}"
@@ -118,7 +117,7 @@ module Msh
 
     # @param node [Msh::AST::Node] :AND or :OR
     # @return [Integer] exit status
-    def on_NOOP _node
+    def on_NOOP node
       0
     end
 

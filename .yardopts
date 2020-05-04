@@ -1,18 +1,12 @@
 exe/**/*
 lib/**/*.rb
 
---markup asciidoc
-
---exclude rakefile
-
+--markup     asciidoc
+--exclude    rakefile
 --output-dir docs
-
---main readme.md
-
---verbose
---debug
-
+--main       readme.md
 --no-cache
+--plugin     yard-doctest
 
 -
 

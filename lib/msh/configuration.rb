@@ -10,12 +10,11 @@ module Msh
   # - `~/.config/msh/config.rb`
   #
   # @example
-  #
-  # ```
-  # Msh.configure do |c|
-  #   c.repl = :pry
-  # end
-  # ```
+  #     Msh.configure do |c|
+  #       c.repl = :pry
+  #     end
+  #     Msh.configuration.repl #=> :pry
+  #     Msh.configuration.color #=> true
   class Configuration
     # @return [bool] whether color is enabled (default: true)
     attr_accessor :color

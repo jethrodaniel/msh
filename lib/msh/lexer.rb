@@ -25,6 +25,22 @@ module Msh
   #
   # Note: this lexer is lossless, i.e, the completed tokens contain the entire
   # source code, including tabs, spaces, and comments.
+  #
+  # @example
+  #   lexer = Msh::Lexer.new "a | b > c"
+  #   tokens = [
+  #     "[1:1-1][WORD, \"a\"]",
+  #     "[1:2-2][SPACE, \" \"]",
+  #     "[1:3-3][PIPE, \"|\"]",
+  #     "[1:4-4][SPACE, \" \"]",
+  #     "[1:5-5][WORD, \"b\"]",
+  #     "[1:6-6][SPACE, \" \"]",
+  #     "[1:7-7][REDIRECT_OUT, \">\"]",
+  #     "[1:8-8][SPACE, \" \"]",
+  #     "[1:9-9][WORD, \"c\"]",
+  #     "[1:10-10][EOF, \"\\u0000\"]"
+  #   ]
+  #   lexer.tokens.map(&:to_s) == tokens #=> true
   class Lexer
     include Msh::Logger
 
@@ -60,7 +76,7 @@ module Msh
 
     # Run the lexer on the input until we collect all the tokens.
     #
-    # @return [Array<Token>] all tokens in the input
+    # @return [Array<Msh::Token>] all tokens in the input
     def tokens
       next_token until @tokens.last&.type == :EOF
       @tokens
@@ -165,10 +181,10 @@ module Msh
       @token
     end
 
-    # {#eof?} but in such a way that you still get true when the next token
-    # is an EOF
+    # {Scanner#eof?} but in such a way that you still get true when the next
+    # token is an EOF
     #
-    # @param [Boolean] whether the last token is *not* an EOF
+    # @return [Boolean] whether the last token is *not* an EOF
     def next?
       @tokens.last&.type != :EOF
     end
@@ -231,7 +247,7 @@ module Msh
 
     # nils out all of our current token's fields
     #
-    # @param [Token]
+    # @return [Token]
     def reset_token
       @token.tap do |t|
         t.type   = nil

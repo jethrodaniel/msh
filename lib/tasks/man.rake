@@ -30,7 +30,7 @@ def create_manpage cmd, man_src
     :backend => "manpage"
   )
 
-  sh "gzip man/man1/#{cmd}.1"
+  sh "gzip -f man/man1/#{cmd}.1"
 end
 
 YARD::Registry.load_all

@@ -21,7 +21,7 @@ module Msh
   class Token
     attr_accessor :type, :value, :line, :column
 
-    # @param [Boolean]
+    # @return [Boolean]
     attr_accessor :valid
 
     # @param opts [Hash<Symbol, Integer>]
@@ -53,7 +53,7 @@ module Msh
         && @valid == other.valid
     end
 
-    # @param [Boolean] whether this token is completed and valid
+    # @return [Boolean] whether this token is completed and valid
     def valid?
       @valid
     end

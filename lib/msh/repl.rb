@@ -19,7 +19,7 @@ module Msh
   class Repl
     class Error < Msh::Error; end
 
-    # @param [Interpreter]
+    # @return [Interpreter]
     attr_reader :interpreter
 
     def initialize
