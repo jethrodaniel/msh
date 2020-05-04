@@ -59,12 +59,11 @@ RSpec.describe Msh::Interpreter do
   end
 
   it ".process" do
-    skip
-    ast = s(:EXPR, s(:COMMAND, s(:WORD, "echo")))
+    ast = s(:EXPR, s(:CMD, s(:WORD, s(:LIT, "echo"))))
     out = subject.process(ast)
     expect(out).to be_zero
 
-    ast = s(:EXPR, s(:COMMAND, s(:WORD, "notarealcommand")))
+    ast = s(:EXPR, s(:CMD, s(:WORD, s(:LIT, "notarealcommand"))))
     out = subject.process(ast)
     expect(out).to be_zero
   end
