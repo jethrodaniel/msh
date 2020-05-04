@@ -6,6 +6,7 @@ module Msh
     # ```
     # ```
     def repl
+      require Msh.configuration.repl.to_s
       @binding.send Msh.configuration.repl
     end
   end
