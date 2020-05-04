@@ -2,9 +2,19 @@
 
 module Msh
   class Env
-    # MAN
-    # ```
-    # ```
+    # == name
+    #
+    # history - shell history
+    #
+    # == synopsis
+    #
+    # *history*
+    #
+    # *hist*
+    #
+    # == description
+    #
+    # Shows shell history with line numbers.
     def history
       size = 3
       Readline::HISTORY.to_a.tap do |h|

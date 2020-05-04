@@ -2,9 +2,6 @@
 
 module Msh
   class Env
-    # MAN
-    # ```
-    # ```
     def quit
       puts "goodbye! <3"
       abort

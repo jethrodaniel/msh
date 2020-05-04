@@ -2,9 +2,30 @@
 
 module Msh
   class Env
-    # MAN
-    # ```
-    # ```
+    # == name
+    #
+    # help - msh man pages
+    #
+    # == synopsis
+    #
+    # *help* [_topic_]...
+    #
+    # == description
+    #
+    # Msh's _help_ builtin is just a wrapper around the _man_ command, such that topics are prefixed with _msh-_.
+    #
+    #     msh> help help   #=> same as `man msh-help`
+    #     msh> help        #=> same as `man msh`
+    #     msh> help wtf    #=> No manual entry for msh-wtf
+    #
+    # Msh modifies your $MANPATH so these are available. To install them outside of msh, either add msh's man directory to your $MANPATH, or install it's manpages on your system the traditional way.
+    #
+    #     MANPATH="$MANPATH:`dirname \`gem which msh\``/../man" man msh
+    #
+    #     cp -r `dirname \`gem which msh\``/../man/man1/ /usr/local/share/man/man1/
+    #     mandb
+    #     man msh
+    #
     def help *topics
       cmd = if topics.empty?
               %w[man msh]
@@ -16,11 +37,13 @@ module Msh
         begin
           exec *cmd
         rescue Errno::ENOENT => e # No such file or directory
-          puts e.message
+          abort e.message
         end
       end
 
       Process.wait pid
+
+      $CHILD_STATUS.exitstatus
     end
 
     alias_method :'?', :help # rubocop:disable Style/Alias

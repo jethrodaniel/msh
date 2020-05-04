@@ -7,34 +7,66 @@ SYNOPSIS
        msh [options]... [file]...
 
 DESCRIPTION
-       Msh is a simple shell running inside a ruby interpreter. It supports a
-       small subset of sh.
+       It supports a subset of sh/bash, including
 
-       ·   [x] pipelines
+       ·   redirection a 2>&1 > out.log
 
-       ·   [ ] command grouping
+       ·   conditionals a || b && c
 
-       ·   [ ] subshells
+       ·   commands a; b;
 
-       ·   [ ] conditionals
+       ·   grouping a; {b}
 
-       ·   [ ] multiple commands
+       ·   subshells (a) && {b || c; }
 
-       ·   [x] simple commands
+       ·   pipes a | b
 
-       ·   [ ] redirection
+       ·   command substitution a 'b' c (but use backticks, not single qoutes)
 
-       Additionally, does a bunch of things its own way
+       ·   process substitution <(a | b)
 
-       ·   [ ] preprocesses input as ERB (the repl builtin is a shortcut for
-           this)
+       It uses Ruby to handle variables, functions, and aliases, and allows
+       for Ruby interpolation anywhere in the source.
 
-       ·   [ ] variables are just Ruby variables
+           $ echo π ≈ #{Math::PI} | cowsay
+            _________________________
+           < π ≈ 3.141592653589793 . >
+            -------------------------
+                   \   ^__^
+                    \  (oo)\_______
+                       (__)\       )\/\
+                           ||----w |
+                           ||     ||
 
-       ·   [ ] functions are just Ruby methods
+       Unlike other shells, Msh doesn’t have functions or variables builtin to
+       the language, rather, it tasks that to it’s host, or implementation,
+       language (here, Ruby).
 
-       See msh-design(1), msh-help(1), msh-history(1), msh-lexer(1),
-       msh-parser(1), msh-repl(1).
+       The host language is available via a REPL at with the repl command, and
+       additionally processes string interpolation in all commands.
+
+           $ repl
+           irb> ... quit
+           $ echo the time is now #{Time.now}
+
+   Functions
+       Instead of functions, Msh just calls Ruby methods
+
+           echo #{def hello name; puts "hello, #{name}"; end}
+           hello world #=> prints "hello, world"
+
+       Similarly, builtins and aliases are just Ruby methods as well.
+
+           $ builtins
+           $ aliases
+
+   Variables
+       Variables in the REPL correspond directly to environment variables.
+
+           $ RAILS_ENV=production bundle exec rails
+           $ repl
+           irb> RAILS_ENV='production' # this is like `export VAR=...`
+           $ bundle exec rails
 
 OPTIONS
        -h, --help
@@ -56,7 +88,7 @@ RESOURCES
        source code
            https://github.com/jethrodaniel/msh
 
-AUTHOR
-       Copyright 2020, Mark Delk under the terms of the MIT license
+MSH
+       Part of msh(1).
 
-Msh v0.1.0                        2020-03-21                            MSH(1)
+Msh v0.1.0                        2020-05-04                            MSH(1)

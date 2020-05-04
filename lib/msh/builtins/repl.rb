@@ -2,9 +2,21 @@
 
 module Msh
   class Env
-    # MAN
-    # ```
-    # ```
+    # == name
+    #
+    # repl - easily access Msh's Ruby interpretor
+    #
+    # == synopsis
+    #
+    # *repl*
+    #
+    # == description
+    #
+    # This is equivalent to
+    #
+    #     #{binding.irb}  # if using IRB
+    #     #{binding.pry}  # if using Pry
+    #
     def repl
       require Msh.configuration.repl.to_s
       @binding.send Msh.configuration.repl

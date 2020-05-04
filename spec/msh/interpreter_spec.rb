@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "msh/documentation"
 require "msh/interpreter"
 
 require "stringio"
@@ -88,13 +87,13 @@ RSpec.describe Msh::Interpreter do
         skip
       end
 
-      Msh::Documentation.help_topics.each do |topic|
-        it topic do
-          skip
-          man = File.read(Msh.root + "spec/fixtures/help/#{topic}.txt")
-          expect(sh("MANPAGER=cat msh -c 'help #{topic}'")).to eq(man)
-        end
-      end
+      # Msh::Documentation.help_topics.each do |topic|
+      #   it topic do
+      #     skip
+      #     man = File.read(Msh.root + "spec/fixtures/help/#{topic}.txt")
+      #     expect(sh("MANPAGER=cat msh -c 'help #{topic}'")).to eq(man)
+      #   end
+      # end
     end
 
     describe "q[uit]" do

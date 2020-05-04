@@ -2,9 +2,17 @@
 
 module Msh
   class Env
-    # MAN
-    # ```
-    # ```
+    # == name
+    #
+    # lexer - msh's lexer
+    #
+    # == synopsis
+    #
+    # *lexer* [_file_]...
+    #
+    # == description
+    #
+    # Run the lexer.
     def lexer *files
       Msh::Lexer.start files
       0

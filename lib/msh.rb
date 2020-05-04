@@ -2,15 +2,22 @@
 
 module Msh
   def self.root
-    Pathname.new(__dir__).join '..'
+    Pathname.new(__dir__).join ".."
   end
 end
 
 require "msh/cli"
-require "msh/documentation"
 require "msh/repl"
 
-# == Msh is a Ruby shell.
+# == name
+#
+# msh - a ruby shell
+#
+# == synopsis
+#
+# *msh* [_options_]... [_file_]...
+#
+# == description
 #
 # It supports a subset of `sh`/`bash`, including
 #
@@ -49,7 +56,7 @@ require "msh/repl"
 #     irb> ... quit
 #     $ echo the time is now #{Time.now}
 #
-# ==== Functions
+# === Functions
 #
 # Instead of functions, Msh just calls Ruby methods
 #
@@ -61,7 +68,7 @@ require "msh/repl"
 #     $ builtins
 #     $ aliases
 #
-# ==== Variables
+# === Variables
 #
 # Variables in the REPL correspond directly to environment variables.
 #
@@ -70,14 +77,29 @@ require "msh/repl"
 #     irb> RAILS_ENV='production' # this is like `export VAR=...`
 #     $ bundle exec rails
 #
+# == options
+#
+# *-h, --help*::
+#   Show usage information.
+#
+# *-V, --version*::
+#   Show the version.
+#
+# *--copyright, --license*::
+#   Show the copyright.
+#
+# *-c <command>*::
+#   Run a command string as input.
+#
+# == resources
+#
+# *issue tracker*:: https://github.com/jethrodaniel/msh/issues?q=is%3Aopen.
+# *source code*:: https://github.com/jethrodaniel/msh
 module Msh
   # Entry point for the `msh` command.
   #
   # Parses options/commands, then runs either interactively or on files.
-  #
-  # If the `NO_READLINE` environment variable is set, readline won't be used.
   def self.start
-    Msh::Documentation.setup_manpath!
     Msh::CLI.handle_options!
 
     if ARGV.size.zero?

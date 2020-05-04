@@ -89,6 +89,7 @@ module Msh
       log.debug { "initialized new interpreter" }
       @env = Env.new
       Configuration.load!
+      setup_manpath!
     end
 
     # @param line [String]
@@ -108,8 +109,6 @@ module Msh
       raise "no handler for node: #{node}"
       # error "no handler for node: #{node}"
     end
-
-    # rubocop:disable Naming/MethodName
 
     # @param node [Msh::AST::Node] :PROG
     # @return [Integer] exit status
@@ -205,8 +204,7 @@ module Msh
       cmd, *args = command_exec_args(node)
 
       if @env.respond_to? cmd.to_sym
-        @env.send cmd.to_sym, *args
-        return
+        return @env.send cmd.to_sym, *args
       end
 
       fork do
@@ -221,8 +219,6 @@ module Msh
 
       $CHILD_STATUS.exitstatus
     end
-
-    # rubocop:enable Naming/MethodName
 
     private
 
@@ -257,6 +253,15 @@ module Msh
           end
         end.join
       end
+    end
+
+    # Add Msh's manpages to the current MANPATH
+    #
+    # @todo: what the "::" means (need it to work)
+    def setup_manpath!
+      manpaths = ENV["MANPATH"].to_s.split(File::PATH_SEPARATOR)
+      manpaths << Msh.root.join("man").realpath.to_s
+      ENV["MANPATH"] = manpaths.compact.join(File::PATH_SEPARATOR) + "::"
     end
   end
 end

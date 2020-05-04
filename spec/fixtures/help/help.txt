@@ -27,7 +27,4 @@ DESCRIPTION
 MSH
        Part of msh(1).
 
-AUTHOR
-       Copyright 2020, Mark Delk under the terms of the MIT license
-
-Msh v0.1.0                        2020-04-13                           HELP(1)
+Msh v0.1.0                        2020-05-04                           HELP(1)

@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: msh
-.\"    Author: Copyright 2020, Mark Delk under the terms of the MIT license
+.\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.10
-.\"      Date: 2020-03-21
+.\"      Date: 2020-05-04
 .\"    Manual: Msh Manual
 .\"    Source: Msh v0.1.0
 .\"  Language: English
 .\"
-.TH "MSH" "1" "2020-03-21" "Msh v0.1.0" "Msh Manual"
+.TH "MSH" "1" "2020-05-04" "Msh v0.1.0" "Msh Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -34,7 +34,7 @@ msh \- a ruby shell
 \fBmsh\fP [\fIoptions\fP]... [\fIfile\fP]...
 .SH "DESCRIPTION"
 .sp
-Msh is a simple shell running inside a ruby interpreter. It supports a small subset of \f(CRsh\fP.
+It supports a subset of \f(CRsh\fP/\f(CRbash\fP, including
 .sp
 .RS 4
 .ie n \{\
@@ -44,7 +44,7 @@ Msh is a simple shell running inside a ruby interpreter. It supports a small sub
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\f(CR[x]\fP pipelines
+redirection \f(CRa 2>&1 > out.log\fP
 .RE
 .sp
 .RS 4
@@ -55,7 +55,7 @@ Msh is a simple shell running inside a ruby interpreter. It supports a small sub
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\f(CR[ ]\fP command grouping
+conditionals \f(CRa || b && c\fP
 .RE
 .sp
 .RS 4
@@ -66,7 +66,7 @@ Msh is a simple shell running inside a ruby interpreter. It supports a small sub
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\f(CR[ ]\fP subshells
+commands \f(CRa; b;\fP
 .RE
 .sp
 .RS 4
@@ -77,7 +77,7 @@ Msh is a simple shell running inside a ruby interpreter. It supports a small sub
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\f(CR[ ]\fP conditionals
+grouping \f(CRa; {b}\fP
 .RE
 .sp
 .RS 4
@@ -88,7 +88,7 @@ Msh is a simple shell running inside a ruby interpreter. It supports a small sub
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\f(CR[ ]\fP multiple commands
+subshells \f(CR(a) && {b || c; }\fP
 .RE
 .sp
 .RS 4
@@ -99,7 +99,7 @@ Msh is a simple shell running inside a ruby interpreter. It supports a small sub
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\f(CR[x]\fP simple commands
+pipes \f(CRa | b\fP
 .RE
 .sp
 .RS 4
@@ -110,20 +110,7 @@ Msh is a simple shell running inside a ruby interpreter. It supports a small sub
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\f(CR[ ]\fP redirection
-.RE
-.sp
-Additionally, does a bunch of things its own way
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\f(CR[ ]\fP preprocesses input as ERB (the \fIrepl\fP builtin is a shortcut for this)
+command substitution \f(CRa \(aqb\(aq c\fP (but use backticks, not single qoutes)
 .RE
 .sp
 .RS 4
@@ -134,21 +121,71 @@ Additionally, does a bunch of things its own way
 .  sp -1
 .  IP \(bu 2.3
 .\}
-\f(CR[ ]\fP variables are just Ruby variables
+process substitution \f(CR<(a | b)\fP
 .RE
 .sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-\f(CR[ ]\fP functions are just Ruby methods
-.RE
+It uses Ruby to handle variables, functions, and aliases, and allows for
+Ruby interpolation anywhere in the source.
 .sp
-See msh\-design(1), msh\-help(1), msh\-history(1), msh\-lexer(1), msh\-parser(1), msh\-repl(1).
+.if n .RS 4
+.nf
+$ echo π ≈ #{Math::PI} | cowsay
+ _________________________
+< π ≈ 3.141592653589793 . >
+ \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+        \(rs   ^__^
+         \(rs  (oo)\(rs_______
+            (__)\(rs       )\(rs/\(rs
+                ||\-\-\-\-w |
+                ||     ||
+.fi
+.if n .RE
+.sp
+Unlike other shells, Msh doesn\(cqt have functions or variables builtin to the
+language, rather, it tasks that to it\(cqs host, or implementation, language
+(here, Ruby).
+.sp
+The host language is available via a REPL at with the \f(CRrepl\fP command, and
+additionally processes string interpolation in all commands.
+.sp
+.if n .RS 4
+.nf
+$ repl
+irb> ... quit
+$ echo the time is now #{Time.now}
+.fi
+.if n .RE
+.SS "Functions"
+.sp
+Instead of functions, Msh just calls Ruby methods
+.sp
+.if n .RS 4
+.nf
+echo #{def hello name; puts "hello, #{name}"; end}
+hello world #=> prints "hello, world"
+.fi
+.if n .RE
+.sp
+Similarly, builtins and aliases are just Ruby methods as well.
+.sp
+.if n .RS 4
+.nf
+$ builtins
+$ aliases
+.fi
+.if n .RE
+.SS "Variables"
+.sp
+Variables in the REPL correspond directly to environment variables.
+.sp
+.if n .RS 4
+.nf
+$ RAILS_ENV=production bundle exec rails
+$ repl
+irb> RAILS_ENV=\(aqproduction\(aq # this is like `export VAR=...`
+$ bundle exec rails
+.fi
+.if n .RE
 .SH "OPTIONS"
 .sp
 \fB\-h, \-\-help\fP
@@ -181,6 +218,6 @@ Run a command string as input.
 .RS 4
 .URL "https://github.com/jethrodaniel/msh" "" ""
 .RE
-.SH "AUTHOR"
+.SH "MSH"
 .sp
-Copyright 2020, Mark Delk under the terms of the MIT license
+Part of msh(1).

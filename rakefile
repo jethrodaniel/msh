@@ -1,113 +1,12 @@
 # frozen_string_literal: true
 
-# msh's rakefile, used to build and test the project.
-#
-# **note**: the following are useful here
-#
-# ```
-# bundle exec rake -P         # show all prerequisites (see generated files)
-# bundle exec rake -T         # show all tasks
-# bundle exec rake -B <task>  # build <task>, forcing all dependencies
-# ```
-#
-# So after updating the grammar, the following may be needed
-#
-# ```
-# bundle exec rake -B msh
-# ```
-
+require "erb"
 require "bundler/gem_tasks"
-require "rspec/core/rake_task"
-require "rubocop/rake_task"
 require "rake/clean"
 
-CLEAN << "docs" << "pkg" << "spec/msh/lexer_spec.rb"
-
-# need these to generate the manpages and readme
-require "erb"
-require "msh/backports"
-require "msh/version"
-require "msh/gemspec"
-require "msh/documentation"
-require_relative "spec/examples"
-
-# with_80_columns do
-#   ...
-# end
-#
-# Examples.examples.each_with_index do |(code, data), index|
-# ...
-# end
-require_relative "spec/spec_helper"
+CLEAN << "docs" << "pkg"
 
 task :default => %i[msh build install spec]
-
-RSpec::Core::RakeTask.new :spec
-task :spec => %w[spec:examples spec:generate]
-
-namespace :spec do
-  desc "dump results from `help` builtin to text files for specs"
-  task :help => %i[msh man install] do
-    FileList["man/*.adoc.erb"].map do |erb|
-      # topic for the `help` builtin
-      topic = File.basename(erb)
-                  .match(/msh\-(?<topic>\w+).1.adoc.erb/)
-                  &.[](:topic)
-
-      # for `msh.1.adoc.erb`
-      topic = "msh" if topic.nil?
-
-      # help with no args is just `man msh`
-      cmd = topic == "msh" ? "help" : "help #{topic}"
-
-      with_80_columns do
-        sh "2>&1 MANPAGER=cat msh -c '#{cmd}' > spec/fixtures/help/#{topic}.txt"
-      end
-    end
-  end
-end
-
-scripts = []
-Examples.examples.each_with_index do |(code, data), index|
-  good_or_bad = data[:valid] ? "good" : "bad"
-  dir = Msh.root + "spec/fixtures/#{good_or_bad}"
-  script = dir + "#{index}.msh"
-
-  file script => dir do
-    File.open script, "w" do |f|
-      # f.puts "#!/usr/bin/env msh\n\n"
-      f.puts code
-    end
-    sh "chmod +x #{script}"
-  end
-
-  scripts << script
-  CLEAN << script
-end
-
-namespace :spec do
-  desc "create sample msh scripts from spec/examples.yaml"
-  task :examples => scripts
-
-  gen_specs = %w[
-    spec/msh/lexer_spec.rb
-    spec/msh/parser_spec.rb
-  ]
-  task :generate => gen_specs
-
-  gen_specs.each do |f|
-    file f do |t|
-      puts "#{t.name}.erb -> #{t.name}"
-      erb t.name
-      sh "bundle exec rubocop -a #{t.name} " \
-         "2>/dev/null | grep '1 file inspected' || true"
-    end
-  end
-end
-
-RuboCop::RakeTask.new :lint do |t|
-  t.options = %w[--display-cop-names -c.rubocop.yml]
-end
 
 desc "build everything and run msh"
 task :run => :msh do
@@ -117,83 +16,15 @@ end
 desc "build everything"
 task :msh => :man
 
-manpages = []
-FileList["man/*.adoc.erb"].each do |erb_manpage|
-  manpage_adoc = File.basename(erb_manpage).delete_suffix ".erb"
-  manpage_out  = manpage_adoc.delete_suffix ".adoc"
-  sec_number = manpage_out[-1]
-  sec_dir = "man/man#{sec_number}"
-  manpage_out = "#{sec_dir}/#{manpage_out}"
-  manpage_adoc = "man/#{manpage_adoc}"
-
-  file sec_dir do |t|
-    sh "mkdir -p #{t.name}"
-  end
-
-  file manpage_adoc => erb_manpage do |t|
-    puts "#{t.name}.erb -> #{t.name}"
-    erb t.name
-  end
-
-  file manpage_out => [manpage_adoc, sec_dir] do
-    sh "bundle exec asciidoctor " \
-       "--backend manpage " \
-       "--doctype manpage " \
-       "#{manpage_adoc} " \
-       "--out-file #{manpage_out}"
-  end
-
-  manpages << manpage_out
-end
-
-desc "generate the man pages"
-task :man => manpages
-
-namespace :man do
-  # stolen from bundler with love:
-  #   - https://github.com/rubygems/bundler/blob/788a4071cf4e0b42f83e25ba2aedaf0b63546866/Rakefile#L138
-  desc "verify man pages are in sync"
-  task :check => :build do
-    sh "git diff --quiet --ignore-all-space man" do |outcome, _|
-      if outcome
-        puts "\nManpages are in sync!\n"
-      else
-        sh "GIT_PAGER=cat git diff --ignore-all-space man"
-
-        puts "\nMan pages are out of sync. " \
-             "Above you can see the diff that got generated from " \
-             "rebuilding them. " \
-             "Please review and commit the results.\n"
-
-        exit 1
-      end
-    end
-  end
-end
-
 desc "generates readme.md from ERB"
 task :readme => [:msh, "readme.md"]
 
 file "readme.md" do |t|
+  template = File.read "#{t.name}.erb"
   puts "#{t.name}.erb -> #{t.name}"
-  erb t.name
-end
-
-# Render an ERB template to a file of the same name without the `.erb` suffix.
-#
-# @param template_filename [String]
-# @return [void]
-#
-# @example
-#   erb "readme.md" #=> renders `readme.md.erb` to `readme.md`
-#
-# @todo
-#   require 'msh' here instead of in the man pages
-def erb template_filename
-  template = File.read "#{template_filename}.erb"
   # trim mode of `<>` removes newlines and blank lines
   erb_string = ERB.new(template, nil, :trim_mode => "-").result
-  File.open(template_filename, "w") { |f| f.puts erb_string }
+  File.open(t.name, "w") { |f| f.puts erb_string }
 end
 
-# Dir["task/*.rake"].each(&method(:load))
+Dir["lib/tasks/*.rake"].each(&method(:load))

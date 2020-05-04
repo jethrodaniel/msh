@@ -2,9 +2,6 @@
 
 module Msh
   class Env
-    # MAN
-    # ```
-    # ```
     def builtins
       o = Object.new
       public_methods.reject { |m| o.respond_to? m }
