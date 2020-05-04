@@ -19,12 +19,6 @@ module Msh
   class Repl
     class Error < Msh::Error; end
 
-    # @param [Lexer]
-    attr_reader :lexer
-
-    # @param [Parser]
-    attr_reader :parser
-
     # @param [Interpreter]
     attr_reader :interpreter
 
@@ -34,10 +28,7 @@ module Msh
 
       input_loop do |line|
         add_to_history line
-
-        lexer = Msh::Lexer.new line
-        parser = Msh::Parser.new lexer.tokens
-        interpreter.process parser.parse
+        interpreter.interpret line
       end
     end
 

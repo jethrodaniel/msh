@@ -58,14 +58,22 @@ RSpec.describe Msh::Interpreter do
     end
   end
 
-  it ".process" do
+  it "#process" do
     ast = s(:EXPR, s(:CMD, s(:WORD, s(:LIT, "echo"))))
     out = subject.process(ast)
     expect(out).to be_zero
 
     ast = s(:EXPR, s(:CMD, s(:WORD, s(:LIT, "notarealcommand"))))
     out = subject.process(ast)
+    expect(out).to_not be_zero
+  end
+
+  it "#interpret" do
+    out = subject.interpret "echo"
     expect(out).to be_zero
+
+    out = subject.interpret "notarealcommand"
+    expect(out).to_not be_zero
   end
 
   describe "builtins" do

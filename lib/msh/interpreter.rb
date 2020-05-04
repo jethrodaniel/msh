@@ -14,15 +14,9 @@ module Msh
   # The interpreter executes an AST.
   #
   # ```
-  # lex = Lexer.new "fortune | cowsay\n"
-  # parser = Parser.new lex.tokens
-  # interpreter = Interpreter.new parser.parse
+  # msh = Interpreter.new
+  # msh.interpret "fortune | cowsay\n"
   # ```
-  #
-  # == It operates like so:
-  #
-  # When {#process} is called, traverse the given AST, executing while
-  # visiting each node.
   #
   # ==== command substitution
   #
@@ -38,8 +32,6 @@ module Msh
   # The older backticks style is supported, but
   #
   # ==== ruby interpolation
-  #
-  # TODO
   #
   # Ruby interpolation is allowed anywhere using the familiar `#{}` syntax.
   # It is evaluated into WORDs, i.e, it can be used wherever command
@@ -97,6 +89,13 @@ module Msh
       log.debug { "initialized new interpreter" }
       @env = Env.new
       Configuration.load!
+    end
+
+    # @param line [String]
+    def interpret line
+      lexer = Lexer.new line
+      parser = Parser.new lexer.tokens
+      process parser.parse
     end
 
     # @return [String]
@@ -160,7 +159,7 @@ module Msh
           begin
             exec *command_exec_args(cmd)
           rescue Errno::ENOENT => e # No such file or directory
-            puts e.message
+            abort e.message
           end
         end
 
@@ -214,7 +213,7 @@ module Msh
         begin
           exec *command_exec_args(node)
         rescue Errno::ENOENT => e # No such file or directory
-          puts e.message
+          abort e.message
         end
       end
 
