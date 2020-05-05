@@ -3,7 +3,6 @@
 require "msh/backports"
 require "msh/error"
 require "msh/configuration"
-require "msh/ansi"
 
 module Msh
   # An environment maintains the current environment variables of an
@@ -23,8 +22,6 @@ module Msh
   # NOTE: Methods prefixed with an underscore are hidden from `builtins`'s
   #       output.
   class Env
-    include Msh::Colors
-
     class Error < Msh::Error; end
 
     @builtins = []
