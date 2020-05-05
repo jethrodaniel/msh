@@ -76,6 +76,24 @@ RSpec.describe Msh::Interpreter do
   end
 
   describe "builtins" do
+    # https://unix.stackexchange.com/a/79895/354783
+    it "forks if part of a pipeline" do
+      out, err = capture_subprocess_io do
+        subject.interpret "cd /tmp"
+        subject.interpret "pwd"
+        subject.interpret "cd / | echo hi"
+        subject.interpret "pwd"
+        subject.interpret "cd /"
+        subject.interpret "pwd"
+      end
+      expect(out).to eq <<~OUT
+        /tmp
+        hi
+        /tmp
+        /
+      OUT
+    end
+
     describe "help" do
       it "shows `msh` when called with no args" do
         skip
