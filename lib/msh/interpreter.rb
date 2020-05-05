@@ -91,10 +91,9 @@ module Msh
       setup_manpath!
     end
 
-    # @param line [String]
-    def interpret line
-      lexer = Lexer.new line
-      parser = Parser.new lexer.tokens
+    # @param code [String]
+    def interpret code
+      parser = Parser.new code
       process parser.parse
     end
 

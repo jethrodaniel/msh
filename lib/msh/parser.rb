@@ -2,16 +2,15 @@
 
 require "readline"
 
-require "msh/ast"
 require "msh/error"
+require "msh/ast"
 require "msh/lexer"
 
 module Msh
   # The parser converts a series of tokens into an abstract syntax tree (AST).
   #
   # @example
-  #     lexer = Msh::Lexer.new "fortune | cowsay"
-  #     parser = Msh::Parser.new lexer.tokens
+  #     parser = Msh::Parser.new "fortune | cowsay"
   #     ast = \
   #       s(:PROG,
   #         s(:EXPR,
@@ -136,22 +135,20 @@ module Msh
       :INTERP # echo the time is #{Time.now}
     ].freeze
 
-    # @return [Array<Token>]
-    attr_reader :tokens
-
-    def initialize tokens
+    def initialize code
       @pos = 0
-      @tokens = tokens
+      @lexer = Msh::Lexer.new code
+      @tokens = [@lexer.next_token]
     end
 
     # @return [Integer]
     def line
-      current_token.line
+      peek.line
     end
 
     # @return [Integer]
     def column
-      current_token.column
+      peek.column
     end
 
     # DSL to create an AST node, like {::AST::Sexp}, but adds line/column info.
@@ -163,8 +160,8 @@ module Msh
       Msh::AST::Node.new \
         type,
         children,
-        :line => current_token.line,
-        :column => current_token.column
+        :line => peek.line,
+        :column => peek.column
     end
 
     # Parse all tokens into an AST
@@ -208,7 +205,7 @@ module Msh
       _skip_whitespace
 
       if match? :AND, :OR
-        op = advance
+        op = consume :AND, :OR, "expected an `&&` or an `||`"
         _skip_whitespace
         right = _pipeline
         return s(:EXPR, s(op.type, c, right))
@@ -217,24 +214,6 @@ module Msh
       return s(:EXPR, s(:PIPELINE, c, *_pipeline.children)) if match? :PIPE
 
       s(:EXPR, c)
-    end
-
-    # @return [AST]
-    def _and_or
-      cmds = []
-
-      c = advance
-
-      _skip_whitespace
-
-      case c.type
-      when :AND
-        return s(:AND, _pipeline, _pipeline)
-      when :OR
-        return s(:OR, _pipeline, _pipeline)
-      end
-
-      _skip_whitespace
     end
 
     # @return [AST]
@@ -256,7 +235,7 @@ module Msh
       word_pieces = []
 
       while match? *WORDS
-        c = advance
+        c = peek
 
         case c.type
         when :WORD, :TIME
@@ -264,6 +243,7 @@ module Msh
         when :INTERP
           word_pieces << s(:INTERP, c.value)
         end
+        advance
       end
 
       s(:WORD, *word_pieces)
@@ -315,8 +295,7 @@ module Msh
           return
         else
           begin
-            lexer = Msh::Lexer.new line
-            parser = Msh::Parser.new lexer.tokens
+            parser = Msh::Parser.new line
             p parser.parse
           rescue Error => e
             puts e.message
@@ -332,8 +311,7 @@ module Msh
       args.each do |file|
         raise Error, "#{file} is not a file!" unless File.file?(file)
 
-        lexer = Msh::Lexer.new File.read(file)
-        parser = Msh::Parser.new lexer.tokens
+        parser = Msh::Parser.new File.read(file)
         p parser.parse
       end
     end
@@ -344,8 +322,8 @@ module Msh
     #
     # @raise [Error]
     def error msg = nil
-      line = current_token.line
-      col = current_token.column
+      line = peek.line
+      col = peek.column
       raise Error, "error at line #{line}, column #{col}: #{msg}"
     end
 
@@ -355,16 +333,12 @@ module Msh
       types.any? { |t| peek.type == t }
     end
 
-    # @return [Token]
-    def current_token
-      @tokens[@pos]
-    end
-
     # @return [Token, nil]
     def advance
       return if eof?
 
       @pos += 1
+      @tokens << @lexer.next_token
       prev
     end
 
@@ -375,8 +349,11 @@ module Msh
 
     # @return [Token]
     def peek
-      @tokens[@pos]
+      return @tokens[@pos] if @tokens[@pos]
+
+      @tokens[@pos] = @lexer.next_token
     end
+    alias current_token peek
 
     # @return [Token]
     def prev
@@ -389,7 +366,9 @@ module Msh
     # @param msg [String]
     def consume *types, msg
       if match? *types
+        c = peek.dup
         advance
+        c
       else
         error msg
       end

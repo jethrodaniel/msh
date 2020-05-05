@@ -17,8 +17,7 @@ RSpec.describe Msh::Parser do
               binding.eval(data[:ast], *binding.source_location)
             end
 
-      lexer = Msh::Lexer.new code
-      parser = Msh::Parser.new lexer.tokens
+      parser = Msh::Parser.new code
       expect(parser.parse).to eq ast
     end
   end
