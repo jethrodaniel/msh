@@ -120,6 +120,40 @@
     # :error: |
 
   #
+  # variables
+  #
+  "a=b echo $a":
+    :lexer_valid: true
+    :parser_valid: true
+    :interpreter_valid: true
+    :tokens: |
+      ['[1:1-1][WORD, "a"]',
+       '[1:2-2][EQ, "="]',
+       '[1:3-3][WORD, "b"]',
+       '[1:4-4][SPACE, " "]',
+       '[1:5-8][WORD, "echo"]',
+       '[1:9-9][SPACE, " "]',
+       '[1:10-11][VAR, "$a"]',
+       '[1:12-12][EOF, "\u0000"]']
+    :ast: |
+      s(:PROG,
+        s(:EXPR,
+          s(:CMD,
+            s(:ASSIGN,
+              s(:WORD,
+                s(:LIT, "a")),
+              s(:WORD,
+                s(:LIT, "b"))),
+            s(:WORD,
+              s(:LIT, "echo")),
+            s(:WORD,
+              s(:VAR, "$a")))))
+    :exit_code: 0
+    :output: |
+      b
+    :error: |
+
+  #
   # words, filenames, options, etc
   #
 

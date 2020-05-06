@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "msh/backports"
-require "msh/error"
+require "msh/errors"
 require "msh/configuration"
 
 module Msh
@@ -22,7 +22,7 @@ module Msh
   # NOTE: Methods prefixed with an underscore are hidden from `builtins`'s
   #       output.
   class Env
-    class Error < Msh::Error; end
+    class Errors::EnvError < Errors::Error; end
 
     def initialize
       @binding = binding

@@ -4,6 +4,7 @@ require "English"
 require "paint"
 
 require "msh/logger"
+require "msh/errors"
 require "msh/configuration"
 require "msh/env"
 require "msh/ast"
@@ -73,6 +74,8 @@ module Msh
   class Interpreter
     include Msh::Logger
 
+    class Errors::InterpreterError < Errors::Error; end
+
     # `AST::Processor::Mixin` defines the following for us
     #
     # ```
@@ -104,8 +107,7 @@ module Msh
 
     # Called on unknown node types
     def handler_missing node
-      raise "no handler for node: #{node}"
-      # error "no handler for node: #{node}"
+      error "no handler for node: #{node}"
     end
 
     # @param node [Msh::AST::Node] :PROG
@@ -262,6 +264,10 @@ module Msh
       manpaths = ENV["MANPATH"].to_s.split(File::PATH_SEPARATOR)
       manpaths << Msh.root.join("man").realpath.to_s
       ENV["MANPATH"] = manpaths.compact.join(File::PATH_SEPARATOR) + "::"
+    end
+
+    def error msg
+      raise Errors::InterpreterError, msg
     end
   end
 end

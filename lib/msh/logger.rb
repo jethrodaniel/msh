@@ -4,11 +4,11 @@ require "logger"
 
 require "paint"
 
-require "msh/error"
+require "msh/errors"
 
 module Msh
   module Logger
-    class Error < Msh::Error; end
+    class Errors::LoggerError < StandardError; end
 
     FORMATTER = -> severity, time, _progname, msg do
       color = case severity

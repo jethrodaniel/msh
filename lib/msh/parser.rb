@@ -2,7 +2,7 @@
 
 require "readline"
 
-require "msh/error"
+require "msh/errors"
 require "msh/ast"
 require "msh/lexer"
 
@@ -125,7 +125,7 @@ module Msh
   #   end
   #   ```
   class Parser
-    class Error < Msh::Error; end
+    class Errors::ParseError < Errors::Error; end
 
     REDIRECTS = [
       :REDIRECT_OUT,         # [n]>
@@ -325,7 +325,7 @@ module Msh
           begin
             parser = Msh::Parser.new line
             p parser.parse
-          rescue Error => e
+          rescue Errors::ParseError => e
             puts e.message
           end
         end
@@ -337,7 +337,7 @@ module Msh
       return Msh::Parser.interactive if args.size.zero?
 
       args.each do |file|
-        raise Error, "#{file} is not a file!" unless File.file?(file)
+        raise Errors::ParseError, "#{file} is not a file!" unless File.file?(file)
 
         parser = Msh::Parser.new File.read(file)
         p parser.parse
@@ -352,7 +352,7 @@ module Msh
     def error msg = nil
       line = peek.line
       col = peek.column
-      raise Error, "error at line #{line}, column #{col}: #{msg}"
+      raise Errors::ParseError, "error at line #{line}, column #{col}: #{msg}"
     end
 
     # @param types [Symbol...]

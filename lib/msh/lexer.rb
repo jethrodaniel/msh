@@ -3,7 +3,7 @@
 require "readline"
 require "strscan"
 
-require "msh/error"
+require "msh/errors"
 require "msh/logger"
 require "msh/token"
 require "msh/scanner"
@@ -44,7 +44,7 @@ module Msh
   class Lexer
     include Msh::Logger
 
-    class Error < Msh::Error; end
+    class Errors::LexerError < StandardError; end
 
     # TODO: there's def more of these
     NON_WORD_CHARS = [
@@ -103,6 +103,9 @@ module Msh
         end
       when "="
         @token.type = :EQ
+      when "$"
+        @token.type = :SUB
+        advance until NON_WORD_CHARS.include?(@scanner.peek(1))
       when " ", "\t" # skip whitespace
         consume_whitespace
       when "\n" # newlines
@@ -208,7 +211,7 @@ module Msh
         else
           begin
             puts Msh::Lexer.new(line).tokens
-          rescue Error => e
+          rescue Errors::LexerError => e
             puts e.message
           end
         end
@@ -218,7 +221,7 @@ module Msh
     # Run the lexer on a file, and print all of it's tokens.
     def self.lex_file filename
       puts new(File.read(filename)).tokens
-    rescue Error => e
+    rescue Errors::LexerError => e
       puts e.message
     end
 
@@ -228,7 +231,7 @@ module Msh
       return Msh::Lexer.interactive if args.size.zero?
 
       args.each do |file|
-        raise Error, "#{file} is not a file!" unless File.file?(file)
+        raise Errors::LexerError, "#{file} is not a file!" unless File.file?(file)
 
         puts Lexer.new(File.read(file)).tokens
       end
@@ -238,10 +241,10 @@ module Msh
 
     # Raise an error with helpful output.
     #
-    # @raise [Error]
+    # @raise [Errors::LexerError]
     def error msg = nil
-      raise Error, "error at line #{@token.line}, " \
-                   "column #{@token.column}: #{msg}"
+      raise Errors::LexerError, "error at line #{@token.line}, " \
+                                "column #{@token.column}: #{msg}"
     end
 
     def set_token_start
