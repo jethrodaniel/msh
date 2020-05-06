@@ -8,17 +8,25 @@ module Msh
     #
     # == synopsis
     #
-    # *cd* [_dir]
+    # *cd* [_dir_]
     #
     # == description
     #
-    #  Changes the shell's current directory
+    #  Changes the shell's current directory, and sets the following env vars:
+    #
+    #  - `OLDPWD` - the last directory the shell was in
+    #  - `PWD` - the directory the shell is currently in
+    #
+    # If `dir` is `-`, the destination will be be `${USER}
     def cd dir = nil
       last = ENV["OLDPWD"]
       ENV["OLDPWD"] = Dir.pwd
       case dir
       when "-"
-        raise "`OLDPWD` not yet set!" unless last
+        unless last
+          puts "`OLDPWD` not yet set!"
+          return 1
+        end
 
         Dir.chdir last
       when nil
@@ -27,6 +35,7 @@ module Msh
         Dir.chdir dir
       end
       ENV["PWD"] = Dir.pwd
+      0
     end
   end
 end
