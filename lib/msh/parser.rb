@@ -237,15 +237,17 @@ module Msh
         end
         _skip_whitespace
 
-        if match?(:EQ)
-          error "unexpected `=` in a word" unless cmd_parts.size == 1
-          consume :EQ, "expected an `=`"
-          _skip_whitespace
-          error "missing value for variable assignment" unless match? *WORDS
-          cmd_parts << s(:ASSIGN, cmd_parts.pop, _word)
-          _skip_whitespace
-          error "expected a word, got #{peek}" unless match? *WORDS, *REDIRECTS
-        end
+        next unless match?(:EQ)
+
+        consume :EQ, "expected an `=`"
+        _skip_whitespace
+        error "missing value for variable assignment" unless match? *WORDS
+        cmd_parts << s(:ASSIGN, cmd_parts.pop, _word)
+        _skip_whitespace
+
+        break if eof?
+
+        error "expected a word, got #{peek}" unless match? *WORDS, *REDIRECTS
       end
 
       error "expected a word or redirect" if cmd_parts.size.zero?

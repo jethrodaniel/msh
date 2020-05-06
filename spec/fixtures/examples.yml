@@ -64,6 +64,62 @@
     :error: |
 
   #
+  # assignments
+  #
+  "a=b c = d #{:e}=g us#{:er}=you":
+    :lexer_valid: true
+    :parser_valid: true
+    :interpreter_valid: false
+    :tokens: |
+      ['[1:1-1][WORD, "a"]',
+       '[1:2-2][EQ, "="]',
+       '[1:3-3][WORD, "b"]',
+       '[1:4-4][SPACE, " "]',
+       '[1:5-5][WORD, "c"]',
+       '[1:6-6][SPACE, " "]',
+       '[1:7-7][EQ, "="]',
+       '[1:8-8][SPACE, " "]',
+       '[1:9-9][WORD, "d"]',
+       '[1:10-10][SPACE, " "]',
+       '[1:11-15][INTERP, "\#{:e}"]',
+       '[1:16-16][EQ, "="]',
+       '[1:17-17][WORD, "g"]',
+       '[1:18-18][SPACE, " "]',
+       '[1:19-20][WORD, "us"]',
+       '[1:21-26][INTERP, "\#{:er}"]',
+       '[1:27-27][EQ, "="]',
+       '[1:28-30][WORD, "you"]',
+       '[1:31-31][EOF, "\u0000"]']
+    :ast: |
+      s(:PROG,
+        s(:EXPR,
+          s(:CMD,
+            s(:ASSIGN,
+              s(:WORD,
+                s(:LIT, "a")),
+              s(:WORD,
+                s(:LIT, "b"))),
+            s(:ASSIGN,
+              s(:WORD,
+                s(:LIT, "c")),
+              s(:WORD,
+                s(:LIT, "d"))),
+            s(:ASSIGN,
+              s(:WORD,
+                s(:INTERP, "\#{:e}")),
+              s(:WORD,
+                s(:LIT, "g"))),
+            s(:ASSIGN,
+              s(:WORD,
+                s(:LIT, "us"),
+                s(:INTERP, "\#{:er}")),
+              s(:WORD,
+                s(:LIT, "you"))))))
+    # :exit_code: 0
+    # :output: |
+    # :error: |
+
+  #
   # words, filenames, options, etc
   #
 
