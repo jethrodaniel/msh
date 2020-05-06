@@ -114,9 +114,9 @@ module Msh
       process_all(node).last
     end
 
-    # @param node [Msh::AST::Node] :AND or :OR
+    # @param _node [Msh::AST::Node] :AND or :OR
     # @return [Integer] exit status
-    def on_NOOP node
+    def on_NOOP _node
       0
     end
 
@@ -154,7 +154,11 @@ module Msh
           end
 
           begin
-            exec *command_exec_args(cmd)
+            cmd, *args = command_exec_args(cmd)
+
+            exit @env.send cmd.to_sym, *args if @env.respond_to? cmd.to_sym
+
+            exec cmd, *args
           rescue Errno::ENOENT => e # No such file or directory
             abort e.message
           end
@@ -201,9 +205,7 @@ module Msh
     def on_CMD node
       cmd, *args = command_exec_args(node)
 
-      if @env.respond_to? cmd.to_sym
-        return @env.send cmd.to_sym, *args
-      end
+      return @env.send cmd.to_sym, *args if @env.respond_to? cmd.to_sym
 
       fork do
         begin

@@ -24,8 +24,6 @@ module Msh
   class Env
     class Error < Msh::Error; end
 
-    @builtins = []
-
     def initialize
       @binding = binding
     end
