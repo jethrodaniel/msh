@@ -66,11 +66,13 @@ module Msh
   # command -> cmd_part _ command # {cmd_part}+, but skipping whitespace
   #          | cmd_part
   #
-  # cmd_part -> redirect | word
+  # cmd_part -> redirect | word | assignment
   #
-  # # Note: `word`s here are actually "built" up into WORDS - consider
+  # assignment -> word _ EQ _ word
+  #
+  # # Note: `WORD`s from the lexer are "built" up into AST WORDs - consider
   # #
-  # #    echo a#{b}c$(d)e
+  # #    echo a#{b}c$(d)e$USER
   # #
   # # Which yields
   # #
@@ -78,13 +80,20 @@ module Msh
   # #      s(:LIT, "a"),
   # #      s(:INTERP, "#{b}"),
   # #      s(:LIT, "c"),
-  # #      s(:SUBSTITUTION, "d"),
-  # #      s(:LIT, "e"))
+  # #      s(:SUB, "d"),
+  # #      s(:LIT, "e"),
+  # #      s(:VAR, "$USER"))
   # #
-  # #           | No whitespace here
-  # #           |
-  # word -> WORD word  # equivalent to {WORD}+
-  #       | WORD
+  # #                 | No whitespace here
+  # #                 |
+  # word -> word_type  word
+  #       | word_type
+  #
+  # # The lexer will never output `LIT LIT`
+  # word_type -> LIT      # echo
+  #            | INTERP   # #{Time.now}
+  #            | SUB      # $(date)
+  #            | VAR      # $USER
   #
   # redirect -> REDIRECT_OUT          # [n]>
   #           | REDIRECT_IN           # [n]<
@@ -198,7 +207,7 @@ module Msh
       s(:PROG, *exprs)
     end
 
-    # @return [AST]
+    # @return [AST] :EXPR
     def _expr
       c = _pipeline
 
@@ -216,21 +225,35 @@ module Msh
       s(:EXPR, c)
     end
 
-    # @return [AST]
+    # @return [AST] :ASSIGN, :WORD
     def _command
       cmd_parts = []
 
       while match? *WORDS, *REDIRECTS
-        cmd_parts << _word if match? *WORDS
+        if match? *WORDS
+          cmd_parts << _word
+        elsif match? *REDIRECTS
+          cmd_parts << _redirect
+        end
         _skip_whitespace
-        cmd_parts << _redirect if match? *REDIRECTS
-        _skip_whitespace
+
+        if match?(:EQ)
+          error "unexpected `=` in a word" unless cmd_parts.size == 1
+          consume :EQ, "expected an `=`"
+          _skip_whitespace
+          error "missing value for variable assignment" unless match? *WORDS
+          cmd_parts << s(:ASSIGN, cmd_parts.pop, _word)
+          _skip_whitespace
+          error "expected a word, got #{peek}" unless match? *WORDS, *REDIRECTS
+        end
       end
+
+      error "expected a word or redirect" if cmd_parts.size.zero?
 
       s(:CMD, *cmd_parts)
     end
 
-    # @return [AST]
+    # @return [AST] :WORD
     def _word
       word_pieces = []
 
@@ -243,8 +266,11 @@ module Msh
         when :INTERP
           word_pieces << s(:INTERP, c.value)
         end
+
         advance
       end
+
+      error "expected a word" if word_pieces.size.zero?
 
       s(:WORD, *word_pieces)
     end
@@ -347,11 +373,13 @@ module Msh
       peek.type == :EOF
     end
 
+    # @param n [Integer]
     # @return [Token]
-    def peek
-      return @tokens[@pos] if @tokens[@pos]
+    def peek n = 0
+      return @tokens[@pos + n] if @tokens[@pos + n]
 
-      @tokens[@pos] = @lexer.next_token
+      peek n - 1
+      @tokens[@pos + n] = @lexer.next_token
     end
     alias current_token peek
 

@@ -51,6 +51,8 @@ module Msh
       "\0",
       "#",
       " ",
+      "=",
+      "$",
       "\t",
       "\n",
       "&",
@@ -99,6 +101,8 @@ module Msh
           @token.type = :COMMENT
           advance until ["\n", "\0"].include? @scanner.current_char
         end
+      when "="
+        @token.type = :EQ
       when " ", "\t" # skip whitespace
         consume_whitespace
       when "\n" # newlines

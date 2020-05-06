@@ -86,11 +86,11 @@ RSpec.describe Msh::Interpreter do
         subject.interpret "cd /"
         subject.interpret "pwd"
       end
-      expect(out).to eq <<~OUT
-        /tmp
+      expect(out).to eq(<<~OUT)
+        \/tmp
         hi
-        /tmp
-        /
+        \/tmp
+        \/
       OUT
     end
 
