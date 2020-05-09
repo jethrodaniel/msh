@@ -87,9 +87,13 @@ module Msh
     # allows `process` to recursively traverse the AST.
     include ::AST::Processor::Mixin
 
+    # create nodes with `s(:TOKEN, ...)`
+    include ::AST::Sexp
+
     def initialize
       log.debug { "initialized new interpreter" }
       @env = Env.new
+      @local_sh_variables = {}
       Configuration.load!
       setup_manpath!
     end
@@ -130,6 +134,8 @@ module Msh
 
     # Run commands in a pipeline, i.e, in parallel with connected io streams.
     #
+    # Every command is a pipeline of size 1 - this consolidates the logic.
+    #
     # @param node [Msh::AST::Node] :PIPELINE
     # @return [Integer] exit status
     def on_PIPELINE node
@@ -155,15 +161,7 @@ module Msh
             stdin.close
           end
 
-          begin
-            cmd, *args = command_exec_args(cmd)
-
-            exit @env.send cmd.to_sym, *args if @env.respond_to? cmd.to_sym
-
-            exec cmd, *args
-          rescue Errno::ENOENT => e # No such file or directory
-            abort e.message
-          end
+          exec_command cmd
         end
 
         stdout.close unless stdout == $stdout
@@ -194,67 +192,129 @@ module Msh
       process node.children.last
     end
 
+    # @param node [Msh::AST::Node] :CMD
+    # @return [Msh::AST::Node] :PIPELINE
+    def on_CMD node
+      exec_command node
+    end
+
+    # @note Evaluates INTERP and SUB nodes
+    # @param node [Msh::AST::Node]
+    # @return [String]
+    def on_WORD node
+      process_all(node).join
+    end
+
+    # @param node [Msh::AST::Node]
+    # @return [String]
+    def on_LIT node
+      node.children.first
+    end
+
+    # @param node [Msh::AST::Node]
+    # @return [String]
+    def on_SUB _node
+      error "unimplemented"
+    end
+
+    # @param node [Msh::AST::Node]
+    # @return [String]
+    def on_ASSIGN node
+      var, value = *node.children
+      ENV[var] = value
+      # error "unimplemented"
+    end
+
+    # @param node [Msh::AST::Node]
+    # @return [String]
+    def on_VAR node
+      var = node.children.first[1..-1]
+
+      local_value = local_sh_variables.dig(var)
+      return local_value if local_value
+
+      ENV[var].to_s
+    end
+
+    # @param node [Msh::AST::Node]
+    # @return [String]
+    def on_INTERP node
+      value = node.children.first[2..-2]
+      begin
+        @env._evaluate value
+      rescue NoMethodError => e
+        error e.message
+      end
+   end
+
+    private
+
+    # 1. Expand/create words fit for {Kernel#exec}; word parts could be
+    #   - interpolation
+    #   - literals
+    #   - variable assignments
+    #   - command substitution
     # 1. Perform redirects
-    # 2. Expand words
-    #   - could be command substitution or string interpolation
-    # 3. Execute the command, first checking if a function, else ...
-    #   - function
+    # 1. Execute the command, which could be a
     #   - builtin
     #   - executable
     #
+    # @note Calls {Kernel#exec}
     # @param node [Msh::AST::Node] :CMD
-    # @return [Integer] exit status
-    def on_CMD node
-      cmd, *args = command_exec_args(node)
+    def exec_command node
+      # if (c = _cmd.to_sym) && @env.respond_to?(c)
+      #   return @env.send c, *args
+      # end
 
-      return @env.send cmd.to_sym, *args if @env.respond_to? cmd.to_sym
+      cmds = []
+      vars = {}
 
-      fork do
+      node.children.each do |word|
+        case word.type
+        when :WORD
+          cmds << process(word)
+        when :ASSIGN
+          var, value = *process_all(word)
+          vars[var] = value
+        when :REDIR
+          error "unimplemented"
+        else
+          error "unknown type #{word.type}"
+        end
+      end
+
+      # just assignments
+      # @todo `> new`
+      if cmds.empty?
+        local_sh_variables.merge! vars
+        return
+      end
+
+      if node.children.first.type == :WORD
+        cmd, args = cmds.first.to_sym, *cmds[1..-1]
+        return @env.send cmd.to_sym, *args if @env.respond_to? cmd.to_sym
+      end
+
+      pid = fork do
+        ENV.merge! vars
+
         begin
-          exec *command_exec_args(node)
+          exec *cmds
         rescue Errno::ENOENT => e # No such file or directory
           abort e.message
         end
       end
 
-      Process.waitall
+      Process.wait pid
 
       $CHILD_STATUS.exitstatus
     end
 
-    private
+    attr_reader :local_sh_variables
 
-    # Convert
-    #
-    #     s(:CMD,
-    #       ...
-    #
-    # Into a string array
-    #
-    # @param node [Msh::AST::Node]
-    # @return [Array<String>]
-    def command_exec_args node
-      redirs, words = node.children.partition { |n| n.type == :REDIRECT }
-
-      redirs.each do |redir|
-        # @todo perform the redirection
-      end
-
-      words.map! do |word|
-        word.children.map do |w|
-          case w.type
-          when :INTERP
-            value = w.children.first[2..-2]
-            begin
-              @env._evaluate value
-            rescue NoMethodError => e
-              puts e
-            end
-          when :LIT
-            w.children.first
-          end
-        end.join
-      end
+    # @param msg [String]
+    def error msg
+      raise Errors::InterpreterError, msg
     end
 
     # Add Msh's manpages to the current MANPATH
@@ -264,10 +324,6 @@ module Msh
       manpaths = ENV["MANPATH"].to_s.split(File::PATH_SEPARATOR)
       manpaths << Msh.root.join("man").realpath.to_s
       ENV["MANPATH"] = manpaths.compact.join(File::PATH_SEPARATOR) + "::"
-    end
-
-    def error msg
-      raise Errors::InterpreterError, msg
     end
   end
 end

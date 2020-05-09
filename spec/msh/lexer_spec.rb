@@ -97,13 +97,9 @@ RSpec.describe Msh::Lexer do
     it code do
       skip unless data[:lexer_valid]
 
-      expected = if ruby_version < 2.6
-                   binding.eval(source, __FILE__, __LINE__)
-                 else
-                   binding.eval(source, *binding.source_location)
-                 end
-
+      expected = binding.eval(source, *binding.source_location)
       tokens = Msh::Lexer.new(code).tokens.map(&:to_s)
+
       expect(tokens).to eq expected
     end
   end

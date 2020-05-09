@@ -11,13 +11,9 @@ RSpec.describe Msh::Parser do
     it code do
       skip unless data[:parser_valid]
 
-      ast = if ruby_version < 2.6
-              binding.eval(data[:ast], __FILE__, __LINE__)
-            else
-              binding.eval(data[:ast], *binding.source_location)
-            end
-
+      ast = binding.eval(data[:ast], *binding.source_location)
       parser = Msh::Parser.new code
+
       expect(parser.parse).to eq ast
     end
   end

@@ -104,7 +104,7 @@ module Msh
       when "="
         @token.type = :EQ
       when "$"
-        @token.type = :SUB
+        @token.type = :VAR
         advance until NON_WORD_CHARS.include?(@scanner.peek(1))
       when " ", "\t" # skip whitespace
         consume_whitespace

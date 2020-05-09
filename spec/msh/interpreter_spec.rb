@@ -47,10 +47,15 @@ RSpec.describe Msh::Interpreter do
       orig = $stdout
       buffer = StringIO.new
 
+      orig_env = ENV.to_h
+
       out, err = capture_subprocess_io do
+        data[:env].each { |k, v| ENV[k] = v } if data[:env]
         out = subject.process(ast)
         expect(out).to eq data[:exit_code]
       end
+
+      ENV.merge! orig_env
 
       expect(out).to eq data[:output]
       expect(err).to eq data[:error]

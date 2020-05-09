@@ -139,8 +139,9 @@ module Msh
     ].freeze
 
     WORDS = [
-      :WORD,         # echo
-      :TIME,         # echo time
+      :WORD,  # echo
+      :TIME,  # echo time
+      :VAR,   # $USER
       :INTERP # echo the time is #{Time.now}
     ].freeze
 
@@ -185,6 +186,11 @@ module Msh
       advance while match? :SPACE
     end
 
+    def _skip_comments
+      advance while match? :COMMENT, :NEWLINE
+    end
+
+
     # @return [AST]
     def _program
       _skip_whitespace
@@ -196,12 +202,13 @@ module Msh
       until eof?
         exprs << _expr
         _skip_whitespace
-        if match? :SEMI
+        _skip_comments
+        if match? :SEMI, :NEWLINE
           advance
           _skip_whitespace
+          _skip_comments
           next
         end
-        _skip_whitespace
       end
 
       s(:PROG, *exprs)
@@ -245,7 +252,7 @@ module Msh
         cmd_parts << s(:ASSIGN, cmd_parts.pop, _word)
         _skip_whitespace
 
-        break if eof?
+        break if eof? || match?(:NEWLINE)
 
         error "expected a word, got #{peek}" unless match? *WORDS, *REDIRECTS
       end
@@ -267,6 +274,8 @@ module Msh
           word_pieces << s(:LIT, c.value)
         when :INTERP
           word_pieces << s(:INTERP, c.value)
+        when :VAR
+          word_pieces << s(:VAR, c.value)
         end
 
         advance
