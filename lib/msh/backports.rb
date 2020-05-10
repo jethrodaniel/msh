@@ -4,6 +4,12 @@
 
 version = RUBY_VERSION[0..2].to_f
 
+if version <= 2.7
+  ENV.instance_eval do
+    alias merge! update
+  end
+end
+
 if version <= 2.6
   class Binding
     def source_location
