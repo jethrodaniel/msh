@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "pathname"
+
 module Msh
   def self.root
     Pathname.new(__dir__).join ".."
