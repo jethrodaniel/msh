@@ -34,7 +34,8 @@ help \- msh man pages
 \fBhelp\fP [\fItopic\fP]...
 .SH "DESCRIPTION"
 .sp
-Msh\(cqs \fIhelp\fP builtin is just a wrapper around the \fIman\fP command, such that topics are prefixed with \fImsh\-\fP.
+Msh\(cqs \fIhelp\fP builtin is just a wrapper around the \fIman\fP command, such
+that topics are prefixed with \fImsh\-\fP.
 .sp
 .if n .RS 4
 .nf
@@ -44,17 +45,20 @@ msh> help wtf    #=> No manual entry for msh\-wtf
 .fi
 .if n .RE
 .sp
-Msh modifies your $MANPATH so these are available. To install them outside of msh, either add msh\(cqs man directory to your $MANPATH, or install it\(cqs manpages on your system the traditional way.
+Msh modifies your $MANPATH so these are available. To install them
+outside of msh, either add msh\(cqs man directory to your $MANPATH, or
+install it\(cqs manpages on your system the traditional way.
 .sp
 .if n .RS 4
 .nf
-MANPATH="$MANPATH:`dirname \(rs`gem which msh\(rs``/../man" man msh
+MANPATH=<path to msh man/man1 dir> man msh
 .fi
 .if n .RE
 .sp
 .if n .RS 4
 .nf
-cp \-r `dirname \(rs`gem which msh\(rs``/../man/man1/ /usr/local/share/man/man1/
+msh_manpath="$(dirname $(gem which msh))/../man/man1/"
+cp \-r $msh_manpath /usr/local/share/man/man1/
 mandb
 man msh
 .fi

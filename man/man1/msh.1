@@ -110,7 +110,7 @@ pipes \f(CRa | b\fP
 .  sp -1
 .  IP \(bu 2.3
 .\}
-command substitution \f(CRa \(aqb\(aq c\fP (but use backticks, not single qoutes)
+command substitution $(a \(aqb\(aq c) (but no backticks, just \f(CR$()\fP)
 .RE
 .sp
 .RS 4
@@ -124,8 +124,19 @@ command substitution \f(CRa \(aqb\(aq c\fP (but use backticks, not single qoutes
 process substitution \f(CR<(a | b)\fP
 .RE
 .sp
-It uses Ruby to handle variables, functions, and aliases, and allows for
-Ruby interpolation anywhere in the source.
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+local shell variables, and syntax to manipulate environment variables
+.RE
+.sp
+It uses Ruby to handle functions, and aliases, and allows for Ruby
+interpolation anywhere in the source.
 .sp
 .if n .RS 4
 .nf
@@ -141,18 +152,19 @@ $ echo π ≈ #{Math::PI} | cowsay
 .fi
 .if n .RE
 .sp
-Unlike other shells, Msh doesn\(cqt have functions or variables builtin to the
+Unlike other shells, Msh doesn\(cqt have functions or aliases builtin to the
 language, rather, it tasks that to it\(cqs host, or implementation, language
 (here, Ruby).
 .sp
-The host language is available via a REPL at with the \f(CRrepl\fP command, and
-additionally processes string interpolation in all commands.
+The host language\(cqs REPL is available via \f(CRrepl\fP builtin, and additionally
+processes string interpolation in all commands.
 .sp
 .if n .RS 4
 .nf
 $ repl
-irb> ... quit
-$ echo the time is now #{Time.now}
+irb> foo = "bar"
+irb> quit
+$ echo #{foo} #=> bar
 .fi
 .if n .RE
 .SS "Functions"
@@ -161,8 +173,8 @@ Instead of functions, Msh just calls Ruby methods
 .sp
 .if n .RS 4
 .nf
-echo #{def hello name; puts "hello, #{name}"; end}
-hello world #=> prints "hello, world"
+$ echo #{def hello name; puts "hello, #{name}"; end}
+$ hello world #=> prints "hello, world"
 .fi
 .if n .RE
 .sp
@@ -171,19 +183,6 @@ Similarly, builtins and aliases are just Ruby methods as well.
 .if n .RS 4
 .nf
 $ builtins
-$ aliases
-.fi
-.if n .RE
-.SS "Variables"
-.sp
-Variables in the REPL correspond directly to environment variables.
-.sp
-.if n .RS 4
-.nf
-$ RAILS_ENV=production bundle exec rails
-$ repl
-irb> RAILS_ENV=\(aqproduction\(aq # this is like `export VAR=...`
-$ bundle exec rails
 .fi
 .if n .RE
 .SH "OPTIONS"
@@ -207,6 +206,10 @@ Show the copyright.
 .RS 4
 Run a command string as input.
 .RE
+.SH "COPYING"
+.sp
+Copyright (C) 2020 Mark Delk.
+Free use of this software is granted under the terms of the MIT License.
 .SH "RESOURCES"
 .sp
 \fBissue tracker\fP

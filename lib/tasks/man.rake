@@ -47,8 +47,12 @@ BUILTIN_FILES = BUILTIN_CMDS.map { |cmd| "man/man1/msh-#{cmd}.1" }
 desc "generate the man pages"
 task :man => ["man:msh", *BUILTIN_FILES.map(&:to_s)]
 
+task :yard do
+  sh "yard"
+end
+
 namespace :man do
-  task :msh do
+  task :msh => :yard do
     puts "-> man/man1/msh.1"
     create_manpage :msh, YARD::Registry.at("Msh").docstring
   end

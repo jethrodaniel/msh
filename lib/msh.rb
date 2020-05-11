@@ -85,6 +85,11 @@ require "msh/repl"
 # *-c <command>*::
 #   Run a command string as input.
 #
+# == copying
+#
+# Copyright \(C) 2020 Mark Delk.
+# Free use of this software is granted under the terms of the MIT License.
+#
 # == resources
 #
 # *issue tracker*:: https://github.com/jethrodaniel/msh/issues?q=is%3Aopen.

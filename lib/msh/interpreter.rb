@@ -209,7 +209,7 @@ module Msh
       node.children.first
     end
 
-    # @param node [Msh::AST::Node]
+    # @param _node [Msh::AST::Node]
     # @return [String]
     def on_SUB _node
       error "unimplemented"

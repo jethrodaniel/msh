@@ -31,14 +31,34 @@
 cd \- change directories
 .SH "SYNOPSIS"
 .sp
-\fBcd\fP [_dir]
+\fBcd\fP [\fIdir\fP]
 .SH "DESCRIPTION"
 .sp
-.if n .RS 4
-.nf
-Changes the shell\(aqs current directory
-.fi
-.if n .RE
+Changes the shell\(cqs current directory, and sets the following env vars:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\f(CROLDPWD\fP \- the last directory the shell was in
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+\f(CRPWD\fP \- the directory the shell is currently in
+.RE
+.sp
+If \f(CRdir\fP is \f(CR\-\fP, the destination will be be \f(CR${USER}\fP
 .SH "MSH"
 .sp
 Part of msh(1).

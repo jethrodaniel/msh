@@ -12,12 +12,12 @@ module Msh
     #
     # == description
     #
-    #  Changes the shell's current directory, and sets the following env vars:
+    # Changes the shell's current directory, and sets the following env vars:
     #
-    #  - `OLDPWD` - the last directory the shell was in
-    #  - `PWD` - the directory the shell is currently in
+    # - `OLDPWD` - the last directory the shell was in
+    # - `PWD` - the directory the shell is currently in
     #
-    # If `dir` is `-`, the destination will be be `${USER}
+    # If `dir` is `-`, the destination will be be `${USER}`
     def cd dir = nil
       last = ENV["OLDPWD"]
       ENV["OLDPWD"] = Dir.pwd
