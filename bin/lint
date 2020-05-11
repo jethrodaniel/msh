@@ -1,3 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env ruby
+# frozen_string_literal: true
 
-bundle exec rubocop $@
+exec "bundle", "exec", "rubocop", *ARGV
