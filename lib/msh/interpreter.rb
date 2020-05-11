@@ -252,8 +252,8 @@ module Msh
     # 1. Expand/create words fit for {Kernel#exec}; word parts could be
     #   - interpolation
     #   - literals
-    #   - variable assignments
     #   - command substitution
+    # 1. Perform variable assignments
     # 1. Perform redirects
     # 1. Execute the command, which could be a
     #   - builtin
@@ -262,17 +262,47 @@ module Msh
     # @note Calls {Kernel#exec}
     # @param node [Msh::AST::Node] :CMD
     def exec_command node
-      # if (c = _cmd.to_sym) && @env.respond_to?(c)
-      #   return @env.send c, *args
-      # end
+      command = command_from_node node
 
-      cmds = []
+      # just assignments
+      # @todo `> new`
+      if command.words.empty?
+        local_sh_variables.merge! command.vars
+        return
+      end
+
+      if node.children.first.type == :WORD
+        cmd, args = command.words.first.to_sym, *command.words[1..-1]
+        return @env.send cmd.to_sym, *args if @env.respond_to? cmd.to_sym
+      end
+
+      pid = fork do
+        ENV.merge! command.vars
+
+        begin
+          exec *command.words
+        rescue Errno::ENOENT => e # No such file or directory
+          abort e.message
+        end
+      end
+
+      Process.wait pid
+
+      $CHILD_STATUS.exitstatus
+    end
+
+    Command = Struct.new :words, :vars, :keyword_init => true
+
+    # @param node [Msh::AST::Node] :CMD
+    # @return [Command]
+    def command_from_node node
+      words = []
       vars = {}
 
       node.children.each do |word|
         case word.type
         when :WORD
-          cmds << process(word)
+          words << process(word)
         when :ASSIGN
           var, value = *process_all(word)
           vars[var] = value
@@ -283,31 +313,8 @@ module Msh
         end
       end
 
-      # just assignments
-      # @todo `> new`
-      if cmds.empty?
-        local_sh_variables.merge! vars
-        return
-      end
-
-      if node.children.first.type == :WORD
-        cmd, args = cmds.first.to_sym, *cmds[1..-1]
-        return @env.send cmd.to_sym, *args if @env.respond_to? cmd.to_sym
-      end
-
-      pid = fork do
-        ENV.merge! vars
-
-        begin
-          exec *cmds
-        rescue Errno::ENOENT => e # No such file or directory
-          abort e.message
-        end
-      end
-
-      Process.wait pid
-
-      $CHILD_STATUS.exitstatus
+      Command.new :words => words,
+                  :vars => vars
     end
 
     attr_reader :local_sh_variables
