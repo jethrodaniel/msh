@@ -28,6 +28,11 @@ module Msh
       @binding = binding
     end
 
+    # @note added just for testing
+    def hi name
+      puts "hello, #{name}"
+    end
+
     def _evaluate input
       # pry-byebug has an issue here, and would appear as a repl evaluated in
       # the wrong context here (in the AST gem, actually).  This is likely a

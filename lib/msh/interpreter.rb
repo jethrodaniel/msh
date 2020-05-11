@@ -159,7 +159,7 @@ module Msh
             stdin.close
           end
 
-          exec_command cmd
+          process cmd
         end
 
         stdout.close unless stdout == $stdout
@@ -193,10 +193,37 @@ module Msh
     # @param node [Msh::AST::Node] :CMD
     # @return [Msh::AST::Node] :PIPELINE
     def on_CMD node
-      exec_command node
+      parts        = node.children.group_by(&:type)
+      words        = process_all(parts[:WORD]).reject(&:empty?)       # [a, b]
+      assignments  = process_all(parts[:ASSIGN]).reduce({}, :merge)   # {a=>b}
+
+      env = assignments.transform_values { |v| ENV[v] }
+      ENV.merge! assignments
+
+      if words.empty?
+        local_sh_variables.merge! assignments
+        return 0
+      end
+
+      # r.map { |fd| "fd ##{fd.fileno}, open: #{!fd.closed?}" }
+      redirections = process_all(parts[:REDIRECT])
+
+      begin
+        if @env.respond_to?(words.first)
+          exec_builtin words, redirections
+        else
+          exec_command words, redirections
+        end
+      ensure
+        redirections.each do |(io, dup, file)|
+          file.close
+          io.reopen dup
+        end
+
+        ENV.merge! env
+      end
     end
 
-    # @note Evaluates INTERP and SUB nodes
     # @param node [Msh::AST::Node]
     # @return [String]
     def on_WORD node
@@ -218,9 +245,8 @@ module Msh
     # @param node [Msh::AST::Node]
     # @return [String]
     def on_ASSIGN node
-      var, value = *node.children
-      ENV[var] = value
-      # error "unimplemented"
+      var, value = *process_all(node)
+      {var => value}
     end
 
     # @param node [Msh::AST::Node]
@@ -239,9 +265,28 @@ module Msh
     def on_INTERP node
       value = node.children.first[2..-2]
       begin
-        @env._evaluate value
+        @env._evaluate(value) || ""
       rescue NoMethodError => e
         error e.message
+      end
+    end
+
+    # @param node [Msh::AST::Node]
+    # @return [Array<IO>]
+    def on_REDIRECT node
+      file_descriptor, redir_type, output = node.children
+
+      case redir_type
+      when :REDIRECT_OUT
+        io   = IO.new(file_descriptor, "r")
+        dup  = io.dup
+        file = File.open output, "w"
+
+        io.reopen file, "w"
+
+        [io, dup, file]
+      else
+        error "unknown redirect `#{redirect}`"
       end
     end
 
@@ -249,83 +294,25 @@ module Msh
 
     attr_reader :local_sh_variables
 
-    # 1. Expand/create words fit for {Kernel#exec}; word parts could be
-    #   - interpolation
-    #   - literals
-    #   - command substitution
-    # 1. Perform variable assignments
-    # 1. Perform redirects
-    # 1. Execute the command, which could be a
-    #   - builtin
-    #   - executable
-    #
-    # @note Calls {Kernel#exec}
-    # @param node [Msh::AST::Node] :CMD
-    def exec_command node
-      command = command_from_node node
+    def exec_builtin words, _redirections
+      @env.send *words
+    rescue ArgumentError => e
+      puts e.message
+    end
 
-      if command.just_assignments?
-        local_sh_variables.merge! command.vars
-        return
-      end
-
-      return if command.words.empty?
-
-      cmd, args = command.words.first.to_sym, *command.words[1..-1]
-      return @env.send cmd.to_sym, *args if @env.respond_to? cmd.to_sym
+    def exec_command words, _redirections
+      cmd, *args = words
 
       pid = fork do
-        ENV.merge! command.vars
-
         begin
-          exec *command.words
+          exec *words
         rescue Errno::ENOENT => e # No such file or directory
           abort e.message
         end
       end
-
       Process.wait pid
 
       $CHILD_STATUS.exitstatus
-    end
-
-    class Command
-      attr_reader :words, :redirs, :vars
-
-      def initialize opts = {}
-        @words  = opts[:words]  || []
-        @redirs = opts[:redirs] || []
-        @vars   = opts[:vars]   || {}
-      end
-
-      # @todo `> new`
-      def just_assignments?
-        words&.empty? # && redirs&.empty?
-      end
-    end
-
-    # @param node [Msh::AST::Node] :CMD
-    # @return [Command]
-    def command_from_node node
-      words = []
-      vars = {}
-
-      node.children.each do |word|
-        case word.type
-        when :WORD
-          words << process(word)
-        when :ASSIGN
-          var, value = *process_all(word)
-          vars[var] = value
-        when :REDIR
-          error "unimplemented"
-        else
-          error "unknown type #{word.type}"
-        end
-      end
-
-      Command.new :words => words,
-                  :vars => vars
     end
 
     # @param msg [String]
