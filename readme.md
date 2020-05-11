@@ -5,9 +5,9 @@
 
 ![](https://img.shields.io/github/stars/jethrodaniel/msh?style=social)
 
-
-
 **NOTE**: still in early stages, subject to breaking changes until `v1.0.0`.
+
+msh is Ruby shell.
 
 ```
 $ echo π is #{Math::PI} | cowsay
@@ -21,26 +21,13 @@ $ echo π is #{Math::PI} | cowsay
                 ||     ||
 
 ```
-
 ## Goals
 
-Use ruby in the shell
-
-- global interpolation
-- use ruby methods as functions, aliases, and in interpolation
-- use ruby variables for environment variables
-
-Be as simple and understandable as possible, while doing as much as possible
-without external dependencies.
-
-- dependencies should be lightweight, with no gem extensions
-
-## Dependencies
-
-💯 percent Ruby, no C dependencies. Only 2 runtime dependencies
-
-- [ast](https://github.com/whitequark/ast)
-- [paint](https://github.com/janlelis/paint)
+- Use ruby in the shell
+  - global interpolation
+  - use ruby methods as functions
+- Be as simple and understandable as possible
+- Be lightweight - i.e, use as few external dependencies as possible, with no gem extensions
 
 ## Installation
 
@@ -49,8 +36,6 @@ Assuming you have Ruby installed:
 ```
 $ gem install msh
 $ msh -h
-a ruby shell
-
 Usage:
     msh [options]... [file]...
 
@@ -65,24 +50,16 @@ Options:
 ## Roadmap
 
 - [ ] version 1.0.0 - when I can use msh as my daily driver
-- [ ] version 2.0.0 - may be a mruby port, in order to package as a static executable
 
 ## Development
 
-```
-$ bundle exec rake -T     # `rake install` to install locally
-$ bundle exec bin/console # load Msh up in a Ruby REPL
-$ bundle exec bin/lexer   # Run the lexer
-$ bundle exec bin/parser  # Run the parser
-$ bundle exec exe/msh     # Run Msh
-$ bundle exec yard server --reload # View documentation in a browser
-```
+See `rake -T` and tools in `./bin/`.
 
 ## Testing
 
 msh has more tests than you can shake a stick at.
 
-Most of these come from a [single YAML file](./spec/fixtures/examples.yml)...
+Most of these come from a [single YAML file](./spec/fixtures/examples.yml)(1490 lines)...
 
 ```yml
   #
@@ -139,7 +116,7 @@ Most of these come from a [single YAML file](./spec/fixtures/examples.yml)...
 ...
 ```
 
-and are `eval`'d during the specs.
+and are `eval`'d (😱) during the specs.
 
 ```sh
 $ bundle exec rake spec
