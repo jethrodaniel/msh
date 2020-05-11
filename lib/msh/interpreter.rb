@@ -247,6 +247,8 @@ module Msh
 
     private
 
+    attr_reader :local_sh_variables
+
     # 1. Expand/create words fit for {Kernel#exec}; word parts could be
     #   - interpolation
     #   - literals
@@ -317,8 +319,6 @@ module Msh
       Command.new :words => words,
                   :vars => vars
     end
-
-    attr_reader :local_sh_variables
 
     # @param msg [String]
     def error msg

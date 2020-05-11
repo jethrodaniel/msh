@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "msh"
 require "msh/interpreter"
 
 require "stringio"
@@ -108,13 +109,20 @@ RSpec.describe Msh::Interpreter do
         skip
       end
 
-      # Msh::Documentation.help_topics.each do |topic|
-      #   it topic do
-      #     skip
-      #     man = File.read(Msh.root + "spec/fixtures/help/#{topic}.txt")
-      #     expect(sh("MANPAGER=cat msh -c 'help #{topic}'")).to eq(man)
-      #   end
-      # end
+      %w[
+        cd
+        help
+        history
+        lexer
+        parser
+        repl
+      ].each do |topic|
+        it topic do
+          skip
+          man = File.read(Msh.root + "spec/fixtures/help/#{topic}.txt")
+          expect(sh("MANPAGER=cat msh -c 'help #{topic}'")).to eq(man)
+        end
+      end
     end
 
     describe "q[uit]" do
@@ -124,28 +132,28 @@ RSpec.describe Msh::Interpreter do
     end
 
     describe "hist[ory]" do
-      # context "when interactive" do
-      #   it "shows shell history" do
-      #     skip "intermittent failures on CI (TODO: fix this)" if ENV["CI"]
+      context "when interactive" do
+        it "shows shell history" do
+          skip "intermittent failures on CI (TODO: fix this)" if ENV["CI"]
 
-      #     PTY.spawn("msh") do |read, write, _pid|
-      #       read.expect(/interpreter> /, 1) do |msg|
-      #         expect(msg).to eq(["interpreter> "])
-      #       end
+          # PTY.spawn("msh") do |read, write, _pid|
+          #   read.expect(/interpreter> /, 1) do |msg|
+          #     expect(msg).to eq(["interpreter> "])
+          #   end
 
-      #       write.puts "hist"
-      #       read.expect("1 hist", 1) do |msg|
-      #         expect(msg).to eq(["hist\r\n1 hist"])
-      #       end
+          #   write.puts "hist"
+          #   read.expect("1 hist", 1) do |msg|
+          #     expect(msg).to eq(["hist\r\n1 hist"])
+          #   end
 
-      #       write.puts "echo msh ftw"
-      #       read.expect("msh ftw", 3) do |msg|
-      #         # expect(msg).to eq(["\r\necho msh ftw"])
-      #         expect(msg).to eq(["\r\ninterpreter> echo msh ftw"])
-      #       end
-      #     end
-      #   end
-      # end
+          #   write.puts "echo msh ftw"
+          #   read.expect("msh ftw", 3) do |msg|
+          #     # expect(msg).to eq(["\r\necho msh ftw"])
+          #     expect(msg).to eq(["\r\ninterpreter> echo msh ftw"])
+          #   end
+          # end
+        end
+      end
     end
   end
 end

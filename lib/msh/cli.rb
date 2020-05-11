@@ -3,22 +3,19 @@
 require "optparse"
 
 require "msh/version"
-require "msh/gemspec"
 require "msh/parser"
 require "msh/interpreter"
 
 module Msh
   module CLI
     BANNER = <<~B
-      #{Msh::SUMMARY}
-
       Usage:
           msh [options]... [file]...
 
       Options:
     B
 
-    # @return [OptionParser] the option parser for the `msh` command
+    # @return [OptionParser]
     def self.option_parser
       OptionParser.new do |opts|
         opts.banner = Msh::CLI::BANNER

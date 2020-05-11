@@ -8,7 +8,7 @@ module Msh
     #
     # == synopsis
     #
-    # *cd* [_dir_]
+    # *cd* [__dir__]
     #
     # == description
     #

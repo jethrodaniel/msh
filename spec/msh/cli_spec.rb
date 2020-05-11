@@ -3,8 +3,6 @@
 RSpec.describe "msh" do
   it "-h, --help" do
     expect(sh("msh -h")).to eq <<~MSG
-      a ruby shell
-
       Usage:
           msh [options]... [file]...
 
