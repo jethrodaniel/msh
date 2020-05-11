@@ -26,7 +26,7 @@ class Examples
   end
 
   def self.each &block
-    examples.each &block
+    examples.each(&block)
   end
 
   def self.examples

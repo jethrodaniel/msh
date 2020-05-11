@@ -74,8 +74,6 @@ module Msh
   class Interpreter
     include Msh::Logger
 
-    class Errors::InterpreterError < Errors::Error; end
-
     # `AST::Processor::Mixin` defines the following for us
     #
     # ```
@@ -245,7 +243,7 @@ module Msh
       rescue NoMethodError => e
         error e.message
       end
-   end
+    end
 
     private
 
@@ -264,17 +262,15 @@ module Msh
     def exec_command node
       command = command_from_node node
 
-      # just assignments
-      # @todo `> new`
-      if command.words.empty?
+      if command.just_assignments?
         local_sh_variables.merge! command.vars
         return
       end
 
-      if node.children.first.type == :WORD
-        cmd, args = command.words.first.to_sym, *command.words[1..-1]
-        return @env.send cmd.to_sym, *args if @env.respond_to? cmd.to_sym
-      end
+      return if command.words.empty?
+
+      cmd, args = command.words.first.to_sym, *command.words[1..-1]
+      return @env.send cmd.to_sym, *args if @env.respond_to? cmd.to_sym
 
       pid = fork do
         ENV.merge! command.vars
@@ -291,7 +287,12 @@ module Msh
       $CHILD_STATUS.exitstatus
     end
 
-    Command = Struct.new :words, :vars, :keyword_init => true
+    Command = Struct.new :words, :vars, :redirs, :keyword_init => true do
+      # @todo `> new`
+      def just_assignments?
+        words&.empty? # && redirs&.empty?
+      end
+    end
 
     # @param node [Msh::AST::Node] :CMD
     # @return [Command]

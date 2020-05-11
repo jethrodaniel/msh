@@ -56,7 +56,8 @@ namespace :man do
   BUILTIN_CMDS.each do |cmd|
     file "man/man1/msh-#{cmd}.1" do
       puts "-> man/man1/msh-#{cmd}.1"
-      create_manpage "msh-#{cmd}", YARD::Registry.at("Msh::Env##{cmd}").docstring
+      doc = YARD::Registry.at("Msh::Env##{cmd}").docstring
+      create_manpage "msh-#{cmd}", doc
     end
   end
 

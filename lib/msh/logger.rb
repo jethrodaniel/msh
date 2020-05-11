@@ -8,8 +8,6 @@ require "msh/errors"
 
 module Msh
   module Logger
-    class Errors::LoggerError < StandardError; end
-
     FORMATTER = -> severity, time, _progname, msg do
       color = case severity
               when "DEBUG" then %i[magenta bright]

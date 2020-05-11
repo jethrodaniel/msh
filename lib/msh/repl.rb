@@ -17,8 +17,6 @@ module Msh
   # Repl.new # start up a new REPL
   # ```
   class Repl
-    class Errors::ReplError < Errors::Error; end
-
     # @return [Interpreter]
     attr_reader :interpreter
 

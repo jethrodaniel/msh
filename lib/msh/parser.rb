@@ -125,8 +125,6 @@ module Msh
   #   end
   #   ```
   class Parser
-    class Errors::ParseError < Errors::Error; end
-
     REDIRECTS = [
       :REDIRECT_OUT,         # [n]>
       :REDIRECT_IN,          # [n]<
@@ -190,7 +188,6 @@ module Msh
       advance while match? :COMMENT, :NEWLINE
     end
 
-
     # @return [AST]
     def _program
       _skip_whitespace
@@ -203,12 +200,12 @@ module Msh
         exprs << _expr
         _skip_whitespace
         _skip_comments
-        if match? :SEMI, :NEWLINE
-          advance
-          _skip_whitespace
-          _skip_comments
-          next
-        end
+        next unless match? :SEMI, :NEWLINE
+
+        advance
+        _skip_whitespace
+        _skip_comments
+        next
       end
 
       s(:PROG, *exprs)
@@ -346,7 +343,9 @@ module Msh
       return Msh::Parser.interactive if args.size.zero?
 
       args.each do |file|
-        raise Errors::ParseError, "#{file} is not a file!" unless File.file?(file)
+        unless File.file?(file)
+          raise Errors::ParseError, "#{file} is not a file!"
+        end
 
         parser = Msh::Parser.new File.read(file)
         p parser.parse
@@ -384,13 +383,13 @@ module Msh
       peek.type == :EOF
     end
 
-    # @param n [Integer]
+    # @param nth [Integer]
     # @return [Token]
-    def peek n = 0
-      return @tokens[@pos + n] if @tokens[@pos + n]
+    def peek nth = 0
+      return @tokens[@pos + nth] if @tokens[@pos + nth]
 
-      peek n - 1
-      @tokens[@pos + n] = @lexer.next_token
+      peek nth - 1
+      @tokens[@pos + nth] = @lexer.next_token
     end
     alias current_token peek
 

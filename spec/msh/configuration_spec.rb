@@ -21,7 +21,7 @@ RSpec.describe Msh::Configuration do
     expect(Msh.configuration.repl).to eq(:pry)
   end
 
-  it 'looks for startup files' do
+  it "looks for startup files" do
     skip
   end
 end

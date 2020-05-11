@@ -38,7 +38,9 @@ module Msh
           exit 2
         end
 
-        opts.on "-c  <cmd_string>", String, "runs <cmd_string> as shell input" do |cmd_string|
+        opts.on "-c  <cmd_string>",
+                String,
+                "runs <cmd_string> as shell input" do |cmd_string|
           cmd_string = ARGV.prepend(cmd_string).join " "
           interpreter = Msh::Interpreter.new
           exit interpreter.interpret cmd_string

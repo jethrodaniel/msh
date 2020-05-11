@@ -12,17 +12,21 @@ module Msh
     #
     # == description
     #
-    # Msh's _help_ builtin is just a wrapper around the _man_ command, such that topics are prefixed with _msh-_.
+    # Msh's _help_ builtin is just a wrapper around the _man_ command, such
+    # that topics are prefixed with _msh-_.
     #
     #     msh> help help   #=> same as `man msh-help`
     #     msh> help        #=> same as `man msh`
     #     msh> help wtf    #=> No manual entry for msh-wtf
     #
-    # Msh modifies your $MANPATH so these are available. To install them outside of msh, either add msh's man directory to your $MANPATH, or install it's manpages on your system the traditional way.
+    # Msh modifies your $MANPATH so these are available. To install them
+    # outside of msh, either add msh's man directory to your $MANPATH, or
+    # install it's manpages on your system the traditional way.
     #
-    #     MANPATH="$MANPATH:`dirname \`gem which msh\``/../man" man msh
+    #     MANPATH=<path to msh man/man1 dir> man msh
     #
-    #     cp -r `dirname \`gem which msh\``/../man/man1/ /usr/local/share/man/man1/
+    #     msh_manpath="$(dirname $(gem which msh))/../man/man1/"
+    #     cp -r $msh_manpath /usr/local/share/man/man1/
     #     mandb
     #     man msh
     #
@@ -46,6 +50,6 @@ module Msh
       $CHILD_STATUS.exitstatus
     end
 
-    alias_method :'?', :help # rubocop:disable Style/Alias
+    alias_method :'?', :help # rubocop:disable Style/Alias (ruby can't parse this)
   end
 end

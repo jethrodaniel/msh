@@ -12,6 +12,4 @@ YARD::Doctest::RakeTask.new :doctest do |t|
 end
 
 # task :test => :spec
-task :spec => [:rspec, :doctest]
-
-
+task :spec => %i[rspec doctest]

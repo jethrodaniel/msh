@@ -44,13 +44,10 @@ RSpec.describe Msh::Interpreter do
 
       ast = binding.eval(data[:ast], *binding.source_location)
 
-      orig = $stdout
-      buffer = StringIO.new
-
       orig_env = ENV.to_h
 
       out, err = capture_subprocess_io do
-        data[:env].each { |k, v| ENV[k] = v } if data[:env]
+        data[:env]&.each { |k, v| ENV[k] = v }
         out = subject.process(ast)
         expect(out).to eq data[:exit_code]
       end
@@ -97,6 +94,7 @@ RSpec.describe Msh::Interpreter do
         \/tmp
         \/
       OUT
+      expect(err).to eq("")
     end
 
     describe "help" do

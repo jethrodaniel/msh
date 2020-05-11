@@ -3,39 +3,9 @@ inherit_from:
 
 AllCops:
   TargetRubyVersion: 2.4
-  Excluded:
-    - 'bin/console'
-
-Style/Alias:
-  EnforcedStyle: prefer_alias
-
-Style/RedundantBegin:
-  Enabled: false
-
-Style/SpecialGlobalVars:
-  Enabled: false
-
-Style/AsciiComments:
-  Enabled: false
-
-# `return c if c = _command`, etc
-Lint/UselessAssignment:
-  Exclude:
-    - 'lib/msh/parser.rb'
-
-Metrics/BlockLength:
-  Exclude:
-    - 'spec/msh*/**/*_spec.rb'
 
 Security/Eval:
   Exclude:
-    - 'spec/msh/*_spec.rb'
-
-Style/PercentLiteralDelimiters:
-  Exclude:
-    - 'spec/msh*/**/*_spec.rb'
-
-Style/RedundantPercentQ:
-  Exclude:
-    - 'spec/msh*/**/*_spec.rb'
-
+    - 'spec/msh/lexer_spec.rb'
+    - 'spec/msh/parser_spec.rb'
+    - 'spec/msh/interpreter_spec.rb'

@@ -44,8 +44,6 @@ module Msh
   class Lexer
     include Msh::Logger
 
-    class Errors::LexerError < StandardError; end
-
     # TODO: there's def more of these
     NON_WORD_CHARS = [
       "\0",
@@ -231,7 +229,9 @@ module Msh
       return Msh::Lexer.interactive if args.size.zero?
 
       args.each do |file|
-        raise Errors::LexerError, "#{file} is not a file!" unless File.file?(file)
+        unless File.file? file
+          raise Errors::LexerError, "#{file} is not a file!"
+        end
 
         puts Lexer.new(File.read(file)).tokens
       end
