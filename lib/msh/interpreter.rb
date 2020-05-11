@@ -289,7 +289,15 @@ module Msh
       $CHILD_STATUS.exitstatus
     end
 
-    Command = Struct.new :words, :vars, :redirs, :keyword_init => true do
+    class Command
+      attr_reader :words, :redirs, :vars
+
+      def initialize opts = {}
+        @words  = opts[:words]  || []
+        @redirs = opts[:redirs] || []
+        @vars   = opts[:vars]   || {}
+      end
+
       # @todo `> new`
       def just_assignments?
         words&.empty? # && redirs&.empty?
