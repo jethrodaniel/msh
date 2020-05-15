@@ -66,10 +66,16 @@
   #
   # assignments
   #
-  "a=b c = d #{:e}=g us#{:er}=you":
+  ? |
+    a=b c = d #{:e}=g us#{:er}=you
+    echo $a $c $e $user
+
+    # todo
+    # echo a=b bash -c "echo $a"
+  :
     :lexer_valid: true
     :parser_valid: true
-    :interpreter_valid: false
+    :interpreter_valid: true
     :tokens: |
       ['[1:1-1][WORD, "a"]',
        '[1:2-2][EQ, "="]',
@@ -89,7 +95,23 @@
        '[1:21-26][INTERP, "\#{:er}"]',
        '[1:27-27][EQ, "="]',
        '[1:28-30][WORD, "you"]',
-       '[1:31-31][EOF, "\u0000"]']
+       '[1:31-31][NEWLINE, "\n"]',
+       '[2:1-4][WORD, "echo"]',
+       '[2:5-5][SPACE, " "]',
+       '[2:6-7][VAR, "$a"]',
+       '[2:8-8][SPACE, " "]',
+       '[2:9-10][VAR, "$c"]',
+       '[2:11-11][SPACE, " "]',
+       '[2:12-13][VAR, "$e"]',
+       '[2:14-14][SPACE, " "]',
+       '[2:15-19][VAR, "$user"]',
+       '[2:20-20][NEWLINE, "\n"]',
+       '[3:1-1][NEWLINE, "\n"]',
+       '[4:1-6][COMMENT, "# todo"]',
+       '[4:7-7][NEWLINE, "\n"]',
+       '[5:1-28][COMMENT, "# echo a=b bash -c \"echo $a\""]',
+       '[5:29-29][NEWLINE, "\n"]',
+       '[6:1-1][EOF, "\u0000"]']
     :ast: |
       s(:PROG,
         s(:EXPR,
@@ -114,10 +136,23 @@
                 s(:LIT, "us"),
                 s(:INTERP, "\#{:er}")),
               s(:WORD,
-                s(:LIT, "you"))))))
-    # :exit_code: 0
-    # :output: |
-    # :error: |
+                s(:LIT, "you"))))),
+        s(:EXPR,
+          s(:CMD,
+            s(:WORD,
+              s(:LIT, "echo")),
+            s(:WORD,
+              s(:VAR, "$a")),
+            s(:WORD,
+              s(:VAR, "$c")),
+            s(:WORD,
+              s(:VAR, "$e")),
+            s(:WORD,
+              s(:VAR, "$user")))))
+    :exit_code: 0
+    :output: |
+      b d g you
+    :error: |
 
   #
   # variables

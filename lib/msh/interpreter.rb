@@ -198,7 +198,6 @@ module Msh
       assignments  = process_all(parts[:ASSIGN]).reduce({}, :merge)   # {a=>b}
 
       env = assignments.transform_values { |v| ENV[v] }
-      ENV.merge! assignments
 
       if words.empty?
         local_sh_variables.merge! assignments
@@ -209,6 +208,8 @@ module Msh
       redirections = process_all(parts[:REDIRECT])
 
       begin
+        ENV.merge! assignments
+
         if @env.respond_to?(words.first)
           exec_builtin words, redirections
         else
