@@ -43,16 +43,15 @@ describe "redirections" do
   end
 
   describe "<" do
-    # it "redirects input" do
-    #   skip
-    #   file "/tmp/msh", "mccoy"
-    #   expect(sh.interpret("cat < /tmp/msh > /tmp/msh")).to eq 0
-    #   expect(File.read("/tmp/msh")).to eq "mccoy\nbones\n"
-    # end
-    # it "redirects the nth file descriptor" do
-    #   skip
-    #   file "/tmp/msh", "mccoy"
-    #   expect_file "/tmp/msh", "No such file or directory - echoo\n"
-    # end
+    it "redirects input" do
+      file "/tmp/msh", "mccoy"
+      sh "cat < /tmp/msh > /tmp/msh1", 0
+      expect_file "/tmp/msh1", "mccoy\n"
+    end
+    it "redirects input from the nth file descriptor" do
+      file "/tmp/msh", "mccoy"
+      sh "cat < /tmp/msh > /tmp/msh1", 0
+      expect_file "/tmp/msh1", "mccoy\n"
+    end
   end
 end

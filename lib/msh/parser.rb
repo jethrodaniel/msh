@@ -286,7 +286,7 @@ module Msh
     # @return [AST]
     def _redirect
       r = consume *REDIRECTS, "expected a redirection operator"
-      n = r.value.match(/\A(\d+)/)&.captures&.first&.to_i || 1
+      n = r.value.match(/\A(\d+)/)&.captures&.first&.to_i
 
       _skip_whitespace
 
@@ -295,7 +295,15 @@ module Msh
         s(:REDIRECT, n, r.type)
       else
         f = consume *WORDS, "expected a filename to complete redirection #{r}"
-        s(:REDIRECT, n, r.type, f.value)
+
+        case r.type
+        when :REDIRECT_OUT, :APPEND_OUT, :AND_REDIRECT_RIGHT
+          n ||= 1
+        when :REDIRECT_IN
+          n ||= 0
+        end
+
+        s(:REDIRECT, s(r.type, n, f.value))
       end
     end
 

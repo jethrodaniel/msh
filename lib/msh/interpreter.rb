@@ -206,7 +206,7 @@ module Msh
                             .transform_values { |v| ENV[v] }
 
       # r.map { |fd| "fd ##{fd.fileno}, open: #{!fd.closed?}" }
-      redirections = process_all(parts[:REDIRECT])
+      redirections = process_all(parts[:REDIRECT])[0] || []
 
       begin
         ENV.merge! assignments.merge(local_sh_variables)
@@ -274,31 +274,48 @@ module Msh
     end
 
     # @param node [Msh::AST::Node]
-    # @return [Array<IO>]
+    # @return [Array<Array<IO>>]
     def on_REDIRECT node
-      file_descriptor, redir_type, output = node.children
+      process_all(node)
+    end
 
-      case redir_type
-      when :REDIRECT_OUT
-        io   = IO.new(file_descriptor, "r")
-        dup  = io.dup
-        file = File.open output, "w"
+    # @param node [Msh::AST::Node]
+    # @return [Array<IO>]
+    def on_REDIRECT_OUT node
+      file_descriptor, output = node.children
+      io = IO.new(file_descriptor, "r")
+      dup = io.dup
+      file = File.open output, "w"
 
-        io.reopen file, "w"
+      io.reopen file, "w"
 
-        [io, dup, file]
-      when :APPEND_OUT
-        io = IO.new(file_descriptor, "r")
-        dup = io.dup
-        file = File.open output, "a"
+      [io, dup, file]
+    end
 
-        io.reopen file, "a"
+    # @param node [Msh::AST::Node]
+    # @return [Array<IO>]
+    def on_REDIRECT_IN node
+      file_descriptor, output = node.children
+      io = IO.new(file_descriptor, "r")
+      dup = io.dup
+      file = File.open output, "r"
 
-        [io, dup, file]
+      io.reopen file
 
-      else
-        error "unknown redirect `#{redirect}`"
-      end
+      [io, dup, file]
+    end
+
+    # @param node [Msh::AST::Node]
+    # @return [Array<IO>]
+    def on_APPEND_OUT node
+      file_descriptor, output = node.children
+      io = IO.new(file_descriptor, "r")
+      dup = io.dup
+      file = File.open output, "a"
+
+      io.reopen file
+
+      [io, dup, file]
     end
 
     private
