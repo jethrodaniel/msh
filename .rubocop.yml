@@ -2,7 +2,7 @@ inherit_from:
   - https://raw.githubusercontent.com/jethrodaniel/dotfiles/master/home/.config/rubocop/config.yml
 
 AllCops:
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.5
 
 Security/Eval:
   Exclude:

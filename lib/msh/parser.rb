@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "readline"
+require "reline"
 
 require "msh/errors"
 require "msh/ast"
@@ -330,7 +330,7 @@ module Msh
 
     # Run the parser interactively, i.e, run a loop and parse user input.
     def self.interactive
-      while line = Readline.readline("parser> ", true)&.chomp
+      while line = Reline.readline("parser> ", true)&.chomp
         case line
         when "q", "quit", "exit"
           puts "goodbye! <3"

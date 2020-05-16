@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "readline"
+require "reline"
 require "strscan"
 
 require "msh/errors"
@@ -201,7 +201,7 @@ module Msh
 
     # Run the lexer interactively, i.e, run a loop and tokenize user input.
     def self.interactive
-      while line = Readline.readline("lexer> ", true)&.chomp
+      while line = Reline.readline("lexer> ", true)&.chomp
         case line
         when "q", "quit", "exit"
           puts "goodbye! <3"

@@ -39,7 +39,7 @@ module Msh
           yield line
         end
       else
-        while line = ::Readline.readline(interpreter.prompt, true)&.chomp
+        while line = ::Reline.readline(interpreter.prompt, true)&.chomp
           yield line
         end
       end
@@ -49,9 +49,9 @@ module Msh
       return if ENV["NO_READLINE"]
 
       # don't add blank lines or duplicates to history
-      return unless /\A\s*\z/ =~ line || Readline::HISTORY.to_a.dig(-2) == line
+      return unless /\A\s*\z/ =~ line || Reline::HISTORY.to_a.dig(-2) == line
 
-      Readline::HISTORY.pop
+      Reline::HISTORY.pop
     end
   end
 end
