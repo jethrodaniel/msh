@@ -65,3 +65,7 @@ require "msh/ast"
 include AST::Sexp # rubocop:disable Style/MixinUsage
 
 require_relative "../spec/examples"
+
+require "msh/backports"
+
+require "msh"

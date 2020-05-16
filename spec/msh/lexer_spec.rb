@@ -3,8 +3,6 @@
 require "msh/lexer"
 
 RSpec.describe Msh::Lexer do
-  let(:ruby_version) { RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01 }
-
   Examples.each do |code, data|
     # don't interpolate the token string
     source = data[:tokens].gsub '#{', '\#{' # yeah, this is stupid

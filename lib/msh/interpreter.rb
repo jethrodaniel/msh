@@ -287,6 +287,15 @@ module Msh
         io.reopen file, "w"
 
         [io, dup, file]
+      when :APPEND_OUT
+        io = IO.new(file_descriptor, "r")
+        dup = io.dup
+        file = File.open output, "a"
+
+        io.reopen file, "a"
+
+        [io, dup, file]
+
       else
         error "unknown redirect `#{redirect}`"
       end

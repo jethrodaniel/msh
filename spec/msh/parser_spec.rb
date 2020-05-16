@@ -5,8 +5,6 @@ require "msh/parser"
 RSpec.describe Msh::Parser do
   subject { Msh::Parser.new }
 
-  let(:ruby_version) { RUBY_VERSION.gsub(/[^\d]/, "")[0..2].to_i * 0.01 }
-
   Examples.each do |code, data|
     it code do
       skip unless data[:parser_valid]
