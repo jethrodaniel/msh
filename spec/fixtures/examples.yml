@@ -568,7 +568,8 @@
       s(:PROG,
         s(:EXPR,
           s(:CMD,
-            s(:REDIRECT, 1, :REDIRECT_OUT, "out"))))
+            s(:REDIRECT,
+             s(:REDIRECT_OUT, 1, "out")))))
     # :interpreter_spec: |
     #   File.exists?("out") && File.read("out") == ""
 

@@ -13,3 +13,5 @@
 
 # the gemspec is for this
 .ruby-version
+
+/tmp/
