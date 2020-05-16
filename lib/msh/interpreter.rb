@@ -197,18 +197,19 @@ module Msh
       words        = process_all(parts[:WORD]).reject(&:empty?)       # [a, b]
       assignments  = process_all(parts[:ASSIGN]).reduce({}, :merge)   # {a=>b}
 
-      env = assignments.transform_values { |v| ENV[v] }
-
       if words.empty?
         local_sh_variables.merge! assignments
         return 0
       end
 
+      prev_env = assignments.merge(local_sh_variables)
+                            .transform_values { |v| ENV[v] }
+
       # r.map { |fd| "fd ##{fd.fileno}, open: #{!fd.closed?}" }
       redirections = process_all(parts[:REDIRECT])
 
       begin
-        ENV.merge! assignments
+        ENV.merge! assignments.merge(local_sh_variables)
 
         if @env.respond_to?(words.first)
           exec_builtin words, redirections
@@ -221,7 +222,7 @@ module Msh
           io.reopen dup
         end
 
-        ENV.merge! env
+        ENV.merge! prev_env
       end
     end
 
