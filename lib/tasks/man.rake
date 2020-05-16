@@ -29,6 +29,13 @@ def create_manpage cmd, man_src
     :doctype => "manpage",
     :backend => "manpage"
   )
+  # Asciidoctor.convert(
+  #   man,
+  #   :to_dir => "man/man1/",
+  #   :to_file => "#{cmd}.1.html",
+  #   :doctype => "manpage",
+  #   :backend => "html"
+  # )
 
   # Don't compress, simply for a more readable `git diff`.
   # sh "gzip -f man/man1/#{cmd}.1"
