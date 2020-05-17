@@ -305,6 +305,8 @@ module Msh
           n ||= 1
         when :REDIRECT_IN
           n ||= 0
+        else
+          error "unknown redirection type `#{r}`"
         end
 
         s(:REDIRECT, s(r.type, n, f.value))

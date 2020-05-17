@@ -74,4 +74,16 @@ describe "redirections" do
       expect_file "tmp/msh1", "mccoy\n"
     end
   end
+
+  describe "&>" do
+    it "redirects output to a file, overwriting contents with stdout and stderr" do
+      output = <<~OUT
+        this goes to std err
+        and this goes to std out
+      OUT
+      file "tmp/msh", output
+      sh "ruby spec/fixtures/stdout_and_stderr.rb &> tmp/msh1", 0
+      expect_file "tmp/msh1", output
+    end
+  end
 end

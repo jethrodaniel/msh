@@ -88,6 +88,8 @@ module Msh
     # create nodes with `s(:TOKEN, ...)`
     include ::AST::Sexp
 
+    Redirect = Struct.new :io, :dup, :file
+
     def initialize
       log.debug { "initialized new interpreter" }
       @env = Env.new
@@ -207,7 +209,7 @@ module Msh
                             .transform_values { |v| ENV[v] }
 
       # r.map { |fd| "fd ##{fd.fileno}, open: #{!fd.closed?}" }
-      redirections = process_all(parts[:REDIRECT])[0] || []
+      redirections = process_all(parts[:REDIRECT]).flatten
 
       begin
         ENV.merge! assignments.merge(local_sh_variables)
@@ -218,9 +220,9 @@ module Msh
           exec_command words, redirections
         end
       ensure
-        redirections.each do |(io, dup, file)|
-          file.close
-          io.reopen dup
+        redirections.each do |redirect|
+          redirect.file.close
+          redirect.io.reopen redirect.dup
         end
 
         ENV.merge! prev_env
@@ -300,7 +302,7 @@ module Msh
 
       io.reopen file, "w"
 
-      [io, dup, file]
+      Redirect.new io, dup, file
     end
 
     # @param node [Msh::AST::Node]
@@ -313,7 +315,7 @@ module Msh
 
       io.reopen file
 
-      [io, dup, file]
+      Redirect.new io, dup, file
     end
 
     # @param node [Msh::AST::Node]
@@ -326,7 +328,27 @@ module Msh
 
       io.reopen file
 
-      [io, dup, file]
+      Redirect.new io, dup, file
+    end
+
+    # @param node [Msh::AST::Node]
+    # @return [Array<IO>]
+    def on_AND_REDIRECT_RIGHT node
+      file_descriptor, output = node.children
+
+      r = process s(:REDIRECT_OUT, file_descriptor, output)
+      # r.io.sync = true
+
+      err_io = IO.new(2)
+      dup    = err_io.dup
+      err_io.reopen r.io#, "a"
+
+      err = Redirect.new err_io, dup, r.file
+
+      # err_r = process(s(:APPEND_OUT, 2, r.file.dup))
+      # err_r.io.sync = true
+
+      [r, err]
     end
 
     private
