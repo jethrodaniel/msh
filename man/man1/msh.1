@@ -2,12 +2,12 @@
 .\"     Title: msh
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.10
-.\"      Date: 2020-05-14
+.\"      Date: 2020-05-17
 .\"    Manual: Msh Manual
 .\"    Source: Msh v0.1.0
 .\"  Language: English
 .\"
-.TH "MSH" "1" "2020-05-14" "Msh v0.1.0" "Msh Manual"
+.TH "MSH" "1" "2020-05-17" "Msh v0.1.0" "Msh Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -45,6 +45,39 @@ It supports a subset of \f(CRsh\fP/\f(CRbash\fP, including
 .  IP \(bu 2.3
 .\}
 redirection \f(CRa 2>&1 > out.log\fP
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+redirect output \f(CRa > b\fP
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+append output \f(CRa >> b\fP
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+redirect input \f(CRa < b\fP
 .RE
 .sp
 .RS 4

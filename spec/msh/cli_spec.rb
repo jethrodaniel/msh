@@ -44,7 +44,7 @@ RSpec.describe "msh" do
   describe "[file]..." do
     it "runs [files]... as shell scripts" do
       File.open("test.msh", "w") { |f| f.puts "echo such wow" }
-      expect(sh("msh .msh")).to eq(<<~SH)
+      expect(sh("msh test.msh")).to eq(<<~SH)
         such wow
       SH
       File.delete("test.msh")
