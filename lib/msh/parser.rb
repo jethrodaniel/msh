@@ -137,10 +137,11 @@ module Msh
     ].freeze
 
     WORDS = [
-      :WORD,  # echo
-      :TIME,  # echo time
-      :VAR,   # $USER
-      :INTERP # echo the time is #{Time.now}
+      :WORD,        # echo
+      :TIME,        # echo time
+      :VAR,         # $USER
+      :INTERP,      # echo the time is #{Time.now}
+      :LAST_STATUS  # $?
     ].freeze
 
     def initialize code
@@ -200,6 +201,7 @@ module Msh
         exprs << _expr
         _skip_whitespace
         _skip_comments
+
         next unless match? :SEMI, :NEWLINE
 
         advance
@@ -273,6 +275,8 @@ module Msh
           word_pieces << s(:INTERP, c.value)
         when :VAR
           word_pieces << s(:VAR, c.value)
+        when :LAST_STATUS
+          word_pieces << s(:LAST_STATUS, c.value)
         end
 
         advance

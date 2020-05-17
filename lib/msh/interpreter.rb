@@ -92,6 +92,7 @@ module Msh
       log.debug { "initialized new interpreter" }
       @env = Env.new
       @local_sh_variables = {}
+      @last_command_status
       Configuration.load!
       setup_manpath!
     end
@@ -121,13 +122,13 @@ module Msh
     # @param _node [Msh::AST::Node] :AND or :OR
     # @return [Integer] exit status
     def on_NOOP _node
-      0
+      @last_command_status = 0
     end
 
     # @param node [Msh::AST::Node] :COMMAND, :PIPELINE
     # @return [Integer] exit status
     def on_EXPR node
-      process_all(node).last
+      @last_command_status = process_all(node).last
     end
 
     # Run commands in a pipeline, i.e, in parallel with connected io streams.
@@ -236,6 +237,16 @@ module Msh
     # @return [String]
     def on_LIT node
       node.children.first
+    end
+
+    # @param node [Msh::AST::Node]
+    # @return [String]
+    def on_LAST_STATUS _node
+      return @last_command_status if @last_command_status
+
+      warn "no last command to retrieve status for"
+
+      ""
     end
 
     # @param _node [Msh::AST::Node]

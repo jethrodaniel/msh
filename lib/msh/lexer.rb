@@ -103,7 +103,7 @@ module Msh
         @token.type = :EQ
       when "$"
         @token.type = :VAR
-        advance until NON_WORD_CHARS.include?(@scanner.peek(1))
+        advance until NON_WORD_CHARS.include?(@scanner.peek)
       when " ", "\t" # skip whitespace
         consume_whitespace
       when "\n" # newlines
@@ -181,6 +181,10 @@ module Msh
       end
 
       return next_token if @token.type.nil?
+
+      if @token.type == :VAR && @token.value == "$?"
+        @token.type = :LAST_STATUS
+      end
 
       @tokens << @token.dup
       @token
