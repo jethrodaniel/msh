@@ -49,7 +49,7 @@ module Msh
       return if ENV["NO_READLINE"]
 
       # don't add blank lines or duplicates to history
-      return unless /\A\s*\z/ =~ line || Reline::HISTORY.to_a.dig(-2) == line
+      return unless /\A\s+\z/ =~ line || Reline::HISTORY.to_a.dig(-2) == line
 
       Reline::HISTORY.pop
     end
