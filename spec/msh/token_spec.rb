@@ -2,7 +2,7 @@
 
 require "msh/token"
 
-RSpec.describe Msh::Token do
+describe Msh::Token do
   subject do
     Msh::Token.new :type => :WORD,
                    :value => "echo",

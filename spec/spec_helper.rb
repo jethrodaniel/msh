@@ -1,8 +1,19 @@
 # frozen_string_literal: true
 
-require "bundler/setup"
+require "pty"
+require "expect"
+require "yaml"
+require "stringio"
+require "tempfile"
+require "tmpdir"
+require "fileutils"
 
+require "bundler/setup"
 require "rspec"
+
+require_relative "examples"
+require "msh"
+require "msh/backports"
 
 RSpec.configure do |config|
   # expect().to be_true
@@ -15,8 +26,17 @@ RSpec.configure do |config|
   # config.disable_monkey_patching!
 end
 
-ENV["MSH_TESTING"] = "true"
-ENV["INPUTRC"] = "/dev/null"
+# ENV["INPUTRC"] = "/dev/null"
+
+# @example
+#   run_iteractively "msh" do
+#     expect(input).to eq("interpreter> ")
+#     type "hist"
+#     expect(output).to eq("...")
+#   end
+#
+# def run_iteractively cmd
+# end
 
 def with_80_columns
   return yield unless $stdout.isatty
@@ -32,8 +52,9 @@ def with_80_columns
   out
 end
 
-# Run a command, return combined std err and std out. Sets terminal display to
-# 80 col width
+# Run a command, return combined std err and std out.
+#
+# @note sets terminal display to 80 col width
 #
 # @param command_string [String]
 # @return [String]
@@ -42,34 +63,6 @@ def sh command_string
     `2>&1 #{command_string}`
   end
 end
-
-require "pty"
-require "expect"
-
-# @example
-#   run_iteractively "msh" do
-#     expect(input).to eq("interpreter> ")
-#     type "hist"
-#     expect(output).to eq("...")
-#   end
-#
-# def run_iteractively cmd
-# end
-
-require "yaml"
-
-# spec/fixtures/examples.yml uses this
-require "msh/ast"
-include AST::Sexp # rubocop:disable Style/MixinUsage
-
-require_relative "../spec/examples"
-
-require "msh/backports"
-
-require "msh"
-
-require "stringio"
-require "tempfile"
 
 # https://github.com/seattlerb/minitest/blob/6257210b7accfeb218b4388aaa36d3d45c5c41a5/lib/minitest/assertions.rb#L546
 #
@@ -95,9 +88,6 @@ ensure
   $stderr.reopen orig_stderr
 end
 
-require "tmpdir"
-require "fileutils"
-
 def with_temp_files
   temp = Dir.mktmpdir
   pwd = Dir.pwd
@@ -107,4 +97,10 @@ def with_temp_files
   FileUtils.rm_f temp
 end
 
-require_relative "examples"
+def file name, content
+  File.open(name, "w") { |f| f.puts content }
+end
+
+def expect_file name, content
+  expect(File.read(name)).to eq content
+end

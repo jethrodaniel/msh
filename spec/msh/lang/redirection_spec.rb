@@ -1,13 +1,5 @@
 # frozen_string_literal: true
 
-def file name, content
-  File.open(name, "w") { |f| f.puts content }
-end
-
-def expect_file name, content
-  expect(File.read(name)).to eq content
-end
-
 describe "redirections" do
   subject { Msh::Interpreter.new }
 

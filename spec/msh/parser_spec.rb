@@ -2,7 +2,7 @@
 
 require "msh/parser"
 
-RSpec.describe Msh::Parser do
+describe Msh::Parser do
   subject { Msh::Parser.new }
 
   Examples.each do |code, data|

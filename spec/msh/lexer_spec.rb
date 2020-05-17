@@ -2,7 +2,7 @@
 
 require "msh/lexer"
 
-RSpec.describe Msh::Lexer do
+describe Msh::Lexer do
   Examples.each do |code, data|
     # don't interpolate the token string
     source = data[:tokens].gsub '#{', '\#{' # yeah, this is stupid

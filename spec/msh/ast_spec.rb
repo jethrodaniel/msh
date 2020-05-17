@@ -2,7 +2,7 @@
 
 require "msh/ast"
 
-RSpec.describe Msh::AST do
+describe Msh::AST do
   subject do
     Msh::AST::Node.new :WORD, s(:LIT, "wow"), :line => 1, :column => 2
   end

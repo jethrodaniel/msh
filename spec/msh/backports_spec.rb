@@ -4,7 +4,7 @@ require "msh/backports"
 
 version = RUBY_VERSION[0..2].to_f
 
-RSpec.describe "Backports" do
+describe "Backports" do
   if version <= 2.7
     ENV["ENV_merge_backport"] = "backports suck"
     describe ENV do

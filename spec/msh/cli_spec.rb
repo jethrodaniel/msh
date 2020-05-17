@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe "msh" do
+describe "msh" do
   it "-h, --help" do
     expect(sh("msh -h")).to eq <<~MSG
       Usage:
@@ -29,8 +29,9 @@ RSpec.describe "msh" do
 
   describe "-c <cmd_string>" do
     it "runs the command string as shell input" do
-      expect(sh('msh -c "file readme.md"')).to eq(<<~SH)
-        readme.md: UTF-8 Unicode text
+      expect(sh('msh -c ./spec/fixtures/stdout_and_stderr.rb')).to eq(<<~SH)
+        this goes to std err
+        and this goes to std out
       SH
     end
 
@@ -43,11 +44,12 @@ RSpec.describe "msh" do
 
   describe "[file]..." do
     it "runs [files]... as shell scripts" do
-      File.open("test.msh", "w") { |f| f.puts "echo such wow" }
-      expect(sh("msh test.msh")).to eq(<<~SH)
-        such wow
-      SH
-      File.delete("test.msh")
+      with_temp_files do
+        file "test.msh", "echo such wow"
+        expect(sh("msh test.msh")).to eq(<<~SH)
+          such wow
+        SH
+      end
     end
 
     context "when no files are supplied" do

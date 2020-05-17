@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-require "msh"
 require "msh/interpreter"
 
-RSpec.describe Msh::Interpreter do
+describe Msh::Interpreter do
   subject { Msh::Interpreter.new }
 
   Examples.each do |code, data|
@@ -83,6 +82,7 @@ RSpec.describe Msh::Interpreter do
         history
         lexer
         parser
+        prompt
         repl
       ].each do |topic|
         it topic do

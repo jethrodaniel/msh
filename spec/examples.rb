@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require "msh/ast"
+
+include AST::Sexp # rubocop:disable Style/MixinUsage
+
 class Examples
   def self.lexer_passing
     examples.select { |_k, v| v[:lexer_valid] }

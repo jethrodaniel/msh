@@ -43,6 +43,14 @@ module Msh
     rescue NameError => e
       puts e.message
     end
+
+    def run cmd, *args
+      pid = fork do
+        exec cmd, *args
+      end
+      Process.wait pid
+      $CHILD_STATUS
+    end
   end
 end
 
