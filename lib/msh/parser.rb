@@ -192,6 +192,7 @@ module Msh
     # @return [AST]
     def _program
       _skip_whitespace
+      _skip_comments
 
       return s(:NOOP) if eof?
 

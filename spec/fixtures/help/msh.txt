@@ -11,6 +11,12 @@ DESCRIPTION
 
        ·   redirection a 2>&1 > out.log
 
+       ·   redirect output a > b
+
+       ·   append output a >> b
+
+       ·   redirect input a < b
+
        ·   conditionals a || b && c
 
        ·   commands a; b;
@@ -21,12 +27,15 @@ DESCRIPTION
 
        ·   pipes a | b
 
-       ·   command substitution a 'b' c (but use backticks, not single qoutes)
+       ·   command substitution $(a 'b' c) (but no backticks, just $())
 
        ·   process substitution <(a | b)
 
-       It uses Ruby to handle variables, functions, and aliases, and allows
-       for Ruby interpolation anywhere in the source.
+       ·   local shell variables, and syntax to manipulate environment
+           variables
+
+       It uses Ruby to handle functions, and aliases, and allows for Ruby
+       interpolation anywhere in the source.
 
            $ echo π ≈ #{Math::PI} | cowsay
             _________________________
@@ -38,35 +47,27 @@ DESCRIPTION
                            ||----w |
                            ||     ||
 
-       Unlike other shells, Msh doesn’t have functions or variables builtin to
+       Unlike other shells, Msh doesn’t have functions or aliases builtin to
        the language, rather, it tasks that to it’s host, or implementation,
        language (here, Ruby).
 
-       The host language is available via a REPL at with the repl command, and
+       The host language’s REPL is available via repl builtin, and
        additionally processes string interpolation in all commands.
 
            $ repl
-           irb> ... quit
-           $ echo the time is now #{Time.now}
+           irb> foo = "bar"
+           irb> quit
+           $ echo #{foo} #=> bar
 
    Functions
        Instead of functions, Msh just calls Ruby methods
 
-           echo #{def hello name; puts "hello, #{name}"; end}
-           hello world #=> prints "hello, world"
+           $ echo #{def hello name; puts "hello, #{name}"; end}
+           $ hello world #=> prints "hello, world"
 
        Similarly, builtins and aliases are just Ruby methods as well.
 
            $ builtins
-           $ aliases
-
-   Variables
-       Variables in the REPL correspond directly to environment variables.
-
-           $ RAILS_ENV=production bundle exec rails
-           $ repl
-           irb> RAILS_ENV='production' # this is like `export VAR=...`
-           $ bundle exec rails
 
 OPTIONS
        -h, --help
@@ -81,6 +82,10 @@ OPTIONS
        -c <command>
            Run a command string as input.
 
+COPYING
+       Copyright (C) 2020 Mark Delk. Free use of this software is granted
+       under the terms of the MIT License.
+
 RESOURCES
        issue tracker
            https://github.com/jethrodaniel/msh/issues?q=is%3Aopen.
@@ -91,4 +96,4 @@ RESOURCES
 MSH
        Part of msh(1).
 
-Msh v0.1.0                        2020-05-10                            MSH(1)
+Msh v0.1.0                        2020-05-17                            MSH(1)

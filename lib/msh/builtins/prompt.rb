@@ -2,12 +2,22 @@
 
 module Msh
   class Env
-    # @todo fish shell like abbreviation
+    # == name
+    #
+    # prompt - msh's prompt
+    #
+    # == synopsis
+    #
+    # *prompt*
+    #
+    # == description
+    #
+    # Msh's prompt is set via this method.
     #
     # ```
-    # $ fish
-    # Welcome to fish, the friendly interactive shell
-    # ~/c/r/msh (dev %=)
+    # λ echo #{def prompt; "$ "; end}
+    # prompt
+    # $ ...
     # ```
     def prompt
       Paint[Dir.pwd, :green] + Paint[" λ ", :magenta, :bright]

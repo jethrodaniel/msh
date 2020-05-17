@@ -46,8 +46,6 @@ end
 require "pty"
 require "expect"
 
-# TODO: wrapper around `PTY.spawn ...`
-#
 # @example
 #   run_iteractively "msh" do
 #     expect(input).to eq("interpreter> ")
@@ -75,12 +73,6 @@ require "tempfile"
 
 # https://github.com/seattlerb/minitest/blob/6257210b7accfeb218b4388aaa36d3d45c5c41a5/lib/minitest/assertions.rb#L546
 #
-# todo: more FD-specific, like
-#
-#     redirect 1, 2 do # redirects fd1 to fd2
-#       ...
-#     end
-#
 def capture_subprocess_io
   captured_stdout = Tempfile.new("out")
   captured_stderr = Tempfile.new("err")
@@ -102,3 +94,17 @@ ensure
   $stdout.reopen orig_stdout
   $stderr.reopen orig_stderr
 end
+
+require "tmpdir"
+require "fileutils"
+
+def with_temp_files
+  temp = Dir.mktmpdir
+  pwd = Dir.pwd
+  Dir.chdir temp
+  yield
+  Dir.chdir pwd
+  FileUtils.rm_f temp
+end
+
+require_relative "examples"

@@ -14,4 +14,4 @@ DESCRIPTION
 MSH
        Part of msh(1).
 
-Msh v0.1.0                        2020-05-04                        HISTORY(1)
+Msh v0.1.0                        2020-05-17                        HISTORY(1)

@@ -49,25 +49,26 @@ RSpec.describe Msh::Interpreter do
     # https://unix.stackexchange.com/a/79895/354783
     it "forks if part of a pipeline" do
       out, err = capture_subprocess_io do
-        subject.interpret "cd /tmp"
-        subject.interpret "pwd"
-        subject.interpret "cd / | echo hi"
-        subject.interpret "pwd"
-        subject.interpret "cd /"
-        subject.interpret "pwd"
+        subject.interpret <<~MSH
+          cd /tmp
+          pwd
+          cd / | echo hi
+          pwd
+          cd /
+          pwd
+        MSH
       end
-      expect(out).to eq(<<~OUT)
-        \/tmp
+      expect(out).to eq(<<~'OUT')
+        /tmp
         hi
-        \/tmp
-        \/
+        /tmp
+        /
       OUT
       expect(err).to eq("")
     end
 
     describe "help" do
       it "shows `msh` when called with no args" do
-        skip
         man = File.read(Msh.root + "spec/fixtures/help/msh.txt")
         expect(sh("MANPAGER=cat msh -c help")).to eq(man)
       end

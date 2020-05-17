@@ -18,13 +18,14 @@ DESCRIPTION
        outside of msh, either add msh’s man directory to your $MANPATH, or
        install it’s manpages on your system the traditional way.
 
-           MANPATH="$MANPATH:`dirname \`gem which msh\``/../man" man msh
+           MANPATH=<path to msh man/man1 dir> man msh
 
-           cp -r `dirname \`gem which msh\``/../man/man1/ /usr/local/share/man/man1/
+           msh_manpath="$(dirname $(gem which msh))/../man/man1/"
+           cp -r $msh_manpath /usr/local/share/man/man1/
            mandb
            man msh
 
 MSH
        Part of msh(1).
 
-Msh v0.1.0                        2020-05-04                           HELP(1)
+Msh v0.1.0                        2020-05-17                           HELP(1)

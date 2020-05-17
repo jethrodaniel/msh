@@ -1,0 +1,19 @@
+PROMPT(1)                         Msh Manual                         PROMPT(1)
+
+NAME
+       prompt - msh's prompt
+
+SYNOPSIS
+       prompt
+
+DESCRIPTION
+       Msh’s prompt is set via this method.
+
+           λ echo #{def prompt; "$ "; end}
+           prompt
+           $ ...
+
+MSH
+       Part of msh(1).
+
+Msh v0.1.0                        2020-05-17                         PROMPT(1)

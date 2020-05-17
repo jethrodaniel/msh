@@ -1,17 +1,5 @@
 # frozen_string_literal: true
 
-require "tmpdir"
-require "fileutils"
-
-def with_temp_files
-  temp = Dir.mktmpdir
-  pwd = Dir.pwd
-  Dir.chdir temp
-  yield
-  Dir.chdir pwd
-  FileUtils.rm_f temp
-end
-
 def file name, content
   File.open(name, "w") { |f| f.puts content }
 end
