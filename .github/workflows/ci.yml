@@ -27,9 +27,13 @@ jobs:
         bundle update --bundler
         bundle install
 
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v2
+    # - name: Setup tmate session
+      # uses: mxschmitt/action-tmate@v2
 
     - name: run specs
       run: |
-        bundle exec rake spec
+        # These specs require a tty.
+        #
+        # See https://stackoverflow.com/a/32981392/7132678
+        #
+        faketty() { script -qfec "$(printf "%q " "$@")"; }; faketty bundle exec rake spec
