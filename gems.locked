@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/jethrodaniel/reline
-  revision: ad008da54339efbd99aa14d38bce8bfdeeb6f1cc
+  revision: 4b3dbea19db5bcf4d9807a3307481960b1e61621
   branch: vim-mode-indicator
   specs:
     reline (0.1.3)
@@ -18,13 +18,12 @@ GEM
   specs:
     asciidoctor (2.0.10)
     ast (2.4.0)
-    byebug (11.1.1)
+    byebug (11.1.3)
     coderay (1.1.2)
     diff-lcs (1.3)
     io-console (0.5.6)
-    jaro_winkler (1.5.4)
     method_source (1.0.0)
-    minitest (5.14.0)
+    minitest (5.14.1)
     paint (2.2.0)
     parallel (1.19.1)
     parser (2.7.1.2)
@@ -42,17 +41,16 @@ GEM
       rspec-core (~> 3.9.0)
       rspec-expectations (~> 3.9.0)
       rspec-mocks (~> 3.9.0)
-    rspec-core (3.9.1)
-      rspec-support (~> 3.9.1)
-    rspec-expectations (3.9.1)
+    rspec-core (3.9.2)
+      rspec-support (~> 3.9.3)
+    rspec-expectations (3.9.2)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.9.0)
     rspec-mocks (3.9.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.9.0)
-    rspec-support (3.9.2)
-    rubocop (0.82.0)
-      jaro_winkler (~> 1.5.1)
+    rspec-support (3.9.3)
+    rubocop (0.83.0)
       parallel (~> 1.10)
       parser (>= 2.7.0.1)
       rainbow (>= 2.2.2, < 4.0)
@@ -61,7 +59,7 @@ GEM
       unicode-display_width (>= 1.4.0, < 2.0)
     ruby-progressbar (1.10.1)
     unicode-display_width (1.7.0)
-    yard (0.9.24)
+    yard (0.9.25)
     yard-doctest (0.1.17)
       minitest
       yard
