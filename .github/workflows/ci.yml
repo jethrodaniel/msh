@@ -27,6 +27,9 @@ jobs:
         bundle update --bundler
         bundle install
 
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v2
+
     - name: run specs
       run: |
         bundle exec rake spec
