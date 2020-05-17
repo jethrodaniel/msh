@@ -365,11 +365,9 @@ module Msh
       cmd, *args = words
 
       pid = fork do
-        begin
-          exec *words
-        rescue Errno::ENOENT => e # No such file or directory
-          abort e.message
-        end
+        exec *words
+      rescue Errno::ENOENT => e # No such file or directory
+        abort e.message
       end
       Process.wait pid
 

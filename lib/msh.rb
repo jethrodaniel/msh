@@ -24,6 +24,9 @@ require "msh/repl"
 # It supports a subset of `sh`/`bash`, including
 #
 #   - [ ] redirection `a 2>&1 > out.log`
+#     - [x] redirect output `a > b`
+#     - [x] append output `a >> b`
+#     - [x] redirect input `a < b`
 #   - [ ] conditionals `a || b && c`
 #   - [x] commands `a; b;`
 #   - [ ] grouping `a; {b}`

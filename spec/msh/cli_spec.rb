@@ -29,7 +29,6 @@ RSpec.describe "msh" do
 
   describe "-c <cmd_string>" do
     it "runs the command string as shell input" do
-      skip
       expect(sh('msh -c "file readme.md"')).to eq(<<~SH)
         readme.md: UTF-8 Unicode text
       SH
@@ -44,10 +43,11 @@ RSpec.describe "msh" do
 
   describe "[file]..." do
     it "runs [files]... as shell scripts" do
-      skip
-      expect(sh("msh spec/fixtures/good/0.msh")).to eq(<<~SH)
+      File.open("test.msh", "w") { |f| f.puts "echo such wow" }
+      expect(sh("msh .msh")).to eq(<<~SH)
         such wow
       SH
+      File.delete("test.msh")
     end
 
     context "when no files are supplied" do
