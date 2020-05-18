@@ -21,6 +21,12 @@ module Msh
     attr_reader :interpreter
 
     def initialize
+      begin
+        stty_save = `stty -g`.chomp
+      rescue
+        warn "error when performing init setup command `stty -g`"
+      end
+
       @interpreter = Msh::Interpreter.new
       puts "Welcome to msh v#{Msh::VERSION} (`?` for help)"
 
@@ -28,6 +34,13 @@ module Msh
         add_to_history line
         interpreter.interpret line
       end
+    rescue Interrupt
+      puts "^C"
+      `stty #{stty_save}` if stty_save
+      exit 0
+    ensure
+      `stty #{stty_save}` if stty_save
+      puts
     end
 
     private
