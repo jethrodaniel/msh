@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require "msh/configuration"
+require "msh/config"
 require "msh/interpreter"
 
-describe Msh::Configuration do
-  it "has configuration abilities" do
-    expect(Msh.configuration).not_to be nil
+describe Msh::Config do
+  it "has config abilities" do
+    expect(Msh.config).not_to be nil
 
-    expect(Msh.configuration.color).to be true
-    expect(Msh.configuration.history_lines).to eq(2_048)
-    expect(Msh.configuration.repl).to eq(:irb)
+    expect(Msh.config.color).to be true
+    expect(Msh.config.history_lines).to eq(2_048)
+    expect(Msh.config.repl).to eq(:irb)
 
     Msh.configure do |c|
       c.color = false
@@ -17,9 +17,9 @@ describe Msh::Configuration do
       c.repl = :pry
     end
 
-    expect(Msh.configuration.color).to be false
-    expect(Msh.configuration.history_lines).to eq(1_000)
-    expect(Msh.configuration.repl).to eq(:pry)
+    expect(Msh.config.color).to be false
+    expect(Msh.config.history_lines).to eq(1_000)
+    expect(Msh.config.repl).to eq(:pry)
   end
 
   subject { Msh::Interpreter.new }

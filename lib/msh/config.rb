@@ -13,9 +13,9 @@ module Msh
   #     Msh.configure do |c|
   #       c.repl = :pry
   #     end
-  #     Msh.configuration.repl #=> :pry
-  #     Msh.configuration.color #=> true
-  class Configuration
+  #     Msh.config.repl #=> :pry
+  #     Msh.config.color #=> true
+  class Config
     # @return [bool] whether color is enabled (default: true)
     attr_accessor :color
 
@@ -60,11 +60,11 @@ module Msh
   # end
   # ```
   def self.configure
-    yield configuration if block_given?
+    yield config if block_given?
   end
 
-  # Access Msh's configuration
-  def self.configuration
-    @configuration ||= Msh::Configuration.new
+  # Access Msh's config
+  def self.config
+    @config ||= Msh::Config.new
   end
 end

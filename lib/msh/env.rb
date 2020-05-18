@@ -2,7 +2,7 @@
 
 require "msh/backports"
 require "msh/errors"
-require "msh/configuration"
+require "msh/config"
 
 module Msh
   # An environment maintains the current environment variables of an

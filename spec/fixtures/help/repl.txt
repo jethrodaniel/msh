@@ -15,4 +15,4 @@ DESCRIPTION
 MSH
        Part of msh(1).
 
-Msh v0.1.0                        2020-05-17                           REPL(1)
+Msh v0.1.0                        2020-05-18                           REPL(1)

@@ -45,7 +45,7 @@ module Msh
       end
     end
 
-    # @todo configure Msh::Configuration here, if needed
+    # @todo configure Msh::Config here, if needed
     def self.handle_options!
       option_parser.parse!
     rescue OptionParser::MissingArgument, OptionParser::InvalidOption => e

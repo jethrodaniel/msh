@@ -18,8 +18,8 @@ module Msh
     #     #{binding.pry}  # if using Pry
     #
     def repl
-      require Msh.configuration.repl.to_s
-      @binding.send Msh.configuration.repl
+      require Msh.config.repl.to_s
+      @binding.send Msh.config.repl
       0
     end
   end

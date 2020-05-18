@@ -5,7 +5,7 @@ require "paint"
 
 require "msh/logger"
 require "msh/errors"
-require "msh/configuration"
+require "msh/config"
 require "msh/env"
 require "msh/ast"
 require "msh/lexer"
@@ -95,7 +95,7 @@ module Msh
       @env = Env.new
       @local_sh_variables = {}
       @last_command_status
-      Configuration.load!
+      Config.load!
       setup_manpath!
     end
 
