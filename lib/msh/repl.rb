@@ -52,7 +52,9 @@ module Msh
           yield line
         end
       else
-        while line = ::Reline.readline(interpreter.prompt, true)&.chomp
+        # @todo
+        # while line = ::Reline.readmultiline(interpreter.prompt, true) { |_code| next true;interpreter.terminated? }
+        while line = ::Reline.readline(interpreter.prompt, true)
           yield line
         end
       end
