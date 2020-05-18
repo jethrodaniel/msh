@@ -42,17 +42,28 @@ module Msh
   # # basics
   # #
   #
-  # spaces -> {SPACE}
+  # spaces -> SPACE spaces
+  #         | SPACE
   #
-  # _ -> spaces # for convenience of notation in this BNF
+  # _ -> spaces
+  #    |
   #
   # #
   # # start of grammar
   # #
   #
-  # program -> _ expr _ SEMI _ expr
-  #          | _ expr _ {SEMI}
-  #          | EOF
+  # statement -> _
+  #
+  # # _ if_statement
+  # stat -> _ comments
+  #       | _ exprs
+  #       | EOF
+  #
+  # comments -> COMMENT NEWLINE comments
+  #           | COMMENT
+  #
+  # exprs -> expr _ SEMI _ expr
+  #        | expr _ {SEMI}
   #
   # expr -> and_or
   #       | pipeline
@@ -63,33 +74,19 @@ module Msh
   # pipeline -> command _ PIPE _ pipeline
   #           | command
   #
-  # command -> cmd_part _ command # {cmd_part}+, but skipping whitespace
+  # command -> cmd_part _ command
   #          | cmd_part
   #
   # cmd_part -> redirect | word | assignment
   #
   # assignment -> word _ EQ _ word
   #
-  # # Note: `WORD`s from the lexer are "built" up into AST WORDs - consider
-  # #
-  # #    echo a#{b}c$(d)e$USER
-  # #
-  # # Which yields
-  # #
-  # #    s(:WORD,
-  # #      s(:LIT, "a"),
-  # #      s(:INTERP, "#{b}"),
-  # #      s(:LIT, "c"),
-  # #      s(:SUB, "d"),
-  # #      s(:LIT, "e"),
-  # #      s(:VAR, "$USER"))
-  # #
   # #                 | No whitespace here
   # #                 |
   # word -> word_type  word
   #       | word_type
   #
-  # # The lexer will never output `LIT LIT`
+  # # note: the lexer will never output `LIT LIT`
   # word_type -> LIT      # echo
   #            | INTERP   # #{Time.now}
   #            | SUB      # $(date)
@@ -114,16 +111,7 @@ module Msh
   # Each parsing method returns an AST - we collect these as we traverse the
   # tokens, to build up the final AST.
   #
-  # @note Parse methods here use are underscore-prefixed.
-  #
-  # @todo Use fancy DSL here instead of underscore prefixing?
-  #
-  #   ```
-  #   rule :expr do # defines a `_expr` method
-  #     rules(:skip_whitespace) # calls `_skip_whitespace`
-  #     ...
-  #   end
-  #   ```
+  # Note: Parse methods here use are underscore-prefixed.
   class Parser
     REDIRECTS = [
       :REDIRECT_OUT,         # [n]>
@@ -144,20 +132,48 @@ module Msh
       :LAST_STATUS  # $?
     ].freeze
 
+    attr_reader :lexer
+
     def initialize code
-      @pos = 0
-      @lexer = Msh::Lexer.new code
-      @tokens = [@lexer.next_token]
+      @lexer = Msh::Lexer.new(code).tap &:next_token
     end
 
-    # @return [Integer]
-    def line
-      peek.line
+    def self.delegate meth, obj, via: nil
+      define_method meth do
+        send(obj).send(via || meth)
+      end
     end
 
-    # @return [Integer]
-    def column
-      peek.column
+    delegate :current_token,      :lexer
+    delegate :advance,            :lexer, :via => :next_token
+    delegate :advance,            :lexer, :via => :next_token
+    delegate :eof?,               :lexer
+    delegate :line,               :current_token
+    delegate :column,             :current_token
+
+    # Raise an error with helpful output.
+    #
+    # @raise [Error]
+    def error msg = nil
+      raise Errors::ParseError, "error at line #{line}, column #{column}: #{msg}"
+    end
+
+    # @param types [Array<Symbol>]
+    # @return [bool]
+    def match? *types
+      types.any? { |t| current_token.type == t }
+    end
+
+    # @param types [Array<Symbol>]
+    # @param msg [String]
+    def consume *types, msg
+      if match? *types
+        t = current_token
+        advance
+        return t
+      end
+
+      error msg
     end
 
     # DSL to create an AST node, like {::AST::Sexp}, but adds line/column info.
@@ -166,12 +182,20 @@ module Msh
     # @param children [Array]
     # @return [Msh::AST::Node]
     def s type, *children
-      Msh::AST::Node.new \
-        type,
-        children,
-        :line => peek.line,
-        :column => peek.column
+      Msh::AST::Node.new type, children, :line => line, :column => column
     end
+
+    def self.skip_rule name, *types
+      define_method "_skip_#{name}" do
+        advance while match?(*types)
+      end
+    end
+
+    skip_rule :whitespace, :SPACE
+    skip_rule :comments,   :COMMENT
+    skip_rule :newlines,   :NEWLINE
+    skip_rule :ignored,    :SPACE, :COMMENT, :NEWLINE
+    skip_rule :ignored_no_newline, :SPACE, :COMMENT
 
     # Parse all tokens into an AST
     #
@@ -180,45 +204,101 @@ module Msh
       _program
     end
 
-    # @return [AST, nil]
-    def _skip_whitespace
-      advance while match? :SPACE
-    end
-
-    def _skip_comments
-      advance while match? :COMMENT, :NEWLINE
-    end
-
     # @return [AST]
     def _program
-      _skip_whitespace
-      _skip_comments
+      _skip_ignored
 
       return s(:NOOP) if eof?
 
-      exprs = []
+      parts = []
 
       until eof?
-        exprs << _expr
+        # if match?(:IF)
+        #   parts << _if_statemen
+        # else
+        parts += _exprs.children
+        # end
+      end
+
+      s(:PROG, *parts)
+    end
+
+    # @return [AST] :IF
+    def _if_statement
+      consume :IF, "expected an `if`"
+      _skip_whitespace
+
+      # require 'pry';require 'pry-byebug';binding.pry;
+
+      # begin
+      cond = _expr
+      # rescue Msh::Errors::ParseError, Msh::Errors::LexerError => e
+      # end
+
+      _skip_whitespace
+      advance if match? :COMMENT
+
+      if match? :NEWLINE
+        advance
         _skip_whitespace
         _skip_comments
+      elsif match? :THEN
+        advance
+        _skip_whitespace
+      else
+        error "expected a newline or `then` after `if` conditional"
+      end
+
+      body = []
+
+      until eof? || match?(:END)
+        # body << _program
+        body << _exprs
+        _skip_whitespace
+        _skip_comments
+        require "pry"; require "pry-byebug"; binding.pry; nil
+        puts
+
+      end
+
+      # if match? :ELSE
+      if match? :END
+        advance
+      else
+        error "expected `end` after conditional"
+      end
+
+      _skip_whitespace
+      _skip_comments
+
+      s(:IF, s(:COND, cond), s(:BODY, *body))
+    end
+
+    # @return [AST] :EXPRS
+    def _exprs
+      exprs = []
+
+      until eof? || match?(:SEMI, :NEWLINE)
+        exprs << _expr
+        _skip_ignored_no_newline
 
         next unless match? :SEMI, :NEWLINE
 
         advance
-        _skip_whitespace
-        _skip_comments
-        next
+
+        _skip_ignored_no_newline
       end
 
-      s(:PROG, *exprs)
+      _skip_ignored
+
+      s(:EXPRS, *exprs)
     end
 
     # @return [AST] :EXPR
     def _expr
       c = _pipeline
 
-      _skip_whitespace
+      _skip_ignored_no_newline
 
       if match? :AND, :OR
         op = consume :AND, :OR, "expected an `&&` or an `||`"
@@ -244,7 +324,7 @@ module Msh
         end
         _skip_whitespace
 
-        next unless match?(:EQ)
+        next unless match? :EQ
 
         consume :EQ, "expected an `=`"
         _skip_whitespace
@@ -254,10 +334,12 @@ module Msh
 
         break if eof? || match?(:NEWLINE)
 
-        error "expected a word, got #{peek}" unless match? *WORDS, *REDIRECTS
+        unless match? *WORDS, *REDIRECTS
+          error "expected a word, got #{current_token}"
+        end
       end
 
-      error "expected a word or redirect" if cmd_parts.size.zero?
+      error "expected a word or redirect" if cmd_parts.empty?
 
       s(:CMD, *cmd_parts)
     end
@@ -267,7 +349,7 @@ module Msh
       word_pieces = []
 
       while match? *WORDS
-        c = peek
+        c = current_token
 
         case c.type
         when :WORD, :TIME
@@ -283,7 +365,7 @@ module Msh
         advance
       end
 
-      error "expected a word" if word_pieces.size.zero?
+      error "expected a word" if word_pieces.empty?
 
       s(:WORD, *word_pieces)
     end
@@ -330,7 +412,7 @@ module Msh
         end
       end
 
-      return _command if commands.size.zero?
+      return _command if commands.empty?
 
       s(:PIPELINE, *commands)
     end
@@ -364,66 +446,6 @@ module Msh
 
         parser = Msh::Parser.new File.read(file)
         p parser.parse
-      end
-    end
-
-    private
-
-    # Raise an error with helpful output.
-    #
-    # @raise [Error]
-    def error msg = nil
-      line = peek.line
-      col = peek.column
-      raise Errors::ParseError, "error at line #{line}, column #{col}: #{msg}"
-    end
-
-    # @param types [Symbol...]
-    # @return [bool]
-    def match? *types
-      types.any? { |t| peek.type == t }
-    end
-
-    # @return [Token, nil]
-    def advance
-      return if eof?
-
-      @pos += 1
-      @tokens << @lexer.next_token
-      prev
-    end
-
-    # @return [bool]
-    def eof?
-      peek.type == :EOF
-    end
-
-    # @param nth [Integer]
-    # @return [Token]
-    def peek nth = 0
-      return @tokens[@pos + nth] if @tokens[@pos + nth]
-
-      peek nth - 1
-      @tokens[@pos + nth] = @lexer.next_token
-    end
-    alias current_token peek
-
-    # @return [Token]
-    def prev
-      index = @pos - 1
-      index = 0 if index.negative?
-      @tokens[index]
-    end
-
-    # @param types [...Symbol]
-    # @param msg [String]
-    def consume *types, msg
-      if match? *types
-        c = peek.dup
-        advance
-        c
-      else
-        error msg
       end
     end
   end

@@ -175,6 +175,18 @@ module Msh
           # ```
           3.times { advance }
           @token.type = :TIME
+        elsif @token.value == "i" && @scanner.peek == "f"
+          advance
+          @token.type = :IF
+        elsif @token.value == "t" && @scanner.peek(3) == "hen"
+          3.times { advance }
+          @token.type = :THEN
+        elsif @token.value == "e" && @scanner.peek(3) == "lse"
+          3.times { advance }
+          @token.type = :ELSE
+        elsif @token.value == "e" && @scanner.peek(2) == "nd"
+          2.times { advance }
+          @token.type = :END
         else
           consume_word
         end
@@ -182,11 +194,9 @@ module Msh
 
       return next_token if @token.type.nil?
 
-      if @token.type == :VAR && @token.value == "$?"
-        @token.type = :LAST_STATUS
-      end
+      @token.type = :LAST_STATUS if @token.type == :VAR && @token.value == "$?"
 
-      @tokens << @token.dup
+      @tokens << @token.dup.freeze
       @token
     end
 
@@ -196,6 +206,10 @@ module Msh
     # @return [Boolean] whether the last token is *not* an EOF
     def next?
       @tokens.last&.type != :EOF
+    end
+
+    def eof?
+      !next?
     end
 
     # @return [Token, nil]

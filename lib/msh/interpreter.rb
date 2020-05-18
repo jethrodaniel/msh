@@ -121,7 +121,6 @@ module Msh
       process_all(node).last
     end
 
-    # @param _node [Msh::AST::Node] :AND or :OR
     # @return [Integer] exit status
     def on_NOOP _node
       @last_command_status = 0
@@ -241,7 +240,6 @@ module Msh
       node.children.first
     end
 
-    # @param node [Msh::AST::Node]
     # @return [String]
     def on_LAST_STATUS _node
       return @last_command_status if @last_command_status
@@ -251,7 +249,6 @@ module Msh
       ""
     end
 
-    # @param _node [Msh::AST::Node]
     # @return [String]
     def on_SUB _node
       error "unimplemented"
