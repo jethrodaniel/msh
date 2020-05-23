@@ -184,6 +184,9 @@ module Msh
         elsif @token.value == "e" && @scanner.peek(3) == "lse"
           3.times { advance }
           @token.type = :ELSE
+        elsif @token.value == "e" && @scanner.peek(4) == "lsif"
+          4.times { advance }
+          @token.type = :ELSIF
         elsif @token.value == "e" && @scanner.peek(2) == "nd"
           2.times { advance }
           @token.type = :END

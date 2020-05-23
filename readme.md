@@ -7,13 +7,13 @@
 
 **NOTE**: still in early stages, subject to breaking changes until `v1.0.0`.
 
-msh is Ruby shell.
+msh is a Ruby shell.
 
 ```
 $ echo π is #{Math::PI} | cowsay
- ________________________
-< π is 3.141592653589793 >
- ------------------------
+ __
+<  >
+ --
         \   ^__^
          \  (oo)\_______
             (__)\       )\/\
@@ -25,9 +25,12 @@ $ echo π is #{Math::PI} | cowsay
 
 - Use ruby in the shell
   - global interpolation
-  - use ruby methods as functions
-- Be as simple and understandable as possible
-- Be lightweight - i.e, use as few external dependencies as possible, with no gem extensions
+  - use ruby methods as functions and aliases
+  - jump to the Ruby repl at any time
+- Use less of the sh
+  - restricted subset of sh/bash
+- Be simple
+- Be lightweight
 
 ## Installation
 
@@ -36,14 +39,6 @@ Assuming you have Ruby installed:
 ```
 $ gem install msh
 $ msh -h
-Usage:
-    msh [options]... [file]...
-
-Options:
-    -h, --help                       print this help
-    -V, --version                    show the version   (0.1.0)
-        --copyright, --license       show the copyright (MIT)
-    -c  <cmd_string>                 runs <cmd_string> as shell input
 
 ```
 
@@ -59,7 +54,7 @@ See `rake -T` and tools in `./bin/`.
 
 msh has more tests than you can shake a stick at.
 
-Most of these come from a [single YAML file](./spec/fixtures/examples.yml)(1490 lines)...
+Most of these come from a [single YAML file](./spec/fixtures/examples.yml)(1600 lines)...
 
 ```yml
   #
@@ -140,8 +135,3 @@ MIT, see the [license file](license.txt).
 ## References
 
 - [POSIX specifications](https://pubs.opengroup.org/onlinepubs/9699919799/)
-
-## Thanks
-
-Special thanks to [crafting interpreters](https://craftinginterpreters.com/) -
-go read it if you're the least bit interested in how lexers, parsers, and interpreters operate.

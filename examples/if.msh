@@ -1,0 +1,47 @@
+# single line
+
+if a then b end
+if a then b else c end
+if a then end
+
+# mutli line
+
+if a
+  b
+  c
+end
+
+if a
+  b
+else
+  c
+end
+
+if a
+  b
+elsif c
+  d
+end
+
+if a
+  b
+elsif c
+  d
+else
+  e
+end
+
+# optional `then`
+
+if a then
+  b
+  c
+end
+
+# todo: allow this?
+#
+# if a
+# then
+#   b
+#   c
+# end

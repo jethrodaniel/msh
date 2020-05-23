@@ -208,77 +208,90 @@ module Msh
     def _program
       _skip_ignored
 
-      return s(:NOOP) if eof?
-
       parts = []
+      parts << _prog until eof?
 
-      until eof?
-        # if match?(:IF)
-        #   parts << _if_statemen
-        # else
-        parts += _exprs.children
-        # end
-      end
-
-      s(:PROG, *parts)
+      s(:PROG, *parts.map(&:children).flatten)
     end
 
-    # @return [AST] :IF
-    def _if_statement
+    # @return [AST]
+    def _prog
+      return s(:NOOP) if eof?
+
+      error "unexpected `#{current_token.value}`" if match? :ELSIF, :ELSE, :END
+
+      return s(:PROG, _conditional) if match?(:IF)
+
+      s(:PROG, *_exprs)
+    end
+
+    # s(:CONDITIONAL,
+    #   s(:COND, s(:<condition>), s(:<body>)),
+    #   ...
+    #   s(:COND, s(:<body>)),
+    #
+    # @return [AST]
+    def _conditional
+      conditionals = [_if]
+
+      while match? :ELSIF, :ELSE
+        conditionals << _elsif if match? :ELSIF
+        conditionals << _else  if match? :ELSE
+      end
+
+      consume :END, "expected an `end` after conditional"
+
+      s(:CONDITIONAL, *conditionals)
+    end
+
+    def _if
       consume :IF, "expected an `if`"
       _skip_whitespace
 
-      # require 'pry';require 'pry-byebug';binding.pry;
-
-      # begin
       cond = _expr
-      # rescue Msh::Errors::ParseError, Msh::Errors::LexerError => e
-      # end
 
-      _skip_whitespace
-      advance if match? :COMMENT
+      _skip_ignored_no_newline
 
-      if match? :NEWLINE
-        advance
-        _skip_whitespace
-        _skip_comments
-      elsif match? :THEN
-        advance
-        _skip_whitespace
-      else
-        error "expected a newline or `then` after `if` conditional"
-      end
+      consume :NEWLINE, :THEN, "expected a newline or `then` after `if` conditional"
+      _skip_ignored
 
-      body = []
+      p = _program
 
-      until eof? || match?(:END)
-        # body << _program
-        body << _exprs
-        _skip_whitespace
-        _skip_comments
-        require "pry"; require "pry-byebug"; binding.pry; nil
-        puts
-
-      end
-
-      # if match? :ELSE
-      if match? :END
-        advance
-      else
-        error "expected `end` after conditional"
-      end
-
-      _skip_whitespace
-      _skip_comments
-
-      s(:IF, s(:COND, cond), s(:BODY, *body))
+      s(:COND, cond, p)
+      # s(:COND, cond, _program)
     end
+
+    #     def _elsif
+    #       body = []
+
+    #       until eof? || match?(:END)
+    #         if match? :ELSE, :ELS
+    #           body << _if_statement
+    #         else
+    #           body << _exprs
+    #         end
+    #         _skip_ignored_no_newline
+    #       end
+
+    #       # if match? :ELSE
+    #       consume :END, "expected `end` after conditional"
+
+    #       _skip_ignored_no_newline
+
+    #       s(:COND, s(:IF, cond, *body))
+    #     end
 
     # @return [AST] :EXPRS
     def _exprs
       exprs = []
 
-      until eof? || match?(:SEMI, :NEWLINE)
+      until eof? || match?(:SEMI, :NEWLINE, :END)
+        if match? :END, :ELSE, :ELSIF
+          advance
+          _skip_ignored
+          return s(:EXPRS, *exprs)
+        end
+
         exprs << _expr
         _skip_ignored_no_newline
 
