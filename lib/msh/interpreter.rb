@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "English"
-require "paint"
 
 require "msh/logger"
 require "msh/errors"
