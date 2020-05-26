@@ -8,6 +8,8 @@ BUILD_CONFIG = <<~RB
 
     conf.gembox 'default'
 
+    conf.cc.include_paths << "/home/jethro/code/ruby/msh/third_party/mruby/mrbgems/mruby-io/include/mruby/ext/"
+    conf.gem :core => 'mruby-io'
     conf.gem '../..'
 
     # Turn on `enable_debug` for better debugging
@@ -27,11 +29,12 @@ end
 
 task :mruby do
   Dir.chdir "third_party/mruby" do
-    sh "git checkout -- ."
+    # sh "git checkout -- ."
     make_file "build_config.rb", BUILD_CONFIG
+    sh "make clean"
     sh "make"
     # sh "cp -v bin/msh ../../exe/"
-    sh "cp -v bin/msh ../"
-    sh "git checkout -- ."
+    sh "cp -v bin/msh ../../"
+    # sh "git checkout -- ."
   end
 end

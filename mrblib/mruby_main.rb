@@ -1,15 +1,19 @@
 # frozen_string_literal: true
 
-def __main__ _argv
+def warn msg
+  $stderr.puts msg # rubocop:disable Style/StderrPuts
+end
+
+def __main__
   $: << File.expand_path("lib") # rubocop:disable Style/SpecialGlobalVars
 
   require "msh/version"
-  # require "msh/lexer"
-
-  puts "hi"
+  require "msh/lexer"
 
   puts "msh v#{Msh::VERSION}"
-  # puts "tokens: #{Msh::Lexer.new('echo').tokens}"
 
-  puts "by"
+  # Msh::Lexer.start(argv)
+  Msh::Lexer.interactive
+
+  puts "BYe"
 end

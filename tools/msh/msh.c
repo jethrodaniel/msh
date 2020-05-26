@@ -3,12 +3,14 @@
 
 #include <mruby.h>
 #include <mruby/array.h>
-#include <mruby/version.h>
-/* #include <mruby/variable.h> */
 
-/* Based/copied from
+/* Start up MRuby, then exec our code.
  *
- * https://github.com/hone/mruby-cli/blob/v0.0.4/tools/mruby-cli/mruby-cli.c
+ * This is the same, more or less as
+ *
+ *     ./third_party/mruby/bin/mruby -r mrblib/mruby_main.rb -e '__main__([])'
+ *
+ * Adapted from https://github.com/hone/mruby-cli/blob/v0.0.4/tools/mruby-cli/mruby-cli.c
  */
 int main(int argc, char *argv[])
 {
@@ -21,8 +23,7 @@ int main(int argc, char *argv[])
 
   mrb_define_global_const(mrb, "ARGV", ARGV);
 
-  /* call __main__(ARGV) */
-  mrb_funcall(mrb, mrb_top_self(mrb), "__main__", 1, ARGV);
+  mrb_funcall(mrb, mrb_top_self(mrb), "__main__", 0);
 
   exit_code = EXIT_SUCCESS;
 

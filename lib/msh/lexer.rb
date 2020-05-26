@@ -224,7 +224,7 @@ module Msh
           return
         else
           begin
-            puts Msh::Lexer.new(line).tokens
+            puts Msh::Lexer.new(line).tokens.map(&:to_s)
           rescue Errors::LexerError => e
             puts e.message
           end
@@ -242,14 +242,14 @@ module Msh
     # Run the lexer, either on all files passed to ARGV, or interactively, if
     # no files are supplied. Aborts program on error.
     def self.start args = ARGV
-      return Msh::Lexer.interactive if args.size.zero?
+      return Lexer.interactive if args.size.zero?
 
       args.each do |file|
         unless File.file? file
           raise Errors::LexerError, "#{file} is not a file!"
         end
 
-        puts Lexer.new(File.read(file)).tokens
+        puts Lexer.new(File.read(file)).tokens.map(&:to_s)
       end
     end
 

@@ -3,16 +3,17 @@
 begin
   require "reline"
 rescue LoadError => e
-  puts e
+  warn "#{e.class}: #{e.message}"
 end
 
 module Msh
   module Readline
     def self.readline prompt, keep_history
-      if defined? Reline
-        Reline.readline(prompt, keep_history)
+      if Object.const_defined? :Reline
+        ::Reline.readline(prompt, keep_history)
       else
-        gets.chomp
+        print "lexer> "
+        gets&.chomp
       end
     end
   end

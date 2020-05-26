@@ -10,8 +10,8 @@ module Msh
     attr_reader :column
 
     def initialize string
-      @string = string
-      @pos = 0
+      @string = string.freeze
+      @pos = -1
       @line = 1
       @column = 1
       @last_column = 1
@@ -48,7 +48,7 @@ module Msh
     # @return [String, nil] nth character past the scanner head
     def peek n = 1 # rubocop:disable Naming/MethodParameterName
       c = @string[@pos + 1]
-      c.empty? ? "\0" : c
+      c.nil? || c.empty? ? "\0" : c
     end
 
     # @return [Boolean]

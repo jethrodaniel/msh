@@ -1,2 +1,2 @@
 default:
-	time bundle exec rake mruby && ./exe/msh
+	time bundle exec rake mruby && ./msh
