@@ -53,7 +53,4 @@ task :mruby do
     sh "cp -v bin/msh ../../exe/"
     sh "git checkout -- ."
   end
-
-  # sh "third_party/mruby/bin/mrbc -Bmsh mrblib/msh.rb"
-  # sh "gcc -std=c99 -Ithird_party/mruby/include tools/msh/msh.c -o msh third_party/mruby/build/host/lib/libmruby.a -lm -ldl"
 end

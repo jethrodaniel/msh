@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
-require "reline"
-require "strscan"
+begin
+  require "reline"
+  require "strscan"
 
-require "msh/errors"
-require "msh/logger"
-require "msh/token"
-require "msh/scanner"
+  # require "msh/errors"
+  # require "msh/logger"
+  # require "msh/token"
+  # require "msh/scanner"
+rescue LoadError => e
+  puts e
+end
 
 module Msh
   # The lexer breaks down input text into a series of tokens.
@@ -42,7 +46,7 @@ module Msh
   #   ]
   #   lexer.tokens.map(&:to_s) == tokens #=> true
   class Lexer
-    include Msh::Logger
+    # include Msh::Logger
 
     # TODO: there's def more of these
     NON_WORD_CHARS = [
@@ -82,7 +86,7 @@ module Msh
       @tokens
     end
 
-    # # @return [Token, nil] the next token, or nil if not complete or at EOF
+    # @return [Token, nil] the next token, or nil if not complete or at EOF
     def next_token
       reset_and_set_start
 
@@ -333,9 +337,7 @@ module Msh
       end
 
       if l_brace_stack.size.positive? # || c.nil? || eof?
-        error <<~ERR
-          unterminated string interpolation, expected `}` to complete `\#{` at line #{line}, column #{col}
-        ERR
+        error "unterminated string interpolation, expected `}` to complete `{` at line #{line}, column #{col}"
       end
 
       @token.type = :INTERP

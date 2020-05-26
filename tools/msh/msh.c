@@ -20,9 +20,11 @@ int main(int argc, char *argv[])
     mrb_ary_push(mrb, ARGV, mrb_str_new_cstr(mrb, argv[i]));
 
   mrb_define_global_const(mrb, "ARGV", ARGV);
-  mrb_define_global_const(mrb, "RUBY_ENGINE", "mruby");
 
-  // call __main__(ARGV)
+  /* why do we need to add this? */
+  mrb_define_global_const(mrb, "RUBY_ENGINE", mrb_str_new_lit(mrb, MRUBY_RUBY_ENGINE));
+
+  /* call __main__(ARGV) */
   mrb_funcall(mrb, mrb_top_self(mrb), "__main__", 1, ARGV);
 
   exit_code = EXIT_SUCCESS;
