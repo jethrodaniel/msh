@@ -33,48 +33,12 @@ BUILD_CONFIG = <<~RB
   MRuby::Build.new do |conf|
     toolchain :gcc
 
+    conf.enable_bintest
+
     conf.gembox 'default'
 
     conf.gem '../..'
-
-    # bintest
-    # conf.enable_bintest
   end
-RB
-
-STUB = <<~RB
-  #include <stdlib.h>
-  #include <stdio.h>
-
-  #include <mruby.h>
-  #include <mruby/array.h>
-
-  // Based/copied from https://github.com/hone/mruby-cli/blob/80af213286d63bb18ced44018cdd80388c1f376b/tools/mruby-cli/mruby-cli.c
-  int main(int argc, char *argv[])
-  {
-    mrb_state *mrb = mrb_open();
-    mrb_value ARGV = mrb_ary_new_capa(mrb, argc);
-    int i;
-    int return_value;
-
-    for (i = 0; i < argc; i++) {
-      mrb_ary_push(mrb, ARGV, mrb_str_new_cstr(mrb, argv[i]));
-    }
-    mrb_define_global_const(mrb, "ARGV", ARGV);
-
-    // call __main__(ARGV)
-    mrb_funcall(mrb, mrb_top_self(mrb), "__main__", 1, ARGV);
-
-    return_value = EXIT_SUCCESS;
-
-    if (mrb->exc) {
-      mrb_print_error(mrb);
-      return_value = EXIT_FAILURE;
-    }
-    mrb_close(mrb);
-
-    return return_value;
-  }
 RB
 
 def make_file name, source
@@ -87,6 +51,7 @@ task :mruby do
     make_file "build_config.rb", BUILD_CONFIG
     sh "make"
     sh "cp -v bin/msh ../../exe/"
+    sh "git checkout -- ."
   end
 
   # sh "third_party/mruby/bin/mrbc -Bmsh mrblib/msh.rb"
