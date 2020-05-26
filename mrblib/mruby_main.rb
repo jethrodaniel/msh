@@ -10,8 +10,6 @@ def __main__
   require "msh/version"
   require "msh/lexer"
 
-  puts "msh v#{Msh::VERSION}"
-
   Msh::Lexer.start
 
   puts "BYe"

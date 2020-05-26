@@ -1,26 +1,29 @@
 # frozen_string_literal: true
 
-require "logger"
-
-require "paint"
+begin
+  require "logger"
+rescue LoadError => e
+  warn "#{e.class}: #{e.message}"
+end
 
 require "msh/errors"
+require "msh/ansi"
 
 module Msh
   module Logger
     FORMATTER = -> severity, time, _progname, msg do
       color = case severity
-              when "DEBUG" then %i[magenta bright]
-              when "INFO" then %i[green bright]
-              when "WARN" then %i[cyan bright]
-              when "ERROR" then %i[red bright]
-              when "FATAL", "UNKNOWN" then %i[red bright]
+              when "DEBUG" then :magenta
+              when "INFO" then :green
+              when "WARN" then :cyan
+              when "ERROR" then :red
+              when "FATAL", "UNKNOWN" then :red
               else
                 raise Msh::Logger::Error, "invalid log level: #{severity}"
               end
 
-      severity = Paint[severity, *color]
-      time = Paint[time, :green]
+      severity = severity.send(color).bold
+      time = time.to_s.green.bold
 
       "[#{severity.ljust(5, ' ')}][#{time}]: #{msg}\n"
     end

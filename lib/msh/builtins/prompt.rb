@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "msh/ansi"
+
 module Msh
   class Env
     # == name
@@ -20,7 +22,7 @@ module Msh
     # $ ...
     # ```
     def prompt
-      Paint[Dir.pwd, :green] + Paint[" λ ", :magenta, :bright]
+      Dir.pwd.green + " λ ".magenta.bold
     end
   end
 end

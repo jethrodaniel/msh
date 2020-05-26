@@ -8,8 +8,10 @@ BUILD_CONFIG = <<~RB
 
     conf.gembox 'default'
 
-    conf.cc.include_paths << "/home/jethro/code/ruby/msh/third_party/mruby/mrbgems/mruby-io/include/mruby/ext/"
-    conf.gem :core => 'mruby-io'
+    # conf.cc.include_paths << "/home/jethro/code/ruby/msh/third_party/mruby/mrbgems/mruby-io/include/mruby/ext/"
+    # conf.gem :core => 'mruby-io'
+    # conf.gem :mgem => 'mruby-logger'
+
     conf.gem '../..'
 
     # Turn on `enable_debug` for better debugging

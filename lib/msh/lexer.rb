@@ -2,7 +2,7 @@
 
 require "msh/readline"
 require "msh/errors"
-# require "msh/logger"
+require "msh/logger"
 require "msh/token"
 require "msh/scanner"
 
@@ -40,7 +40,8 @@ module Msh
   #   ]
   #   lexer.tokens.map(&:to_s) == tokens #=> true
   class Lexer
-    # include Msh::Logger
+    include Msh::Logger
+    extend Msh::Logger
 
     # TODO: there's def more of these
     NON_WORD_CHARS = [
@@ -217,6 +218,8 @@ module Msh
 
     # Run the lexer interactively, i.e, run a loop and tokenize user input.
     def self.interactive
+
+      log.info { "msh v#{Msh::VERSION}" }
       while line = Msh::Readline.readline("lexer> ", true)
         case line
         when "q", "quit", "exit"

@@ -6,5 +6,8 @@ MRuby::Gem::Specification.new("mruby-bin-msh") do |spec|
   spec.summary = "Ruby shell"
   # spec.version =
   spec.bins = ["msh"]
-  spec.add_dependency "mruby-require", :github => "mattn/mruby-require"
+  spec.add_dependency "mruby-onig-regexp"
+  spec.add_dependency "mruby-logger"
+  spec.add_dependency "mruby-env"
+  spec.add_dependency "mruby-require"
 end
