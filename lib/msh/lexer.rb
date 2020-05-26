@@ -1,16 +1,10 @@
 # frozen_string_literal: true
 
-begin
-  require "reline"
-  require "strscan"
-
-  # require "msh/errors"
-  # require "msh/logger"
-  # require "msh/token"
-  # require "msh/scanner"
-rescue LoadError => e
-  puts e
-end
+require "msh/readline"
+require "msh/errors"
+# require "msh/logger"
+require "msh/token"
+require "msh/scanner"
 
 module Msh
   # The lexer breaks down input text into a series of tokens.
@@ -223,7 +217,7 @@ module Msh
 
     # Run the lexer interactively, i.e, run a loop and tokenize user input.
     def self.interactive
-      while line = Reline.readline("lexer> ", true)&.chomp
+      while line = Msh::Readline.readline("lexer> ", true)
         case line
         when "q", "quit", "exit"
           puts "goodbye! <3"

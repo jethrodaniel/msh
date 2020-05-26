@@ -28,29 +28,3 @@ file "readme.md" do |t|
 end
 
 Dir["lib/tasks/*.rake"].each(&method(:load))
-
-BUILD_CONFIG = <<~RB
-  MRuby::Build.new do |conf|
-    toolchain :gcc
-
-    conf.enable_bintest
-
-    conf.gembox 'default'
-
-    conf.gem '../..'
-  end
-RB
-
-def make_file name, source
-  File.open(name, "w") { |f| f.puts source }
-end
-
-task :mruby do
-  Dir.chdir "third_party/mruby" do
-    sh "git checkout -- ."
-    make_file "build_config.rb", BUILD_CONFIG
-    sh "make"
-    sh "cp -v bin/msh ../../exe/"
-    sh "git checkout -- ."
-  end
-end

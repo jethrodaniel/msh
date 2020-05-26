@@ -4,7 +4,7 @@
 #include <mruby.h>
 #include <mruby/array.h>
 #include <mruby/version.h>
-#include <mruby/variable.h>
+/* #include <mruby/variable.h> */
 
 /* Based/copied from
  *
@@ -20,9 +20,6 @@ int main(int argc, char *argv[])
     mrb_ary_push(mrb, ARGV, mrb_str_new_cstr(mrb, argv[i]));
 
   mrb_define_global_const(mrb, "ARGV", ARGV);
-
-  /* why do we need to add this? */
-  mrb_define_global_const(mrb, "RUBY_ENGINE", mrb_str_new_lit(mrb, MRUBY_RUBY_ENGINE));
 
   /* call __main__(ARGV) */
   mrb_funcall(mrb, mrb_top_self(mrb), "__main__", 1, ARGV);

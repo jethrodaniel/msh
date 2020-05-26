@@ -1,13 +1,7 @@
 # frozen_string_literal: true
 
-require "strscan"
-
 module Msh
-  # Wrapper around a `StringScanner`, so that it
-  #
-  # - keeps track of line and column count
-  # - only allows some basic methods
-  #
+  # Basically a simple `StringScanner`
   class Scanner
     # @return [Integer] the current line
     attr_reader :line
@@ -16,7 +10,8 @@ module Msh
     attr_reader :column
 
     def initialize string
-      @scanner = StringScanner.new string
+      @string = string
+      @pos = 0
       @line = 1
       @column = 1
       @last_column = 1
@@ -25,7 +20,7 @@ module Msh
     # @note advances the scanner head
     # @return [String] the next character, EOF char if at the end of input
     def advance
-      c = @scanner.getch
+      c = @string[@pos += 1]
 
       if c == "\n"
         @line += 1
@@ -45,15 +40,15 @@ module Msh
       else
         @column -= 1
       end
-      @scanner.pos -= 1
+      @pos -= 1
       current_char
     end
 
     # @param n [Integer]
     # @return [String, nil] nth character past the scanner head
     def peek n = 1 # rubocop:disable Naming/MethodParameterName
-      c = @scanner.peek n
-      c.size.zero? ? "\0" : c
+      c = @string[@pos + 1]
+      c.empty? ? "\0" : c
     end
 
     # @return [Boolean]
@@ -63,7 +58,7 @@ module Msh
 
     # @return [String] the character under the scanner head, or EOF if at end
     def current_char
-      @scanner.string[@scanner.pos] || "\0"
+      @string[@pos] || "\0"
     end
   end
 end
