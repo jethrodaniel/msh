@@ -12,8 +12,7 @@ def __main__
 
   puts "msh v#{Msh::VERSION}"
 
-  # Msh::Lexer.start(argv)
-  Msh::Lexer.interactive
+  Msh::Lexer.start
 
   puts "BYe"
 end

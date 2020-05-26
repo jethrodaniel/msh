@@ -242,9 +242,11 @@ module Msh
     # Run the lexer, either on all files passed to ARGV, or interactively, if
     # no files are supplied. Aborts program on error.
     def self.start args = ARGV
-      return Lexer.interactive if args.size.zero?
+      files = args[1..-1]
 
-      args.each do |file|
+      return Lexer.interactive if files.empty?
+
+      files.each do |file|
         unless File.file? file
           raise Errors::LexerError, "#{file} is not a file!"
         end
