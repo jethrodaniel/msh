@@ -72,3 +72,12 @@ MIT, see the [license file](license.txt).
 ## References
 
 - [POSIX specifications](https://pubs.opengroup.org/onlinepubs/9699919799/)
+
+## Alternatives
+
+i.e, alternative shells. If there's a _legit_ shell out there that chooses to
+be something more than a `sh/bash/zsh` clone, feel free to add it here.
+
+- https://github.com/nushell/nushell
+- https://github.com/fish-shell/fish-shell
+- https://github.com/PowerShell/PowerShell
