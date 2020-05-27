@@ -8,6 +8,8 @@ module Msh
   end
 end
 
+require "msh/ansi"
+
 require "msh/cli"
 require "msh/repl"
 
