@@ -54,8 +54,6 @@ module Msh
         ::Logger::FATAL
       when "unknown"
         ::Logger::UNKNOWN
-      when -> n { n&.match?(/\d/) && n.to_i >= 0 }
-        severity.to_i
       else
         6 # Some large positive, so we don't log anything
       end
