@@ -7,6 +7,7 @@ rescue LoadError => e
 end
 
 require "msh/errors"
+require "msh/ansi"
 
 module Msh
   module Logger
