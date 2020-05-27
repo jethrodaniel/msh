@@ -2,16 +2,14 @@
 
 module Msh
   # Basically a simple `StringScanner`
+  #
+  #
   class Scanner
-    # @return [Integer] the current line
-    attr_reader :line
-
-    # @return [Integer] the current column
-    attr_reader :column
+    attr_reader :line, :column, :pos
 
     def initialize string
       @string = string.freeze
-      @pos = -1
+      @pos = 0
       @line = 1
       @column = 1
       @last_column = 1
@@ -20,7 +18,10 @@ module Msh
     # @note advances the scanner head
     # @return [String] the next character, EOF char if at the end of input
     def advance
-      c = @string[@pos += 1]
+      raise "pos is less than zero (#{@pos})" if @pos.negative?
+
+      c = @string[@pos]
+      @pos += 1
 
       if c == "\n"
         @line += 1
@@ -33,21 +34,23 @@ module Msh
       c || "\0"
     end
 
-    def backup
-      if current_char == "\n"
-        @line -= 1
-        @column = @last_column
-      else
-        @column -= 1
-      end
-      @pos -= 1
-      current_char
-    end
+    # def backup
+    #   if current_char == "\n"
+    #     @line -= 1
+    #     @column = @last_column
+    #   else
+    #     @column -= 1
+    #   end
+    #   @curr -= 1
+    #   current_char
+    # end
 
+    # FIXME: this is causing an issue with the new scanner class
     # @param n [Integer]
     # @return [String, nil] nth character past the scanner head
     def peek n = 1 # rubocop:disable Naming/MethodParameterName
-      c = @string[@pos + 1]
+      start = @pos + 1
+      c = @string[start...start + n]
       c.nil? || c.empty? ? "\0" : c
     end
 
@@ -58,7 +61,9 @@ module Msh
 
     # @return [String] the character under the scanner head, or EOF if at end
     def current_char
-      @string[@pos] || "\0"
+      raise "pos is less than zero (#{@pos})" if @pos.negative?
+
+      @string[@pos].freeze || "\0"
     end
   end
 end

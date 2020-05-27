@@ -19,7 +19,7 @@ RSpec.configure do |config|
   # expect().to be_true
   config.expect_with :rspec do |c|
     c.syntax = :expect
-    c.max_formatted_output_length = 100
+    c.max_formatted_output_length = ENV['VERBOSE'] ? 1_000 : 100
   end
 
   # Disable RSpec exposing methods globally on `Module` and `main`
