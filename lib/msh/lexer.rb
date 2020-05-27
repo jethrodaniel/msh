@@ -91,7 +91,7 @@ module Msh
         # set_token_start
         @token.type = :EOF
       when "#"
-        case @scanner.peek
+        case @scanner.current_char
         when "{"
           consume_interpolation
         else
@@ -102,7 +102,7 @@ module Msh
         @token.type = :EQ
       when "$"
         @token.type = :VAR
-        advance until NON_WORD_CHARS.include?(@scanner.peek)
+        advance until NON_WORD_CHARS.include? @scanner.current_char
       when " ", "\t" # skip whitespace
         consume_whitespace
       when "\n" # newlines
@@ -120,7 +120,7 @@ module Msh
       when "!"
         @token.type = :BANG
       when "&"
-        if @scanner.peek == "&"
+        if @scanner.current_char == "&"
           advance
           @token.type = :AND
         elsif @scanner.peek(2) == ">>"
@@ -137,7 +137,7 @@ module Msh
       when "<"
         consume_redir_left
       when "|"
-        case @scanner.peek
+        case @scanner.current_char
         when "|"
           advance
           @token.type = :OR
@@ -148,12 +148,12 @@ module Msh
           @token.type = :PIPE
         end
       when "1".."9"
-        advance while @scanner.peek.match?(/\d+/)
+        advance while @scanner.current_char.match?(/\d+/)
 
-        if @scanner.peek == ">"
+        if @scanner.current_char == ">"
           advance
           consume_redir_right
-        elsif @scanner.peek == "<"
+        elsif @scanner.current_char == "<"
           advance
           consume_redir_left
         else
@@ -174,7 +174,7 @@ module Msh
           # ```
           3.times { advance }
           @token.type = :TIME
-        elsif @token.value == "i" && @scanner.peek == "f"
+        elsif @token.value == "i" && @scanner.current_char == "f"
           advance
           @token.type = :IF
         elsif @token.value == "t" && @scanner.peek(3) == "hen"
@@ -296,14 +296,14 @@ module Msh
       c
     end
 
-    # Back the lexer up one character.
-    #
-    # @return [Integer] the current position index in input
-    def backup
-      c = @scanner.backup
-      @token.value = @token.value[0...-1]
-      c
-    end
+    ## Back the lexer up one character.
+    ##
+    ## @return [Integer] the current position index in input
+    #def backup
+    #  c = @scanner.backup
+    #  @token.value = @token.value[0...-1]
+    #  c
+    #end
 
     # @note we've just seen a `#`
     #
@@ -357,7 +357,7 @@ module Msh
 
     # @note we've just seen a `>`
     def consume_redir_right
-      case @scanner.peek
+      case @scanner.current_char
       when ">"
         advance
         @token.type = :APPEND_OUT
@@ -365,9 +365,9 @@ module Msh
         advance
         @token.type = :NO_CLOBBER
       else
-        if @scanner.peek == "&"
+        if @scanner.current_char == "&"
           advance
-          advance while @scanner.peek.match? /\d+/
+          advance while @scanner.current_char.match? /\d+/
           @token.type = :DUP_OUT_FD
         else
           @token.type = :REDIRECT_OUT
@@ -377,14 +377,14 @@ module Msh
 
     # @note we've just seen a `<`
     def consume_redir_left
-      case @scanner.peek
+      case @scanner.current_char
       when "&"
         if @scanner.peek(3).match? /&\d+-/
           3.times { advance }
           @token.type = :MOVE
         else
           advance
-          advance while @scanner.peek.match? /\d+/
+          advance while @scanner.current_char.match? /\d+/
           @token.type = :DUP_IN_FD
         end
       when ">"
@@ -397,7 +397,7 @@ module Msh
 
     # @note we've just seen the first character of a WORD
     def consume_word
-      advance until NON_WORD_CHARS.include?(@scanner.peek(1))
+      advance until NON_WORD_CHARS.include?(@scanner.current_char)
       @token.type = :WORD
     end
   end
