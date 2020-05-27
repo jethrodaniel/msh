@@ -126,7 +126,7 @@ module Msh
         elsif @scanner.peek(2) == ">>"
           2.times { advance }
           @token.type = :AND_D_REDIRECT_RIGHT
-        elsif @scanner.peek == ">"
+        elsif @scanner.current_char == ">"
           advance
           @token.type = :AND_REDIRECT_RIGHT
         else
@@ -245,7 +245,7 @@ module Msh
     # Run the lexer, either on all files passed to ARGV, or interactively, if
     # no files are supplied. Aborts program on error.
     def self.start files = ARGV
-      files.shift if File.basename(files.first) == "msh"
+      files.shift if files.first && File.basename(files.first) == "msh"
 
       return Lexer.interactive if files.empty?
 

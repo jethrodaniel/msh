@@ -11,7 +11,6 @@ require "fileutils"
 require "bundler/setup"
 require "rspec"
 
-require_relative "examples"
 require "msh"
 require "msh/backports"
 

@@ -146,6 +146,11 @@ describe "Lexer smoke tests" do
         '[1:4-6][WORD, "out"]',
         '[1:7-7][EOF, "\u0000"]'
       ]
+      it_lexes "&>out", [
+        '[1:1-2][AND_REDIRECT_RIGHT, "&>"]',
+        '[1:3-5][WORD, "out"]',
+        '[1:6-6][EOF, "\u0000"]'
+      ]
     end
     describe "redirect input" do
       it_lexes "<in", [

@@ -28,4 +28,4 @@ DESCRIPTION
 MSH
        Part of msh(1).
 
-Msh v0.1.0                        2020-05-18                           HELP(1)
+Msh v0.1.0                        2020-05-22                           HELP(1)

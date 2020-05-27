@@ -5,27 +5,6 @@ require "msh/interpreter"
 describe Msh::Interpreter do
   subject { Msh::Interpreter.new }
 
-  Examples.each do |code, data|
-    it code do
-      skip unless data[:interpreter_valid]
-
-      ast = binding.eval(data[:ast], *binding.source_location)
-
-      orig_env = ENV.to_h
-
-      out, err = capture_subprocess_io do
-        data[:env]&.each { |k, v| ENV[k] = v }
-        out = subject.process(ast)
-        expect(out).to eq data[:exit_code]
-      end
-
-      ENV.merge! orig_env
-
-      expect(out).to eq data[:output]
-      expect(err).to eq data[:error]
-    end
-  end
-
   it "#process" do
     ast = s(:EXPR, s(:CMD, s(:WORD, s(:LIT, "echo"))))
     out = subject.process(ast)
