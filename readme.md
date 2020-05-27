@@ -2,7 +2,6 @@
 
 ![](https://github.com/jethrodaniel/msh/workflows/ci/badge.svg)
 ![](https://img.shields.io/github/license/jethrodaniel/msh.svg)
-[![docs](https://img.shields.io/badge/docs-1f425f.svg)](https://jethrodaniel.com/msh)
 ![](https://img.shields.io/github/stars/jethrodaniel/msh?style=social)
 
 **NOTE**: still in early stages, subject to breaking changes until `v1.0.0`.
