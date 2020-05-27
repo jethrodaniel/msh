@@ -22,6 +22,9 @@ BUILD_CONFIG = <<~RB
       # The -g option is required for line numbers
       mrbc.compile_options = "-g -B%{funcname} -o-"
     end
+
+    # conf.enable_test
+    conf.enable_bintest
   end
 RB
 
@@ -34,7 +37,7 @@ task :mruby do
     # sh "git checkout -- ."
     make_file "build_config.rb", BUILD_CONFIG
     sh "make clean"
-    sh "make"
+    sh "make all test"
     # sh "cp -v bin/msh ../../exe/"
     sh "cp -v bin/msh ../../"
     # sh "git checkout -- ."

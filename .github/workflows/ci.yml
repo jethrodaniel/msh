@@ -3,6 +3,34 @@ name: ci
 on: [push]
 
 jobs:
+  mruby:
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: true
+
+    - name: apt dependencies
+      run: sudo apt install -y gperf bison gcc g++
+
+    - name: set up ruby for building
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+
+    - name: setup bundler, gems for building
+      run: |
+        gem install bundler
+        bundle update --bundler
+        bundle install
+
+    - name: do it
+      run: |
+        make
+
   ruby:
     runs-on: ubuntu-latest
     strategy:
