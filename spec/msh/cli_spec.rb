@@ -8,7 +8,7 @@ describe "msh" do
 
       Options:
           -h, --help                       print this help
-          -V, --version                    show the version   (0.1.0)
+          -V, --version                    show the version   (0.2.0)
               --copyright, --license       show the copyright (MIT)
           -c  <cmd_string>                 runs <cmd_string> as shell input
     MSG
