@@ -245,8 +245,6 @@ module Msh
     # Run the lexer, either on all files passed to ARGV, or interactively, if
     # no files are supplied. Aborts program on error.
     def self.start files = ARGV
-      files.shift if files.first && File.basename(files.first) == "msh"
-
       return Lexer.interactive if files.empty?
 
       files.each do |file|

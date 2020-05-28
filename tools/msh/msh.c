@@ -18,7 +18,8 @@ int main(int argc, char *argv[])
   mrb_value ARGV = mrb_ary_new_capa(mrb, argc);
   int i, exit_code;
 
-  for (i = 0; i < argc; i++)
+  /* explicitly skip adding the binary's filename as ARGV[0] */
+  for (i = 1; i < argc; i++)
     mrb_ary_push(mrb, ARGV, mrb_str_new_cstr(mrb, argv[i]));
 
   mrb_define_global_const(mrb, "ARGV", ARGV);
