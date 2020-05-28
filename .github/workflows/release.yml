@@ -4,8 +4,7 @@ name: release binaries
 
 on:
   release:
-    types:
-      - [published]
+    types: [published]
 
 jobs:
   dist_linux:
