@@ -5,7 +5,7 @@ name: release binaries
 on:
   release:
     types:
-      - created
+      - [published]
 
 jobs:
   dist_linux:
