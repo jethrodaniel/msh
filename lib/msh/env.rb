@@ -25,6 +25,8 @@ module Msh
     class Errors::EnvError < Errors::Error; end
 
     def initialize
+      return if RUBY_ENGINE == "mruby"
+
       @binding = binding
     end
 
@@ -34,6 +36,8 @@ module Msh
     end
 
     def _evaluate input
+      raise "unsupported" if RUBY_ENGINE == "mruby"
+
       # pry-byebug has an issue here, and would appear as a repl evaluated in
       # the wrong context here (in the AST gem, actually).  This is likely a
       # byebug-specific issue. IRB works fine here.
@@ -54,4 +58,18 @@ module Msh
   end
 end
 
-Dir.glob(File.join(Msh.root, "lib/msh/builtins", "**/*.rb"), &method(:require))
+# Dir.glob(File.join(Msh.root, "lib/msh/builtins", "**/*.rb"),
+
+dir = File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
+
+%w[
+  builtins
+  cd
+  help
+  history
+  lexer
+  parser
+  prompt
+  quit
+  repl
+].each { |lib| require File.join(dir, "builtins", lib) }

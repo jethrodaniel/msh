@@ -2,9 +2,9 @@
 
 module Msh
   class Env
-    def quit
+    def quit code = 1
       puts "goodbye! <3"
-      abort
+      exit! code
     end
     alias exit quit
     alias q quit

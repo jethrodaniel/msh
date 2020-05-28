@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "msh/ansi"
+require "msh/ext"
 
 module Msh
   class Env

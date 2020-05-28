@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "msh/readline"
 require "msh/lexer"
 require "msh/parser"
 require "msh/interpreter"
@@ -21,18 +22,31 @@ module Msh
     attr_reader :interpreter
 
     def initialize
-      begin
-        stty_save = `stty -g`.chomp
-      rescue
-        warn "error when performing init setup command `stty -g`"
-      end
-
       @interpreter = Msh::Interpreter.new
       puts "Welcome to msh v#{Msh::VERSION} (`?` for help)"
 
-      input_loop do |line|
-        add_to_history line
-        interpreter.interpret line
+      with_interrupt_handling do
+        input_loop do |line|
+          add_to_history line
+          interpreter.interpret line
+        end
+      end
+    end
+
+    private
+
+    def with_interrupt_handling &block
+      return with_interrupt_handling_mruby(&block) if RUBY_ENGINE == "mruby"
+
+      with_interrupt_handling_ruby(&block)
+    end
+
+    def with_interrupt_handling_ruby
+      begin
+        stty_save = `stty -g`.chomp
+        yield
+      rescue
+        warn "error when performing init setup command `stty -g`"
       end
     rescue Interrupt
       puts "^C"
@@ -40,10 +54,11 @@ module Msh
       exit 0
     ensure
       `stty #{stty_save}` if stty_save
-      puts
     end
 
-    private
+    def with_interrupt_handling_mruby
+      yield
+    end
 
     # @yield [String]
     def input_loop
@@ -54,19 +69,14 @@ module Msh
       else
         # @todo
         # while line = ::Reline.readmultiline(interpreter.prompt, true) { |_code| next true;interpreter.terminated? }
-        while line = ::Reline.readline(interpreter.prompt, true)
+        while line = Msh::Readline.readline(interpreter.prompt)
           yield line
         end
       end
     end
 
     def add_to_history line
-      return if ENV["NO_READLINE"]
-
-      # don't add blank lines or duplicates to history
-      return unless /\A\s+\z/ =~ line || Reline::HISTORY.to_a.dig(-2) == line
-
-      Reline::HISTORY.pop
+      Msh::Readline.add_to_history line
     end
   end
 end

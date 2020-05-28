@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "msh/ext"
+
 module Msh
   # Configure Msh.
   #
@@ -39,9 +41,7 @@ module Msh
     def self.load!
       paths = []
 
-      if ENV.key? "XDG_CONFIG_HOME"
-        paths << File.join(ENV["XDG_CONFIG_HOME"], "msh/config.rb")
-      end
+      paths << File.join(ENV["XDG_CONFIG_HOME"], "msh/config.rb") if ENV.key? "XDG_CONFIG_HOME"
 
       paths += [
         File.join(Dir.home, ".mshrc"),

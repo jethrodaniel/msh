@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
-require "pathname"
+$: << File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
+
+require "msh/ext"
 
 module Msh
   def self.root
-    Pathname.new(__dir__).join ".."
+    File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
   end
 end
 

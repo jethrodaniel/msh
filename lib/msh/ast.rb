@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "ast"
+require "ast" unless RUBY_ENGINE == "mruby"
 
 module Msh
   module AST

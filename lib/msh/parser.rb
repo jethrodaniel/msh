@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require "reline"
-
+require "msh/readline"
 require "msh/errors"
 require "msh/ast"
 require "msh/lexer"
@@ -130,12 +129,12 @@ module Msh
       :VAR,         # $USER
       :INTERP,      # echo the time is #{Time.now}
       :LAST_STATUS  # $?
-    ].freeze
+    ]#.freeze
 
     attr_reader :lexer
 
     def initialize code
-      @lexer = Msh::Lexer.new(code).tap &:next_token
+      @lexer = Msh::Lexer.new(code).tap(&:next_token)
     end
 
     def self.delegate meth, obj, via: nil
@@ -167,7 +166,7 @@ module Msh
     # @param types [Array<Symbol>]
     # @param msg [String]
     def consume *types, msg
-      if match? *types
+      if match?(*types)
         t = current_token
         advance
         return t
@@ -316,10 +315,10 @@ module Msh
     def _command
       cmd_parts = []
 
-      while match? *WORDS, *REDIRECTS
-        if match? *WORDS
+      while match?(*WORDS, *REDIRECTS)
+        if match?(*WORDS)
           cmd_parts << _word
-        elsif match? *REDIRECTS
+        elsif match?(*REDIRECTS)
           cmd_parts << _redirect
         end
         _skip_whitespace
@@ -328,15 +327,13 @@ module Msh
 
         consume :EQ, "expected an `=`"
         _skip_whitespace
-        error "missing value for variable assignment" unless match? *WORDS
+        error "missing value for variable assignment" unless match?(*WORDS)
         cmd_parts << s(:ASSIGN, cmd_parts.pop, _word)
         _skip_whitespace
 
         break if eof? || match?(:NEWLINE)
 
-        unless match? *WORDS, *REDIRECTS
-          error "expected a word, got #{current_token}"
-        end
+        error "expected a word, got #{current_token}" unless match?(*WORDS, *REDIRECTS)
       end
 
       error "expected a word or redirect" if cmd_parts.empty?
@@ -348,7 +345,7 @@ module Msh
     def _word
       word_pieces = []
 
-      while match? *WORDS
+      while match?(*WORDS)
         c = current_token
 
         case c.type
@@ -372,7 +369,7 @@ module Msh
 
     # @return [AST]
     def _redirect
-      r = consume *REDIRECTS, "expected a redirection operator"
+      r = consume(*REDIRECTS), "expected a redirection operator"
       n = r.value.match(/\A(\d+)/)&.captures&.first&.to_i
 
       _skip_whitespace
@@ -381,7 +378,7 @@ module Msh
       when :DUP_OUT_FD # 2>&1
         s(:REDIRECT, n, r.type)
       else
-        f = consume *WORDS, "expected a filename to complete redirection #{r}"
+        f = consume(*WORDS), "expected a filename to complete redirection #{r}"
 
         case r.type
         when :REDIRECT_OUT, :APPEND_OUT, :AND_REDIRECT_RIGHT
@@ -405,7 +402,7 @@ module Msh
 
         _skip_whitespace
 
-        if match? *WORDS, *REDIRECTS
+        if match?(*WORDS, *REDIRECTS)
           commands << _command
         else
           error "expected a command after `|`"
@@ -419,7 +416,7 @@ module Msh
 
     # Run the parser interactively, i.e, run a loop and parse user input.
     def self.interactive
-      while line = Reline.readline("parser> ", true)&.chomp
+      while line = Msh::Readline.readline("parser> ")
         case line
         when "q", "quit", "exit"
           puts "goodbye! <3"
@@ -437,12 +434,10 @@ module Msh
 
     # Parse each file passed as input (if any), or run interactively
     def self.start args = ARGV
-      return Msh::Parser.interactive if args.size.zero?
+      return Msh::Parser.interactive if args.empty?
 
       args.each do |file|
-        unless File.file?(file)
-          raise Errors::ParseError, "#{file} is not a file!"
-        end
+        raise Errors::ParseError, "#{file} is not a file!" unless File.file?(file)
 
         parser = Msh::Parser.new File.read(file)
         p parser.parse
