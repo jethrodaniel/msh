@@ -1,0 +1,45 @@
+# from https://raw.githubusercontent.com/Blacksmoke16/oq/1e7c6570fcbf0de9346241b55f7c357a1550d515/.github/workflows/deployment.yml
+
+name: release binaries
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  dist_linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: true
+
+    - name: apt dependencies
+      run: sudo apt install -y gperf bison gcc g++
+
+    - name: set up ruby for building
+      uses: actions/setup-ruby@v1
+      with:
+        ruby-version: '2.7'
+
+    - name: setup bundler, gems for building
+      run: |
+        gem install bundler
+        bundle update --bundler
+        bundle install
+
+    - name: build
+      run: |
+        # TODO: prod flags, strip binary, etc
+        make
+
+    - name: upload
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./msh
+        asset_name: msh-${{ github.event.release.tag_name }}-linux-x86_64
+        asset_content_type: binary/octet-stream
