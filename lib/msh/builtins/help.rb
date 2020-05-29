@@ -39,7 +39,7 @@ module Msh
 
       pid = fork do
         begin
-          exec *cmd
+          exec(*cmd)
         rescue Errno::ENOENT => e # No such file or directory
           abort e.message
         end

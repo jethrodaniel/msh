@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "optparse"
+require "optparse" unless RUBY_ENGINE == "mruby"
 
 require "msh/version"
 require "msh/parser"
@@ -8,7 +8,7 @@ require "msh/interpreter"
 
 module Msh
   module CLI
-    BANNER = <<~B
+    BANNER = <<-B.strip_heredoc
       Usage:
           msh [options]... [file]...
 

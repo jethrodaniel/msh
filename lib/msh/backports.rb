@@ -6,7 +6,13 @@ version = RUBY_VERSION[0..2].to_f
 
 if version <= 2.7
   ENV.instance_eval do
-    alias merge! update
+    if RUBY_ENGINE == "mruby"
+      def merge! hsh
+        hsh.each { |k, v| ENV[k] = v }
+      end
+    else
+      alias merge! update
+    end
   end
 end
 

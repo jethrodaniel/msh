@@ -12,6 +12,9 @@ DEV_CONF = <<~'RB'
 
   # conf.enable_test
   conf.enable_bintest
+
+  # conf.gem core: 'mruby-bin-debugger'
+  # conf.cc.defines << 'MRB_ENABLE_DEBUG_HOOK'
 RB
 
 BUILD_CONFIG = <<~RB
@@ -20,6 +23,10 @@ BUILD_CONFIG = <<~RB
     conf.gem  "../.."
 
     #{DEV_CONF unless ENV['RELEASE']}
+
+    # reduce binary size some
+    conf.linker.flags << "-Wl,--gc-sections"
+    conf.cc.flags << "-Os" << "-ffunction-sections -fdata-sections"
   end
 RB
 
@@ -33,7 +40,7 @@ task :mruby do
     make_file "build_config.rb", BUILD_CONFIG
     sh "make clean"
     sh "make all test"
-    sh "strip -s -R .comment -R .gnu.version --strip-unneeded ./bin/msh"
+    sh "strip -s -R .comment -R .gnu.version --strip-unneeded ./bin/msh" if ENV["RELEASE"]
     sh "cp -v bin/msh ../../"
   end
 end

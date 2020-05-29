@@ -54,4 +54,18 @@ module Msh
   end
 end
 
-Dir.glob(File.join(Msh.root, "lib/msh/builtins", "**/*.rb"), &method(:require))
+# Dir.glob(File.join(Msh.root, "lib/msh/builtins", "**/*.rb"),
+
+dir = File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
+
+%w[
+  builtins
+  cd
+  help
+  history
+  lexer
+  parser
+  prompt
+  quit
+  repl
+].each { |lib| require File.join(dir, "builtins", lib) }

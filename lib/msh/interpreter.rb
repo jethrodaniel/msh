@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "English"
+# rubocop:disable Style/SpecialGlobalVars
 
 require "msh/logger"
 require "msh/errors"
@@ -170,14 +170,14 @@ module Msh
 
       Process.waitall
 
-      $CHILD_STATUS.exitstatus
+      $?.exitstatus
     end
 
     # @param node [Msh::AST::Node] :OR
     # @return [Integer] exit status
     def on_OR node
       process node.children.first
-      return $CHILD_STATUS if $CHILD_STATUS.exitstatus.zero?
+      return $? if $?.exitstatus.zero?
 
       process node.children.last
     end
@@ -186,7 +186,7 @@ module Msh
     # @return [Integer] exit status
     def on_AND node
       process node.children.first
-      return $CHILD_STATUS unless $CHILD_STATUS.exitstatus.zero?
+      return $? unless $?.exitstatus.zero?
 
       process node.children.last
     end
@@ -337,7 +337,7 @@ module Msh
 
       err_io = IO.new(2)
       dup    = err_io.dup
-      err_io.reopen r.io#, "a"
+      err_io.reopen r.io # , "a"
 
       err = Redirect.new err_io, dup, r.file
 
@@ -352,7 +352,7 @@ module Msh
     attr_reader :local_sh_variables
 
     def exec_builtin words, _redirections
-      @env.send *words
+      @env.send(*words)
     rescue ArgumentError => e
       puts e.message
     end
@@ -361,13 +361,13 @@ module Msh
       cmd, *args = words
 
       pid = fork do
-        exec *words
+        exec(*words)
       rescue Errno::ENOENT => e # No such file or directory
         abort e.message
       end
       Process.wait pid
 
-      $CHILD_STATUS.exitstatus
+      $?.exitstatus
     end
 
     # @param msg [String]
@@ -380,8 +380,10 @@ module Msh
     # @todo: what the "::" means (need it to work)
     def setup_manpath!
       manpaths = ENV["MANPATH"].to_s.split(File::PATH_SEPARATOR)
-      manpaths << Msh.root.join("man").realpath.to_s
+      manpaths << File.absolute_path(File.join(Msh.root, "man").to_s)
       ENV["MANPATH"] = manpaths.compact.join(File::PATH_SEPARATOR) + "::"
     end
   end
 end
+
+# rubocop:enable Style/SpecialGlobalVars

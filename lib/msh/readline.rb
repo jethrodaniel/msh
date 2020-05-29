@@ -8,7 +8,7 @@ end
 
 module Msh
   module Readline
-    def self.readline prompt, keep_history
+    def self.readline prompt, keep_history = true
       if Object.const_defined? :Reline
         ::Reline.readline(prompt, keep_history)
       else

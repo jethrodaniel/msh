@@ -4,13 +4,17 @@ def warn msg
   $stderr.puts msg # rubocop:disable Style/StderrPuts
 end
 
-def __main__
-  $: << File.expand_path("lib") # rubocop:disable Style/SpecialGlobalVars
+dir = File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
 
-  require "msh/version"
-  require "msh/lexer"
+$: << File.join(dir, "../lib") # rubocop:disable Style/SpecialGlobalVars
 
-  Msh::Lexer.start
+require "msh/version"
+require "msh/lexer"
+require "msh/parser"
 
-  puts "BYe"
+def __main__ _argv
+  # Msh::Lexer.start
+  Msh::Parser.start
 end
+
+__main__(ARGV) unless RUBY_ENGINE == "mruby"

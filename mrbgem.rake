@@ -11,11 +11,12 @@ MRuby::Gem::Specification.new("mruby-bin-msh") do |spec|
 
   spec.add_dependency "mruby-logger"
   spec.add_dependency "mruby-env"
+  spec.add_dependency "mruby-optparse"
   spec.add_dependency "mruby-require"
+  spec.add_dependency "mruby-ast", :github => "jethrodaniel/mruby-ast"
 
-  # reduce binary size some
-  spec.mruby.linker.flags << "-Wl,--gc-sections"
-  spec.mruby.cc.flags << "-Os" << "-ffunction-sections -fdata-sections"
+  spec.rbfiles += Dir.glob(File.join(__dir__, "lib/**/*.rb"))
+
 end
 
 def minimal_default_gems spec
@@ -26,19 +27,19 @@ def minimal_default_gems spec
   spec.add_dependency "mruby-print"
   # spec.add_dependency "mruby-math"
   # spec.add_dependency "mruby-time"
-  # spec.add_dependency "mruby-struct"
+  spec.add_dependency "mruby-struct"
   # spec.add_dependency "mruby-compar-ext"
   # spec.add_dependency "mruby-enum-ext"
-  # spec.add_dependency "mruby-string-ext"
+  spec.add_dependency "mruby-string-ext"
   spec.add_dependency "mruby-numeric-ext"
-  # spec.add_dependency "mruby-array-ext"
+  spec.add_dependency "mruby-array-ext"
   # spec.add_dependency "mruby-hash-ext"
   # spec.add_dependency "mruby-range-ext"
   # spec.add_dependency "mruby-proc-ext"
   # spec.add_dependency "mruby-symbol-ext"
   # spec.add_dependency "mruby-random"
   spec.add_dependency "mruby-object-ext"
-  # spec.add_dependency "mruby-objectspace"
+  spec.add_dependency "mruby-objectspace"
   # spec.add_dependency "mruby-fiber"
   # Use Enumerator class (require mruby-fiber)
   # spec.add_dependency "mruby-enumerator"
