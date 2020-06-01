@@ -4,7 +4,7 @@
 ![](https://img.shields.io/github/license/jethrodaniel/msh.svg)
 ![](https://img.shields.io/github/stars/jethrodaniel/msh?style=social)
 
-**NOTE**: still in early stages, subject to breaking changes until `v1.0.0`.
+**note**: still nascent, breaking changes until `v1.0.0`, stay tuned.
 
 msh is a Ruby shell.
 
@@ -28,17 +28,30 @@ $ echo π is #{Math::PI} | cowsay
   - restricted subset of sh/bash
 - Be simple
 - Be lightweight
+  - packaged as a single binary
+- Be self-documenting
 
 ## Installation
 
-Assuming you have Ruby installed:
+Msh is both a CRuby gem and a MRuby mgem.
+
+Assuming you have CRuby installed:
 
 ```
 $ gem install msh
 $ msh -h
 ```
 
-Or download the prebuilt binaries to use via MRuby (todo).
+To build a binary with MRuby
+
+```
+git clone --recursive https://github.com/jethrodaniel/msh
+cd msh
+make release
+```
+
+Or download the prebuilt binaries for your platform from the [releases page](https://github.com/jethrodaniel/msh/releases).
+
 
 ## Roadmap
 
@@ -52,6 +65,7 @@ See `rake -T` and tools in `./bin/`.
 
 ```sh
 $ bundle exec rake spec
+$ make
 ```
 
 Check out [the CI](https://github.com/jethrodaniel/msh/actions/) to see the specs' last executions 🔪.
@@ -61,8 +75,10 @@ Check out [the CI](https://github.com/jethrodaniel/msh/actions/) to see the spec
 Bug reports and pull requests are welcome on [GitHub](https://github.com/jethrodaniel/msh).
 
 ```sh
-git clone https://github.com/jethrodaniel/msh
-cd msh && bundle && bundle exec rake
+git clone --recursive https://github.com/jethrodaniel/msh
+cd msh
+bundle && bundle exec rake
+make
 ```
 
 ## License

@@ -28,7 +28,7 @@ if RUBY_ENGINE == "mruby"
 
   module Kernel
     def exec cmd, *args
-      env = {}
+      env = ENV.to_h
 
       if (path = ENV["PATH"]).include? ":"
         p = path.split(":").find do |p|
