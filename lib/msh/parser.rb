@@ -369,7 +369,7 @@ module Msh
 
     # @return [AST]
     def _redirect
-      r = consume(*REDIRECTS), "expected a redirection operator"
+      r = consume(*REDIRECTS, "expected a redirection operator")
       n = r.value.match(/\A(\d+)/)&.captures&.first&.to_i
 
       _skip_whitespace
@@ -378,7 +378,7 @@ module Msh
       when :DUP_OUT_FD # 2>&1
         s(:REDIRECT, n, r.type)
       else
-        f = consume(*WORDS), "expected a filename to complete redirection #{r}"
+        f = consume(*WORDS, "expected a filename to complete redirection #{r}")
 
         case r.type
         when :REDIRECT_OUT, :APPEND_OUT, :AND_REDIRECT_RIGHT

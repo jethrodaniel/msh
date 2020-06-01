@@ -47,7 +47,7 @@ module Msh
 
       Process.wait pid
 
-      $CHILD_STATUS.exitstatus
+      $?.exitstatus # rubocop:disable Style/SpecialGlobalVars
     end
 
     alias_method :'?', :help # rubocop:disable Style/Alias (ruby can't parse this)

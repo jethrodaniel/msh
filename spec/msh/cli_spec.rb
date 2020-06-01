@@ -22,7 +22,7 @@ describe "msh" do
   end
 
   it "--license, --copyright" do
-    license = File.read(Msh.root + "license.txt")
+    license = File.read(File.join(Msh.root, "/license.txt"))
     expect(sh("msh --license")).to eq license
     expect(sh("msh --copyright")).to eq license
   end

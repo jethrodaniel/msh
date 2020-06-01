@@ -6,7 +6,8 @@ require "msh/ext"
 
 module Msh
   def self.root
-    File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
+    lib = File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
+    File.realpath(File.join(lib, ".."))
   end
 end
 

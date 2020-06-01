@@ -31,7 +31,11 @@ module Msh
         end
 
         opts.on "--copyright", "--license", "show the copyright (MIT)" do
-          puts File.read(Msh.root + "license.txt")
+          if RUBY_ENGINE == "mruby"
+            puts "MIT"
+          else
+            puts File.read(File.join(Msh.root, "license.txt"))
+          end
           exit 2
         end
 

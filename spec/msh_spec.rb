@@ -7,8 +7,12 @@ RSpec.describe Msh do
 
   describe ".root" do
     it "is the path to msh's root directory" do
-      expect(Msh.root).to be_a Pathname
-      expect(Msh.root.realpath.to_s).to end_with("msh")
+      if RUBY_ENGINE == "mruby"
+        expect(Msh.root).to be_a Pathname
+        expect(Msh.root.realpath.to_s).to end_with("msh")
+      else
+        expect(Msh.root).to end_with("msh")
+      end
     end
   end
 
