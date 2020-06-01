@@ -12,7 +12,7 @@ module Msh
       if Object.const_defined? :Reline
         ::Reline.readline(prompt, keep_history)
       else
-        print "lexer> "
+        print prompt
         gets&.chomp
       end
     end

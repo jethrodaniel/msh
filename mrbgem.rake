@@ -13,7 +13,7 @@ MRuby::Gem::Specification.new("mruby-bin-msh") do |spec|
   spec.add_dependency "mruby-env"
   spec.add_dependency "mruby-optparse"
   # spec.add_dependency "mruby-file-stat"
-  spec.add_dependency "mruby-require", :github => "jethrodaniel/mruby-require"
+  spec.add_dependency "mruby-require"#, :github => "jethrodaniel/mruby-require"
   spec.add_dependency "mruby-process", :github => "iij/mruby-process"
   spec.add_dependency "mruby-errno",   :github => "iij/mruby-errno"
   # https://github.com/iij/mruby-dir
