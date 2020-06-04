@@ -8,6 +8,15 @@ class String
 end
 
 if RUBY_ENGINE == "mruby"
+  class IO
+    def reopen io
+      io.flush
+      new = IO.new(io.fileno, "r")
+      fileno = new.fileno
+      new
+    end
+  end
+
   class Dir
     def self.home
       ENV["HOME"]

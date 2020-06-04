@@ -42,18 +42,10 @@ module Msh
     end
 
     def with_interrupt_handling_ruby
-      begin
-        stty_save = `stty -g`.chomp
-        yield
-      rescue
-        warn "error when performing init setup command `stty -g`"
-      end
+      yield
     rescue Interrupt
       puts "^C"
-      `stty #{stty_save}` if stty_save
       exit 0
-    ensure
-      `stty #{stty_save}` if stty_save
     end
 
     def with_interrupt_handling_mruby

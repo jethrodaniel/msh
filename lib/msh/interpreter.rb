@@ -1,13 +1,6 @@
 # frozen_string_literal: true
 
 # rubocop:disable Style/SpecialGlobalVars
-        module BetterIOInspect
-          def inspect
-            return super if closed?
-            super + " (fd: #{fileno})"
-          end
-        end
-        IO.prepend BetterIOInspect
 
 require "msh/logger"
 require "msh/errors"
@@ -16,6 +9,7 @@ require "msh/env"
 require "msh/ast"
 require "msh/lexer"
 require "msh/parser"
+require "msh/pipe"
 
 module Msh
   # The interpreter executes an AST.
@@ -145,76 +139,9 @@ module Msh
     # @param node [Msh::AST::Node] :PIPELINE
     # @return [Integer] exit status
     def on_PIPELINE node
-      stdin = $stdin
-      stdout = $stdout
-      pipe = []
-      pids = []
 
-      node.children.each_with_index do |cmd, index|
-        if index < node.children.size - 1
-          pipe = IO.pipe
-          stdout = pipe.last
-        else
-          stdout = $stdout
-        end
-
-        pid = fork do
-          if stdout != $stdout
-            # puts <<~M
-            #   stdout: #{stdout.inspect}
-            #   stdin:  #{stdin.inspect}
-            #   $stdout: #{$stdout.inspect}
-            #   $stdin:  #{$stdin.inspect}
-
-
-            # M
-            $stdout.reopen stdout
-            # puts <<~M
-            #   $stdout.reopen stdout
-
-            #   stdout: #{stdout.inspect}
-            #   stdin:  #{stdin.inspect}
-            #   $stdout: #{$stdout.inspect}
-            #   $stdin:  #{$stdin.inspect}
-
-            #   stdout.close
-
-            # M
-            stdout.close
-            # puts <<~M
-            #   stdout: #{stdout.inspect}
-            #   stdin:  #{stdin.inspect}
-            #   $stdout: #{$stdout.inspect}
-            #   $stdin:  #{$stdin.inspect}
-            # M
-
-            # $stdout = IO.new(stdout.fileno, "w")
-            # $stdout.close
-            # $stdout = stdout.dup
-            # stdout.close
-            # $stdout.close_read
-          end
-          if stdin != $stdin
-            $stdin.reopen stdin
-            stdin.close
-
-            # $stdin = IO.new(stdin.fileno, "r")
-            # $stdin.close
-            # $stdin = stdin.dup
-            # stdin.close
-            # $stdin.close_read
-          end
-
-          process cmd
-        end
-        pids << pid
-
-        stdout.close unless stdout == $stdout
-        stdin.close  unless stdin == $stdin
-        stdin = pipe.first
-      end
-
-      pids.each { |pid| Process.wait pid }
+      p = Pipeline.new node.children
+      p.run { |c| process c.cmd }
 
       $?.exitstatus
     end

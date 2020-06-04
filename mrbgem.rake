@@ -84,13 +84,13 @@ def minimal_default_gems spec
   # Use ObjectSpace class
   spec.add_dependency "mruby-objectspace"
 
-  # # Use Fiber class
+  # Use Fiber class
   # spec.add_dependency "mruby-fiber"
 
-  # # Use Enumerator class (require mruby-fiber)
+  # Use Enumerator class (require mruby-fiber)
   # spec.add_dependency "mruby-enumerator"
 
-  # # Use Enumerator::Lazy class (require mruby-enumerator)
+  # Use Enumerator::Lazy class (require mruby-enumerator)
   # spec.add_dependency "mruby-enum-lazy"
 
   # Use toplevel object (main) methods extension
