@@ -42,5 +42,6 @@ task :mruby do
     sh "make all test"
     sh "strip -s -R .comment -R .gnu.version --strip-unneeded ./bin/msh" if ENV["RELEASE"]
     sh "cp -v bin/msh ../../"
+    sh "git checkout -- ."
   end
 end
