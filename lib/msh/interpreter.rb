@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
 # rubocop:disable Style/SpecialGlobalVars
+        module BetterIOInspect
+          def inspect
+            return super if closed?
+            super + " (fd: #{fileno})"
+          end
+        end
+        IO.prepend BetterIOInspect
 
 require "msh/logger"
 require "msh/errors"
@@ -141,6 +148,7 @@ module Msh
       stdin = $stdin
       stdout = $stdout
       pipe = []
+      pids = []
 
       node.children.each_with_index do |cmd, index|
         if index < node.children.size - 1
@@ -150,25 +158,63 @@ module Msh
           stdout = $stdout
         end
 
-        fork do
+        pid = fork do
           if stdout != $stdout
+            # puts <<~M
+            #   stdout: #{stdout.inspect}
+            #   stdin:  #{stdin.inspect}
+            #   $stdout: #{$stdout.inspect}
+            #   $stdin:  #{$stdin.inspect}
+
+
+            # M
             $stdout.reopen stdout
+            # puts <<~M
+            #   $stdout.reopen stdout
+
+            #   stdout: #{stdout.inspect}
+            #   stdin:  #{stdin.inspect}
+            #   $stdout: #{$stdout.inspect}
+            #   $stdin:  #{$stdin.inspect}
+
+            #   stdout.close
+
+            # M
             stdout.close
+            # puts <<~M
+            #   stdout: #{stdout.inspect}
+            #   stdin:  #{stdin.inspect}
+            #   $stdout: #{$stdout.inspect}
+            #   $stdin:  #{$stdin.inspect}
+            # M
+
+            # $stdout = IO.new(stdout.fileno, "w")
+            # $stdout.close
+            # $stdout = stdout.dup
+            # stdout.close
+            # $stdout.close_read
           end
           if stdin != $stdin
             $stdin.reopen stdin
             stdin.close
+
+            # $stdin = IO.new(stdin.fileno, "r")
+            # $stdin.close
+            # $stdin = stdin.dup
+            # stdin.close
+            # $stdin.close_read
           end
 
           process cmd
         end
+        pids << pid
 
         stdout.close unless stdout == $stdout
         stdin.close  unless stdin == $stdin
         stdin = pipe.first
       end
 
-      Process.waitall
+      pids.each { |pid| Process.wait pid }
 
       $?.exitstatus
     end
