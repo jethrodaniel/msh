@@ -139,7 +139,6 @@ module Msh
     # @param node [Msh::AST::Node] :PIPELINE
     # @return [Integer] exit status
     def on_PIPELINE node
-
       p = Pipeline.new node.children
       p.run { |c| process c.cmd }
 
