@@ -36,12 +36,12 @@ end
 
 task :mruby do
   Dir.chdir "third_party/mruby" do
-    sh "git checkout -- ."
+    # sh "git checkout -- ."
     make_file "build_config.rb", BUILD_CONFIG
     # sh "make clean"
     sh "make all test"
     sh "strip -s -R .comment -R .gnu.version --strip-unneeded ./bin/msh" if ENV["RELEASE"]
     sh "cp -v bin/msh ../../"
-    sh "git checkout -- ."
+    # sh "git checkout -- ."
   end
 end
