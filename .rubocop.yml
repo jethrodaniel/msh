@@ -9,3 +9,7 @@ Security/Eval:
     - 'spec/msh/lexer_spec.rb'
     - 'spec/msh/parser_spec.rb'
     - 'spec/msh/interpreter_spec.rb'
+
+# mruby doesn't have squiggly here-docs :(
+Layout/HeredocIndentation:
+  Enabled: false

@@ -7,10 +7,9 @@ describe "msh" do
           msh [options]... [file]...
 
       Options:
-          -h, --help                       print this help
-          -V, --version                    show the version   (0.2.0)
-              --copyright, --license       show the copyright (MIT)
-          -c  <cmd_string>                 runs <cmd_string> as shell input
+          -V, --version  show the version   (0.2.0)
+          -c, --command  runs a string as shell input
+          -h, --help     print this help
     MSG
     expect(sh("msh -h")).to eq `msh --help`
   end
@@ -19,12 +18,6 @@ describe "msh" do
     msg = "msh version #{Msh::VERSION}\n"
     expect(sh("msh -V")).to eq msg
     expect(sh("msh --version")).to eq msg
-  end
-
-  it "--license, --copyright" do
-    license = File.read(File.join(Msh.root, "/license.txt"))
-    expect(sh("msh --license")).to eq license
-    expect(sh("msh --copyright")).to eq license
   end
 
   describe "-c <cmd_string>" do

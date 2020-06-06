@@ -1,21 +1,27 @@
 # frozen_string_literal: true
 
+require "msh/version"
+
 MRuby::Gem::Specification.new("mruby-bin-msh") do |spec|
   spec.license = "MIT"
   spec.author  = "Mark Delk"
   spec.summary = "Ruby shell"
-  # spec.version =
+  spec.version = Msh::VERSION
   spec.bins = ["msh"]
 
   minimal_default_gems spec
 
   spec.add_dependency "mruby-logger"
   spec.add_dependency "mruby-env"
-  spec.add_dependency "mruby-optparse"
   # spec.add_dependency "mruby-file-stat"
   spec.add_dependency "mruby-require" # , :github => "jethrodaniel/mruby-require"
   spec.add_dependency "mruby-process", :github => "iij/mruby-process"
   spec.add_dependency "mruby-errno",   :github => "iij/mruby-errno"
+
+
+  # missing `Dir.home`
+  # spec.add_dependency "mruby-dir",   :github => "iij/mruby-dir"
+
   # https://github.com/iij/mruby-dir
   spec.add_dependency "mruby-ast",     :github => "jethrodaniel/mruby-ast"
   spec.add_dependency "mruby-exec",    :github => "haconiwa/mruby-exec"
@@ -61,10 +67,10 @@ def minimal_default_gems spec
   spec.add_dependency "mruby-numeric-ext"
 
   # # Use Array class extension
-  # spec.add_dependency "mruby-array-ext"
+  spec.add_dependency "mruby-array-ext"
 
   # # Use Hash class extension
-  # spec.add_dependency "mruby-hash-ext"
+  spec.add_dependency "mruby-hash-ext"
 
   # # Use Range class extension
   # spec.add_dependency "mruby-range-ext"
@@ -82,7 +88,7 @@ def minimal_default_gems spec
   spec.add_dependency "mruby-object-ext"
 
   # Use ObjectSpace class
-  spec.add_dependency "mruby-objectspace"
+  # spec.add_dependency "mruby-objectspace"
 
   # Use Fiber class
   # spec.add_dependency "mruby-fiber"
@@ -103,7 +109,7 @@ def minimal_default_gems spec
   spec.add_dependency "mruby-bin-mruby"
 
   # Generate mruby-strip command
-  spec.add_dependency "mruby-bin-strip"
+  # spec.add_dependency "mruby-bin-strip"
 
   # # Use Kernel module extension
   # spec.add_dependency "mruby-kernel-ext"

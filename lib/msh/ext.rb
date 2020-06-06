@@ -1,13 +1,12 @@
 # frozen_string_literal: true
 
-# mruby doesn't have squiggly here-docs
-class String
-  def strip_heredoc
-    gsub(/^#{scan(/^[ \t]*(?=\S)/).min}/, "")
-  end
-end
-
 if RUBY_ENGINE == "mruby"
+  class IO
+    def reopen _io
+      raise "IO#reopen unimplemented"
+    end
+  end
+
   class Dir
     def self.home
       ENV["HOME"]

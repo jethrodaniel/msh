@@ -1,18 +1,17 @@
 # frozen_string_literal: true
 
-require "optparse" unless RUBY_ENGINE == "mruby"
-
+require "msh/optparse"
 require "msh/version"
 require "msh/parser"
 require "msh/interpreter"
 
 module Msh
   module CLI
-    BANNER = <<-B.strip_heredoc
-      Usage:
-          msh [options]... [file]...
+    BANNER = <<-B
+Usage:
+    msh [options]... [file]...
 
-      Options:
+Options:
     B
 
     # @return [OptionParser]
@@ -30,19 +29,9 @@ module Msh
           exit 2
         end
 
-        opts.on "--copyright", "--license", "show the copyright (MIT)" do
-          if RUBY_ENGINE == "mruby"
-            puts "MIT"
-          else
-            puts File.read(File.join(Msh.root, "license.txt"))
-          end
-          exit 2
-        end
+        opts.on "-c", "--command", "runs a string as shell input" do |cmd_string|
+          abort "missing argument: -c" if cmd_string == ""
 
-        opts.on "-c  <cmd_string>",
-                String,
-                "runs <cmd_string> as shell input" do |cmd_string|
-          cmd_string = ARGV.prepend(cmd_string).join " "
           interpreter = Msh::Interpreter.new
           exit interpreter.interpret cmd_string
         end
