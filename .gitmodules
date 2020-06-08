@@ -1,6 +1,6 @@
 [submodule "third_party/mruby"]
 	path = third_party/mruby
-	url = https://github.com/mruby/mruby
+	url = https://github.com/jethrodaniel/mruby
 [submodule "mrbgems/mruby-require"]
 	path = mrbgems/mruby-require
 	url = https://github.com/jethrodaniel/mruby-require
