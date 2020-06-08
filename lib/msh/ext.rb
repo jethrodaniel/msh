@@ -1,12 +1,6 @@
 # frozen_string_literal: true
 
 if RUBY_ENGINE == "mruby"
-  class IO
-    def reopen _io
-      raise "IO#reopen unimplemented"
-    end
-  end
-
   class Dir
     def self.home
       ENV["HOME"]
@@ -23,7 +17,9 @@ if RUBY_ENGINE == "mruby"
     end
   end
 
-  ENV.instance_eval { alias to_h to_hash }
+  ENV.instance_eval do
+    alias to_h to_hash
+  end
 
   module Kernel
     def exec cmd, *args

@@ -14,17 +14,17 @@ MRuby::Gem::Specification.new("mruby-bin-msh") do |spec|
   spec.add_dependency "mruby-logger"
   spec.add_dependency "mruby-env"
   # spec.add_dependency "mruby-file-stat"
-  spec.add_dependency "mruby-require" # , :github => "jethrodaniel/mruby-require"
-  spec.add_dependency "mruby-process", :github => "iij/mruby-process"
   spec.add_dependency "mruby-errno",   :github => "iij/mruby-errno"
-
+  spec.add_dependency "mruby-exec",    :github => "haconiwa/mruby-exec"
+  spec.add_dependency "mruby-process", :github => "iij/mruby-process"
+  # windows support, as well as `spawn` that didn't work well with redirections..
+  # spec.add_dependency "mruby-process", :github => "appPlant/mruby-process"
+  spec.add_dependency "mruby-require" # , :github => "jethrodaniel/mruby-require"
 
   # missing `Dir.home`
   # spec.add_dependency "mruby-dir",   :github => "iij/mruby-dir"
 
-  # https://github.com/iij/mruby-dir
   spec.add_dependency "mruby-ast",     :github => "jethrodaniel/mruby-ast"
-  spec.add_dependency "mruby-exec",    :github => "haconiwa/mruby-exec"
 
   spec.rbfiles += Dir.glob(File.join(__dir__, "lib/**/*.rb"))
 end
