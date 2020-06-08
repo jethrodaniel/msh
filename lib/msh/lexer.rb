@@ -60,6 +60,8 @@ module Msh
       ";"
     ].freeze
 
+    DIGITS = %(0 1 2 3 4 5 6 7 8 9)
+
     # @return [Integer] the current line
     attr_reader :line
 
@@ -148,7 +150,7 @@ module Msh
           @token.type = :PIPE
         end
       when "1".."9"
-        advance while @scanner.current_char.match?(/\d+/)
+        advance while DIGITS.include?(@scanner.current_char)
 
         if @scanner.current_char == ">"
           advance
@@ -218,7 +220,6 @@ module Msh
 
     # Run the lexer interactively, i.e, run a loop and tokenize user input.
     def self.interactive
-
       log.info { "msh v#{Msh::VERSION}" }
       while line = Msh::Readline.readline("lexer> ", true)
         case line
@@ -248,9 +249,7 @@ module Msh
       return Lexer.interactive if files.empty?
 
       files.each do |file|
-        unless File.file? file
-          raise Errors::LexerError, "#{file} is not a file!"
-        end
+        raise Errors::LexerError, "#{file} is not a file!" unless File.file? file
 
         puts Lexer.new(File.read(file)).tokens.map(&:to_s).join("\n")
       end
@@ -297,11 +296,11 @@ module Msh
     ## Back the lexer up one character.
     ##
     ## @return [Integer] the current position index in input
-    #def backup
+    # def backup
     #  c = @scanner.backup
     #  @token.value = @token.value[0...-1]
     #  c
-    #end
+    # end
 
     # @note we've just seen a `#`
     #
@@ -365,7 +364,7 @@ module Msh
       else
         if @scanner.current_char == "&"
           advance
-          advance while @scanner.current_char.match? /\d+/
+          advance while DIGITS.include?(@scanner.current_char)
           @token.type = :DUP_OUT_FD
         else
           @token.type = :REDIRECT_OUT
@@ -377,12 +376,14 @@ module Msh
     def consume_redir_left
       case @scanner.current_char
       when "&"
-        if @scanner.peek(3).match? /&\d+-/
+        # TODO: no regex
+        # if @scanner.peek(3).match? /&\d+-/
+        if @scanner.peek == "&" && DIGITS.include?(@scanner.peek(3)[1..-2]) && @scanner.peek(3)[2] == "-"
           3.times { advance }
           @token.type = :MOVE
         else
           advance
-          advance while @scanner.current_char.match? /\d+/
+          advance while DIGITS.include?(@scanner.current_char)
           @token.type = :DUP_IN_FD
         end
       when ">"

@@ -16,4 +16,4 @@ DESCRIPTION
 MSH
        Part of msh(1).
 
-Msh v0.2.0                        2020-06-01                         PROMPT(1)
+Msh v0.2.0                        2020-06-04                         PROMPT(1)

@@ -40,7 +40,13 @@ module Msh
     # @return [String]
     def to_s
       lexeme_end = @value.size.zero? ? @column : @column + @value&.size - 1
-      "[#{@line}:#{@column}-#{lexeme_end}][#{@type}, #{@value.inspect}]"
+      value = if @type == :EOF
+                # RUBY_ENGINE.include?("mruby") ? '"\x00"' : '"\\u0000"'
+                '"\\u0000"'
+              else
+                @value.inspect
+              end
+      "[#{@line}:#{@column}-#{lexeme_end}][#{@type}, #{value}]"
     end
 
     # @param other [Token]
