@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
-begin
-  require "reline"
-rescue LoadError => e
-  warn "#{e.class}: #{e.message}"
-end
+require "reline" unless RUBY_ENGINE == "mruby"
 
 module Msh
   module Readline

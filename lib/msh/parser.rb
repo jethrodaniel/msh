@@ -4,6 +4,7 @@ require "msh/readline"
 require "msh/errors"
 require "msh/ast"
 require "msh/lexer"
+require "msh/logger"
 
 module Msh
   # The parser converts a series of tokens into an abstract syntax tree (AST).
@@ -112,6 +113,8 @@ module Msh
   #
   # Note: Parse methods here use are underscore-prefixed.
   class Parser
+    include Msh::Logger
+
     REDIRECTS = [
       :REDIRECT_OUT,         # [n]>
       :REDIRECT_IN,          # [n]<
@@ -129,7 +132,7 @@ module Msh
       :VAR,         # $USER
       :INTERP,      # echo the time is #{Time.now}
       :LAST_STATUS  # $?
-    ]#.freeze
+    ].freeze
 
     attr_reader :lexer
 
@@ -143,15 +146,13 @@ module Msh
       end
     end
 
-    delegate :current_token,      :lexer
-    delegate :advance,            :lexer, :via => :next_token
-    delegate :advance,            :lexer, :via => :next_token
-    delegate :eof?,               :lexer
-    delegate :line,               :current_token
-    delegate :column,             :current_token
+    delegate :current_token, :lexer
+    delegate :advance,       :lexer,         :via => :next_token
+    delegate :advance,       :lexer,         :via => :next_token
+    delegate :eof?,          :lexer
+    delegate :line,          :current_token
+    delegate :column,        :current_token
 
-    # Raise an error with helpful output.
-    #
     # @raise [Error]
     def error msg = nil
       raise Errors::ParseError, "error at line #{line}, column #{column}: #{msg}"
@@ -160,7 +161,8 @@ module Msh
     # @param types [Array<Symbol>]
     # @return [bool]
     def match? *types
-      types.any? { |t| current_token.type == t }
+      # log.debug { "  match? #{types} | #{current_token} =#{types.include? current_token.type}" }
+      types.include? current_token.type
     end
 
     # @param types [Array<Symbol>]
@@ -185,8 +187,8 @@ module Msh
     end
 
     def self.skip_rule name, *types
-      define_method "_skip_#{name}" do
-        advance while match?(*types)
+      define_method "_skip_#{name}" do |*other_types|
+        advance while match?(*types, *other_types)
       end
     end
 
@@ -201,76 +203,22 @@ module Msh
     # @return [AST]
     def parse
       _program
+      # _command # frozen error?
+      # _word # works
+      # _redirect
     end
 
     # @return [AST]
     def _program
-      _skip_ignored
+      _skip_ignored :NEWLINE
 
       return s(:NOOP) if eof?
 
       parts = []
 
-      until eof?
-        # if match?(:IF)
-        #   parts << _if_statemen
-        # else
-        parts += _exprs.children
-        # end
-      end
+      parts += _exprs.children until eof?
 
       s(:PROG, *parts)
-    end
-
-    # @return [AST] :IF
-    def _if_statement
-      consume :IF, "expected an `if`"
-      _skip_whitespace
-
-      # require 'pry';require 'pry-byebug';binding.pry;
-
-      # begin
-      cond = _expr
-      # rescue Msh::Errors::ParseError, Msh::Errors::LexerError => e
-      # end
-
-      _skip_whitespace
-      advance if match? :COMMENT
-
-      if match? :NEWLINE
-        advance
-        _skip_whitespace
-        _skip_comments
-      elsif match? :THEN
-        advance
-        _skip_whitespace
-      else
-        error "expected a newline or `then` after `if` conditional"
-      end
-
-      body = []
-
-      until eof? || match?(:END)
-        # body << _program
-        body << _exprs
-        _skip_whitespace
-        _skip_comments
-        require "pry"; require "pry-byebug"; binding.pry; nil
-        puts
-
-      end
-
-      # if match? :ELSE
-      if match? :END
-        advance
-      else
-        error "expected `end` after conditional"
-      end
-
-      _skip_whitespace
-      _skip_comments
-
-      s(:IF, s(:COND, cond), s(:BODY, *body))
     end
 
     # @return [AST] :EXPRS
@@ -313,14 +261,18 @@ module Msh
 
     # @return [AST] :ASSIGN, :WORD
     def _command
+      log.debug { ":#{__method__}: #{current_token}" }
+
       cmd_parts = []
 
       while match?(*WORDS, *REDIRECTS)
+        log.debug { "  #{__method__}: #{current_token}" }
         if match?(*WORDS)
           cmd_parts << _word
         elsif match?(*REDIRECTS)
           cmd_parts << _redirect
         end
+        log.debug { " 2#{__method__}: #{current_token}" }
         _skip_whitespace
 
         next unless match? :EQ
@@ -343,10 +295,21 @@ module Msh
 
     # @return [AST] :WORD
     def _word
+      log.debug { ":#{__method__}: #{current_token} | match?(*WORDS): #{match?(*WORDS)} | match?(*REDIRECTS): #{match?(*REDIRECTS)}" }
+      # log.debug { "#{__method__}: #{current_token}" }
+
       word_pieces = []
 
+      if match?(*WORDS) && match?(*REDIRECTS)
+        puts ">>>>>>>>>>>>>>>>>>>>>"
+      end
+      # somehow mruby is matching redirects **and** words..
       while match?(*WORDS)
         c = current_token
+        log.debug { ":#{__method__}: #{current_token} | match?(*WORDS): #{match?(*WORDS)} | match?(*REDIRECTS): #{match?(*REDIRECTS)}" }
+        # log.debug { "  2#{__method__}: #{current_token}" }
+        log.debug { "  2#{__method__}: #{current_token.type.inspect} | match?(*WORDS): #{match?(*WORDS)} | match?(*REDIRECTS): #{match?(*REDIRECTS)}" }
+        # next if  # why?
 
         case c.type
         when :WORD, :TIME
@@ -357,9 +320,14 @@ module Msh
           word_pieces << s(:VAR, c.value)
         when :LAST_STATUS
           word_pieces << s(:LAST_STATUS, c.value)
+        else
+          error "expected a word type, got `#{current_token}`"
         end
+        log.debug { "-> #{current_token} | match?(*REDIRECTS):#{match?(*REDIRECTS)} | match?(*WORDS): #{match?(*WORDS)} " }
 
         advance
+        # break unless match? :WORD
+        log.debug { p "-> #{current_token} | match?(*REDIRECTS):#{match?(*REDIRECTS)} | match?(*WORDS): #{match?(*WORDS)} "}
       end
 
       error "expected a word" if word_pieces.empty?
@@ -369,16 +337,21 @@ module Msh
 
     # @return [AST]
     def _redirect
-      r = consume(*REDIRECTS, "expected a redirection operator")
-      n = r.value.match(/\A(\d+)/)&.captures&.first&.to_i
+      log.debug { "#{__method__}: #{current_token}" }
 
+      r = consume(:REDIRECT_OUT, "expected a redirection operator")
+      # r = consume(*REDIRECTS, "expected a redirection operator")
+      # n = r.value.match(/\A(\d+)/)&.captures&.first&.to_i
+
+      log.debug { "r = #{r}, n = #{n}" }
       _skip_whitespace
 
       case r.type
       when :DUP_OUT_FD # 2>&1
         s(:REDIRECT, n, r.type)
       else
-        f = consume(*WORDS, "expected a filename to complete redirection #{r}")
+        # f = consume(*WORDS, "expected a filename to complete redirection #{r}")
+        f = consume(:WORD, "expected a filename to complete redirection #{r}")
 
         case r.type
         when :REDIRECT_OUT, :APPEND_OUT, :AND_REDIRECT_RIGHT
@@ -395,7 +368,7 @@ module Msh
 
     # @return [AST] type :PIPELINE or :CMD
     def _pipeline
-      commands = []
+      commands = [_command]
 
       while match? :PIPE
         advance
@@ -409,7 +382,7 @@ module Msh
         end
       end
 
-      return _command if commands.empty?
+      return commands.first if commands.size == 1
 
       s(:PIPELINE, *commands)
     end

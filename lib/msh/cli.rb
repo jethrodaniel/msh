@@ -2,7 +2,6 @@
 
 require "msh/optparse"
 require "msh/version"
-require "msh/parser"
 require "msh/interpreter"
 
 module Msh

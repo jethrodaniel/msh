@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "msh/readline"
-require "msh/lexer"
-require "msh/parser"
 require "msh/interpreter"
 
 module Msh

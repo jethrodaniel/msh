@@ -1,5 +1,15 @@
 # frozen_string_literal: true
 
+# Extensions to make MRuby _compatible_ with CRuby
+
+$CHILD_STATUS = $? # rubocop:disable Style/SpecialGlobalVars
+
+class Object
+  def freeze
+    self
+  end
+end
+
 module Kernel
   def warn msg
     $stderr.puts msg # rubocop:disable Style/StderrPuts
@@ -9,21 +19,51 @@ module Kernel
     warn msg
     exit(1)
   end
+
+  def exec cmd, *args
+    env = ENV.to_h
+
+    if (path = ENV["PATH"]).include? ":"
+      p = path.split(":").find do |p|
+        f = File.join(p, cmd)
+        File.file?(f) # && File.executable?(f) && !File.directory?(f)
+      end
+      if p
+        exe = File.join(p, cmd)
+        return Exec.execve(env, exe, *args)
+      end
+    end
+
+    Exec.execve(env, cmd, *args)
+  end
 end
 
-dir = File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
+class Dir
+  def self.home
+    ENV["HOME"]
+  end
 
+  def self.pwd
+    ENV["PWD"]
+  end
+end
+
+module Process
+  class << self
+    alias wait waitpid
+  end
+end
+
+ENV.instance_eval do
+  alias to_h to_hash
+end
+
+# load up the `lib` directory
+dir = File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
 $: << File.join(dir, "../lib") # rubocop:disable Style/SpecialGlobalVars
 
-require "msh/version"
-require "msh/lexer"
-require "msh/parser"
-require "msh/interpreter"
+require "msh"
 
 def __main__ _argv
-  # Msh::Lexer.start
-  # Msh::Parser.start
   Msh.start
 end
-
-__main__(ARGV) unless RUBY_ENGINE == "mruby"

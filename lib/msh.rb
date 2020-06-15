@@ -1,15 +1,6 @@
 # frozen_string_literal: true
 
-$: << File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
-
-require "msh/ext"
-
-module Msh
-  def self.root
-    lib = File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
-    File.realpath(File.join(lib, ".."))
-  end
-end
+# $LOAD_PATH << File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
 
 require "msh/cli"
 require "msh/repl"
@@ -101,19 +92,24 @@ require "msh/repl"
 # *issue tracker*:: https://github.com/jethrodaniel/msh/issues?q=is%3Aopen.
 # *source code*:: https://github.com/jethrodaniel/msh
 module Msh
+  def self.root
+    lib = File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
+    File.realpath(File.join(lib, ".."))
+  end
+
   # Entry point for the `msh` command.
   #
   # Parses options/commands, then runs either interactively or on files.
   def self.start
     Msh::CLI.handle_options!
 
-    if ARGV.size.zero?
-      Msh::Repl.new
-    else
-      interpreter = Msh::Interpreter.new
-      ARGV.each do |file|
-        interpreter.interpret File.read(file)
-      end
+    return Msh::Repl.new if ARGV.size.zero?
+
+    interpreter = Msh::Interpreter.new
+
+    ARGV.each do |file|
+      abort "`#{file}` not found" unless File.file?(file)
+      interpreter.interpret File.read(file)
     end
   end
 end

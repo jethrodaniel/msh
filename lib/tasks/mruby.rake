@@ -20,6 +20,7 @@ RB
 BUILD_CONFIG = <<~RB
   MRuby::Build.new do |conf|
     toolchain :gcc
+
     conf.gem  "../.."
 
     #{DEV_CONF unless ENV['RELEASE']}

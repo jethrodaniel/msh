@@ -5,8 +5,7 @@
 require "msh/logger"
 require "msh/errors"
 require "msh/config"
-require "msh/env"
-require "msh/ast"
+require "msh/evaluator"
 require "msh/lexer"
 require "msh/parser"
 require "msh/pipe"
@@ -91,8 +90,8 @@ module Msh
     Redirect = Struct.new :io, :dup, :file
 
     def initialize
-      log.debug { "initialized new interpreter" }
-      @env = Env.new
+      puts "initialized new interpreter: #{object_id}"
+      @evaluator = Evaluator.new
       @local_sh_variables = {}
       @last_command_status
       Config.load!
@@ -107,7 +106,7 @@ module Msh
 
     # @return [String]
     def prompt
-      @env.prompt
+      @evaluator.call :prompt
     end
 
     # Called on unknown node types
@@ -184,7 +183,7 @@ module Msh
       begin
         ENV.merge! assignments.merge(local_sh_variables)
 
-        if @env.respond_to?(words.first)
+        if @evaluator.has?(words.first)
           exec_builtin words, redirections
         else
           exec_command words, redirections
@@ -248,7 +247,7 @@ module Msh
     def on_INTERP node
       value = node.children.first[2..-2]
       begin
-        @env._evaluate(value) || ""
+        @evaluator.eval(value) || ""
       rescue NoMethodError => e
         error e.message
       end
@@ -324,7 +323,7 @@ module Msh
     attr_reader :local_sh_variables
 
     def exec_builtin words, _redirections
-      @env.send(*words)
+      @evaluator.eval(*words)
     rescue ArgumentError => e
       puts e.message
     end

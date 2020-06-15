@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
-begin
-  require "logger"
-rescue LoadError => e
-  warn "#{e.class}: #{e.message}"
-end
+require "logger" unless RUBY_ENGINE == "mruby"
 
 require "msh/errors"
 require "msh/ansi"

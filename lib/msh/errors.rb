@@ -2,7 +2,7 @@
 
 module Msh
   module Errors
-    class Error < StandardError   ; end # rubocop:disable Layout/SpaceBeforeSemicolon
+    class Error < StandardError; end
     class ParseError       < Error; end
     class InterpreterError < Error; end
     class LexerError       < Error; end

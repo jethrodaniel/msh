@@ -19,12 +19,17 @@ MRuby::Gem::Specification.new("mruby-bin-msh") do |spec|
   spec.add_dependency "mruby-process", :github => "iij/mruby-process"
   # windows support, as well as `spawn` that didn't work well with redirections..
   # spec.add_dependency "mruby-process", :github => "appPlant/mruby-process"
-  spec.add_dependency "mruby-require" # , :github => "jethrodaniel/mruby-require"
+  spec.add_dependency "mruby-eval"
+  spec.add_dependency "mruby-method"
+  spec.add_dependency "mruby-fcntl", :github => "jethrodaniel/mruby-fcntl"
 
   # missing `Dir.home`
   # spec.add_dependency "mruby-dir",   :github => "iij/mruby-dir"
 
-  spec.add_dependency "mruby-ast",     :github => "jethrodaniel/mruby-ast"
+  spec.add_dependency "mruby-require" # , :github => "jethrodaniel/mruby-require"
+
+  spec.add_dependency "mruby-ast", :github => "jethrodaniel/mruby-ast"
+  # spec.add_dependency "mruby-ast",     :github => "jethrodaniel/mruby-ast", :branch => 'freeze'
 
   spec.rbfiles += Dir.glob(File.join(__dir__, "lib/**/*.rb"))
 end
@@ -111,8 +116,8 @@ def minimal_default_gems spec
   # Generate mruby-strip command
   # spec.add_dependency "mruby-bin-strip"
 
-  # # Use Kernel module extension
-  # spec.add_dependency "mruby-kernel-ext"
+  # Use Kernel module extension
+  spec.add_dependency "mruby-kernel-ext"
 
   # # Use class/module extension
   # spec.add_dependency "mruby-class-ext"
