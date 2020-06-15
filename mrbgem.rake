@@ -26,10 +26,10 @@ MRuby::Gem::Specification.new("mruby-bin-msh") do |spec|
   # missing `Dir.home`
   # spec.add_dependency "mruby-dir",   :github => "iij/mruby-dir"
 
-  spec.add_dependency "mruby-require" # , :github => "jethrodaniel/mruby-require"
-
   spec.add_dependency "mruby-ast", :github => "jethrodaniel/mruby-ast"
   # spec.add_dependency "mruby-ast",     :github => "jethrodaniel/mruby-ast", :branch => 'freeze'
+
+  spec.add_dependency "mruby-require" # , :github => "jethrodaniel/mruby-require"
 
   spec.rbfiles += Dir.glob(File.join(__dir__, "lib/**/*.rb"))
 end
