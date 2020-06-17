@@ -333,13 +333,10 @@ module Msh
 
     # @return [AST]
     def _redirect
-      log.debug { "#{__method__}: #{current_token}" }
+      # r = consume(:REDIRECT_OUT, "expected a redirection operator")
+      r = consume(*REDIRECTS, "expected a redirection operator")
+      n = r.value.match(/\A(\d+)/)&.captures&.first&.to_i
 
-      r = consume(:REDIRECT_OUT, "expected a redirection operator")
-      # r = consume(*REDIRECTS, "expected a redirection operator")
-      # n = r.value.match(/\A(\d+)/)&.captures&.first&.to_i
-
-      log.debug { "r = #{r}, n = #{n}" }
       _skip_whitespace
 
       case r.type

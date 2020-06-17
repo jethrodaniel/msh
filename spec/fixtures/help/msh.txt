@@ -96,4 +96,4 @@ RESOURCES
 MSH
        Part of msh(1).
 
-Msh v0.2.0                        2020-06-08                            MSH(1)
+Msh v0.2.0                        2020-06-17                            MSH(1)

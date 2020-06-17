@@ -61,14 +61,21 @@ Or download the prebuilt binaries for your platform from the [releases page](htt
 
 See `rake -T` and tools in `./bin/`.
 
-## Testing
-
 ```sh
-$ bundle exec rake spec
-$ make
+$ bundle exec rake spec # cruby
+$ make                  # mruby
 ```
 
 Check out [the CI](https://github.com/jethrodaniel/msh/actions/) to see the specs' last executions 🔪.
+
+### mruby
+
+Differences
+
+```
+# without the parens, we get `warning: '*' interpreted as argument prefix`
+Kernel.puts(*objs)
+```
 
 ## Contributing
 

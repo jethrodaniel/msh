@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "English"
+require "English" unless RUBY_ENGINE == "mruby"
 
 require "msh/cli"
 require "msh/repl"
