@@ -261,18 +261,14 @@ module Msh
 
     # @return [AST] :ASSIGN, :WORD
     def _command
-      log.debug { ":#{__method__}: #{current_token}" }
-
       cmd_parts = []
 
       while match?(*WORDS, *REDIRECTS)
-        log.debug { "  #{__method__}: #{current_token}" }
         if match?(*WORDS)
           cmd_parts << _word
         elsif match?(*REDIRECTS)
           cmd_parts << _redirect
         end
-        log.debug { " 2#{__method__}: #{current_token}" }
         _skip_whitespace
 
         next unless match? :EQ

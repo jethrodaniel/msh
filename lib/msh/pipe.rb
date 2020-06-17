@@ -22,6 +22,7 @@ class Pipeline
 
   def run
     pids = []
+    exit_code = nil
     @cmds.each_with_index do |cmd, _index|
       cmd.pid = fork do
         $stdin.reopen  cmd.in
@@ -29,7 +30,7 @@ class Pipeline
 
         raise "need block" unless block_given?
 
-        yield cmd
+        exit_code = yield cmd
 
         next # we only hit this if we don't `exec`
       end
@@ -39,11 +40,12 @@ class Pipeline
       cmd.out.close if cmd.close_out?
 
       Process.wait cmd.pid
-      cmd.status = $?.exitstatus # rubocop:disable Style/SpecialGlobalVars
+      cmd.status = $CHILD_STATUS&.exitstatus || exit_code
     end
   end
 end
 
+# ruby lib/msh/pipe.rb
 if $PROGRAM_NAME == __FILE__
   commands = %w[fortune rev cowsay]
 

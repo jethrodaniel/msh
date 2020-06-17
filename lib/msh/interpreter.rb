@@ -90,10 +90,8 @@ module Msh
     Redirect = Struct.new :io, :dup, :file
 
     def initialize
-      puts "initialized new interpreter: #{object_id}"
       @evaluator = Evaluator.new
       @local_sh_variables = {}
-      @last_command_status
       Config.load!
       setup_manpath!
     end
@@ -323,7 +321,7 @@ module Msh
     attr_reader :local_sh_variables
 
     def exec_builtin words, _redirections
-      @evaluator.eval(*words)
+      @evaluator.call(*words)
     rescue ArgumentError => e
       puts e.message
     end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# $LOAD_PATH << File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
+require "English"
 
 require "msh/cli"
 require "msh/repl"

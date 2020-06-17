@@ -50,8 +50,8 @@ def minimal_default_gems spec
   # Use standard print/puts/p
   spec.add_dependency "mruby-print"
 
-  # # Use standard Math module
-  # spec.add_dependency "mruby-math"
+  # Use standard Math module
+  spec.add_dependency "mruby-math"
 
   # # Use standard Time class
   # spec.add_dependency "mruby-time"

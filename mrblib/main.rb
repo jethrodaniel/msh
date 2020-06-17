@@ -11,6 +11,10 @@ class Object
 end
 
 module Kernel
+  def puts obj
+    $stdout.puts obj
+  end
+
   def warn msg
     $stderr.puts msg # rubocop:disable Style/StderrPuts
   end
