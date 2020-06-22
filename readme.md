@@ -4,7 +4,7 @@
 ![](https://img.shields.io/github/license/jethrodaniel/msh.svg)
 ![](https://img.shields.io/github/stars/jethrodaniel/msh?style=social)
 
-**note**: still nascent, breaking changes until `v1.0.0`, stay tuned.
+**note**: nascent, breaking changes until `v1.0.0`, stay tuned.
 
 msh is a Ruby shell.
 
@@ -18,7 +18,8 @@ $ echo π is #{Math::PI} | cowsay
                 ||----w |
                 ||     ||
 ```
-## Goals
+
+## goals
 
 - Use ruby in the shell
   - global interpolation
@@ -28,10 +29,10 @@ $ echo π is #{Math::PI} | cowsay
   - restricted subset of sh/bash
 - Be simple
 - Be lightweight
-  - packaged as a single binary
+  - packaged as a single binary via MRuby
 - Be self-documenting
 
-## Installation
+## installation
 
 Msh is both a CRuby gem and a MRuby mgem.
 
@@ -50,14 +51,24 @@ cd msh
 make release
 ```
 
-Or download the prebuilt binaries for your platform from the [releases page](https://github.com/jethrodaniel/msh/releases).
+Or download the prebuilt binaries for your platform from the [releases page](https://github.com/jethrodaniel/msh/releases) (see [the release action](.github/workflows/release.yml).
 
+## roadmap
 
-## Roadmap
+- [ ] environment variables
+- [ ] local variables
+- [ ] commands
+- [ ] semi-colon separated commands
+- [ ] conditional and
+- [ ] conditional or
+- [ ] pipes
+- [ ] redirection
+  - [ ] `[n]>`
+  - [ ] `[n]>>`
+  - [ ] `[n]<`
+  - [ ] `&>`
 
-- [ ] version 1.0.0 - when I can use msh as my daily driver
-
-## Development
+## development
 
 See `rake -T` and tools in `./bin/`.
 
@@ -77,7 +88,7 @@ Differences
 Kernel.puts(*objs)
 ```
 
-## Contributing
+## contributing
 
 Bug reports and pull requests are welcome on [GitHub](https://github.com/jethrodaniel/msh).
 
@@ -88,19 +99,20 @@ bundle && bundle exec rake
 make
 ```
 
-## License
+## license
 
 MIT, see the [license file](license.txt).
 
-## References
+## references
 
 - [POSIX specifications](https://pubs.opengroup.org/onlinepubs/9699919799/)
 
-## Alternatives
+## alternatives
 
-i.e, alternative shells. If there's a _legit_ shell out there that chooses to
-be something more than a `sh/bash/zsh` clone, feel free to add it here.
-
+- https://github.com/bminor/bash
+- https://github.com/zsh-users/zsh
 - https://github.com/nushell/nushell
 - https://github.com/fish-shell/fish-shell
 - https://github.com/PowerShell/PowerShell
+- https://elv.sh/
+- https://github.com/dundalek/closh
