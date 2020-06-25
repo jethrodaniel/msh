@@ -59,16 +59,16 @@ module Msh
       # @last_exit_code = $CHILD_STATUS.exitstatus
     end
 
+    attr_reader :_
+
     def repl
       puts "enter some ruby (sorry, no multiline)"
       loop do
         print "> "
         line = gets
-        if line.nil?
-          # puts "bye!"
-          return
-        end
-        _ = instance_eval(line) # rubocop:disable Lint/UnderscorePrefixedVariableName
+        return if line.nil?
+
+        @_ = instance_eval(line)
 
         puts "=> #{_.inspect}"
       end
