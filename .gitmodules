@@ -1,9 +1,17 @@
+# dependencies
+
 [submodule "third_party/mruby"]
 	path = third_party/mruby
-	url = https://github.com/jethrodaniel/mruby
-[submodule "mrbgems/mruby-require"]
-	path = mrbgems/mruby-require
-	url = https://github.com/jethrodaniel/mruby-require
+	url = https://github.com/mruby/mruby
+
+# mruby gems
+
 [submodule "mrbgems/mruby-ast"]
 	path = mrbgems/mruby-ast
 	url = https://github.com/jethrodaniel/mruby-ast
+; [submodule "mrbgems/mruby-require"]
+; 	path = mrbgems/mruby-require
+; 	url = https://github.com/jethrodaniel/mruby-require
+; [submodule "mrbgems/mruby-fcntl"]
+; 	path = mrbgems/mruby-fcntl
+; 	url = https://github.com/jethrodaniel/mruby-fcntl
