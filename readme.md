@@ -116,3 +116,4 @@ MIT, see the [license file](license.txt).
 - https://github.com/PowerShell/PowerShell
 - https://elv.sh/
 - https://github.com/dundalek/closh
+- https://github.com/bsutton/dshell
