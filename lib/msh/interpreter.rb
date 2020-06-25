@@ -104,7 +104,7 @@ module Msh
 
     # @return [String]
     def prompt
-      @evaluator.call :prompt
+      @evaluator.call_no_exit_value :prompt
     end
 
     # Called on unknown node types
@@ -327,16 +327,7 @@ module Msh
     end
 
     def exec_command words, _redirections
-      cmd, *args = words
-
-      pid = fork do
-        exec(cmd, *args)
-      rescue Errno::ENOENT => e # No such file or directory
-        abort e.message
-      end
-      Process.wait pid
-
-      $?.exitstatus
+      @evaluator.call(:run, *words)
     end
 
     # @param msg [String]

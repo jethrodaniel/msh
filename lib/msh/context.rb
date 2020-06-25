@@ -46,20 +46,23 @@ module Msh
     end
 
     def prompt
-      # "[#{@last_exit_code}] $ "
       # "$ "
+      # "#{_ || '?'} " + Dir.pwd.gsub(ENV["HOME"], "~").green + " λ ".magenta.bold
       Dir.pwd.gsub(ENV["HOME"], "~").green + " λ ".magenta.bold
     end
 
     def run cmd, *args
       pid = fork do
         exec cmd, *args
+      rescue Errno::ENOENT => e # No such file or directory
+        abort e.message
       end
       Process.wait pid
-      # @last_exit_code = $CHILD_STATUS.exitstatus
+      $?.exitstatus # rubocop:disable Style/SpecialGlobalVars
     end
 
     attr_reader :_
+    alias :$? _
 
     def repl
       puts "enter some ruby (sorry, no multiline)"
