@@ -53,7 +53,7 @@ module Msh
       yield
     end
 
-    # @yield [String]
+    # @yield [String] the next line of input
     def input_loop
       get_line = if !$stdin.tty? || ENV["NO_READLINE"]
                    -> { ARGF.gets&.chomp }
