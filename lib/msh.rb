@@ -2,6 +2,15 @@
 
 require "English" unless RUBY_ENGINE == "mruby"
 
+# core extensions
+class Object
+  def self.delegate meth, obj, via: nil
+    define_method meth do
+      send(obj).send(via || meth)
+    end
+  end
+end
+
 require "msh/backports"
 require "msh/cli"
 require "msh/repl"

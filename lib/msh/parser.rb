@@ -140,14 +140,7 @@ module Msh
       @lexer = Msh::Lexer.new(code).tap(&:next_token)
     end
 
-    def self.delegate meth, obj, via: nil
-      define_method meth do
-        send(obj).send(via || meth)
-      end
-    end
-
     delegate :current_token, :lexer
-    delegate :advance,       :lexer,         :via => :next_token
     delegate :advance,       :lexer,         :via => :next_token
     delegate :eof?,          :lexer
     delegate :line,          :current_token
