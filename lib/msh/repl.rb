@@ -21,7 +21,7 @@ module Msh
 
     def initialize
       @interpreter = Msh::Interpreter.new
-      puts "Welcome to msh v#{Msh::VERSION} (`?` for help)"
+      puts "Welcome to msh v#{Msh::VERSION} (`?` for help)" if $stdin.tty?
 
       with_interrupt_handling do
         input_loop do |line|
@@ -52,14 +52,19 @@ module Msh
 
     # @yield [String]
     def input_loop
-      if ENV["NO_READLINE"]
-        while line = gets&.chomp
-          yield line
+      if $stdin.tty?
+        if ENV["NO_READLINE"]
+          while line = ARGF.gets&.chomp
+            yield line
+          end
+        else
+          # while line = ::Reline.readmultiline(interpreter.prompt, true) { |_code| next true;interpreter.terminated? }
+          while line = Msh::Readline.readline(interpreter.prompt)
+            yield line
+          end
         end
       else
-        # @todo
-        # while line = ::Reline.readmultiline(interpreter.prompt, true) { |_code| next true;interpreter.terminated? }
-        while line = Msh::Readline.readline(interpreter.prompt)
+        while line = ARGF.gets&.chomp
           yield line
         end
       end
