@@ -48,7 +48,7 @@ module Msh
     def prompt
       # "[#{@last_exit_code}] $ "
       # "$ "
-      Dir.pwd.green + " λ ".magenta.bold
+      Dir.pwd.gsub(ENV["HOME"], "~").green + " λ ".magenta.bold
     end
 
     def run cmd, *args
