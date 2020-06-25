@@ -33,10 +33,13 @@ module Msh
 
     private
 
+    # mruby has no interrupts
     def with_interrupt_handling &block
-      return with_interrupt_handling_mruby(&block) if RUBY_ENGINE == "mruby"
-
-      with_interrupt_handling_ruby(&block)
+      if RUBY_ENGINE == "mruby"
+        with_interrupt_handling_mruby(&block)
+      else
+        with_interrupt_handling_ruby(&block)
+      end
     end
 
     def with_interrupt_handling_ruby
@@ -52,21 +55,14 @@ module Msh
 
     # @yield [String]
     def input_loop
-      if $stdin.tty?
-        if ENV["NO_READLINE"]
-          while line = ARGF.gets&.chomp
-            yield line
-          end
-        else
-          # while line = ::Reline.readmultiline(interpreter.prompt, true) { |_code| next true;interpreter.terminated? }
-          while line = Msh::Readline.readline(interpreter.prompt)
-            yield line
-          end
-        end
-      else
-        while line = ARGF.gets&.chomp
-          yield line
-        end
+      get_line = if !$stdin.tty? || ENV["NO_READLINE"]
+                   -> { ARGF.gets&.chomp }
+                 else
+                   -> { Msh::Readline.readline(interpreter.prompt) }
+                 end
+
+      while line = get_line.call
+        yield line
       end
     end
 
