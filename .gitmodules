@@ -9,9 +9,6 @@
 [submodule "mrbgems/mruby-ast"]
 	path = mrbgems/mruby-ast
 	url = https://github.com/jethrodaniel/mruby-ast
-; [submodule "mrbgems/mruby-require"]
-; 	path = mrbgems/mruby-require
-; 	url = https://github.com/jethrodaniel/mruby-require
 ; [submodule "mrbgems/mruby-fcntl"]
 ; 	path = mrbgems/mruby-fcntl
 ; 	url = https://github.com/jethrodaniel/mruby-fcntl

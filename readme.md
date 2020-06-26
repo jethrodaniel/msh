@@ -19,8 +19,6 @@ $ echo π is #{Math::PI} | cowsay
                 ||     ||
 ```
 
-## goals
-
 See the [manpage](man/man1/msh.1.adoc).
 
 ## installation
@@ -63,6 +61,8 @@ Differences
 # without the parens, we get `warning: '*' interpreted as argument prefix`
 Kernel.puts(*objs)
 ```
+
+Lack of `IO#reopen`, `IO#fcntl`, `Binding`, etc...
 
 ## contributing
 
