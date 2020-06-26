@@ -34,9 +34,9 @@ _____________________________________________________
     | command substitution        | $(a 'b' c)
     | process substitution        | <(a | b)
     | local variables             | a = 2; echo $a
- 🗸  | environment variables       |
+ 🗸  | environment variables       | a=b a b
     | aliases                     | alias g = 'git'
- 🗸  | functions                   |
+ 🗸  | functions                   | repl "def foo; puts :bar; end"; foo
 ```
 
 It allows for interpolation in any words
@@ -91,7 +91,7 @@ Changing the prompt
 $ repl
 enter some ruby (sorry, no multiline)
 > def prompt; "% "; end
-=> "> "
+=> "% "
 > ^D
 %
 ```

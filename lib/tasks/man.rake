@@ -22,6 +22,8 @@ def create_manpage cmd, man_src
     Part of msh(1).
   MAN
 
+  File.open("man/msh.1.adoc", "w") { |f| f.puts man_src } if cmd == :msh
+
   Asciidoctor.convert(
     man,
     :to_dir => "man/man1/",
@@ -29,16 +31,9 @@ def create_manpage cmd, man_src
     :doctype => "manpage",
     :backend => "manpage"
   )
-  # Asciidoctor.convert(
-  #   man,
-  #   :to_dir => "man/man1/",
-  #   :to_file => "#{cmd}.1.html",
-  #   :doctype => "manpage",
-  #   :backend => "html"
-  # )
 
   # Don't compress, simply for a more readable `git diff`.
-  # sh "gzip -f man/man1/#{cmd}.1"
+  sh "gzip -f man/man1/#{cmd}.1" if ENV["MSH_GZIP"]
 end
 
 YARD::Registry.load_all

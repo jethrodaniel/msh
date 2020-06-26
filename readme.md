@@ -19,7 +19,7 @@ $ echo π is #{Math::PI} | cowsay
                 ||     ||
 ```
 
-See the [manpage](man/man1/msh.1.adoc).
+See the main [manpage](man/msh.1.adoc).
 
 ## installation
 

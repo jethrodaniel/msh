@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
     msh.gemspec
     license.txt
     exe/msh
-  ] + Dir.glob("man/man1/*") + Dir.glob("lib/**/*.rb") - ["man/man1/msh.1.adoc"]
+  ] + Dir.glob("man/man1/*") + Dir.glob("lib/**/*.rb")
 
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "reline", "~> 0.1.4"
 
   spec.add_development_dependency "asciidoctor"
+  spec.add_development_dependency "asciidoctor-pdf"
   spec.add_development_dependency "benchmark_driver"
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
