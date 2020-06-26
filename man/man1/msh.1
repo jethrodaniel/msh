@@ -2,12 +2,12 @@
 .\"     Title: msh
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.10
-.\"      Date: 2020-06-17
+.\"      Date: 2020-06-26
 .\"    Manual: Msh Manual
 .\"    Source: Msh v0.2.0
 .\"  Language: English
 .\"
-.TH "MSH" "1" "2020-06-17" "Msh v0.2.0" "Msh Manual"
+.TH "MSH" "1" "2020-06-26" "Msh v0.2.0" "Msh Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -34,142 +34,47 @@ msh \- a ruby shell
 \fBmsh\fP [\fIoptions\fP]... [\fIfile\fP]...
 .SH "DESCRIPTION"
 .sp
-It supports a subset of \f(CRsh\fP/\f(CRbash\fP, including
+Msh is a shell that shares Ruby\(cqs goal
+.RS 3
+.ll -.6i
 .sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-redirection \f(CRa 2>&1 > out.log\fP
+For me the purpose of life is partly to have joy. Programmers often feel
+joy when they can concentrate on the creative side of programming, So Ruby
+is designed to make programmers happy.
+.br
 .RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-redirect output \f(CRa > b\fP
+.ll
+.RS 5
+.ll -.10i
+\(em Yukihiro Matsumoto
 .RE
+.ll
 .sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-append output \f(CRa >> b\fP
-.RE
+It supports a subset of \f(CRsh\fP/\f(CRbash\fP
 .sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-redirect input \f(CRa < b\fP
-.RE
+.if n .RS 4
+.nf
+       feature                       example
+_____________________________________________________
+ 🗸  | redirect output             | a > b
+ 🗸  | append output               | a >> b
+ 🗸  | redirect input              | a < b
+    | redirect to file descriptor | a 2>&1
+ 🗸  | conditionals                | a || b && c
+ 🗸  | commands                    | a; b;
+    | grouping                    | a; {b || c}
+    | subshells                   | (a)
+ 🗸  | pipes                       | a | b
+    | command substitution        | $(a \(aqb\(aq c)
+    | process substitution        | <(a | b)
+    | local variables             | a = 2; echo $a
+ 🗸  | environment variables       | a=b a b
+    | aliases                     | alias g = \(aqgit\(aq
+ 🗸  | functions                   | repl "def foo; puts :bar; end"; foo
+.fi
+.if n .RE
 .sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-conditionals \f(CRa || b && c\fP
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-commands \f(CRa; b;\fP
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-grouping \f(CRa; {b}\fP
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-subshells \f(CR(a) && {b || c; }\fP
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-pipes \f(CRa | b\fP
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-command substitution $(a \(aqb\(aq c) (but no backticks, just \f(CR$()\fP)
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-process substitution \f(CR<(a | b)\fP
-.RE
-.sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-local shell variables, and syntax to manipulate environment variables
-.RE
-.sp
-It uses Ruby to handle functions, and aliases, and allows for Ruby
-interpolation anywhere in the source.
+It allows for interpolation in any words
 .sp
 .if n .RS 4
 .nf
@@ -185,37 +90,79 @@ $ echo π ≈ #{Math::PI} | cowsay
 .fi
 .if n .RE
 .sp
-Unlike other shells, Msh doesn\(cqt have functions or aliases builtin to the
-language, rather, it tasks that to it\(cqs host, or implementation, language
-(here, Ruby).
-.sp
-The host language\(cqs REPL is available via \f(CRrepl\fP builtin, and additionally
-processes string interpolation in all commands.
+The underlying REPL is available via the \f(CRrepl\fP builtin. It\(cqs the same
+context as used during interpolation.
 .sp
 .if n .RS 4
 .nf
 $ repl
-irb> foo = "bar"
-irb> quit
-$ echo #{foo} #=> bar
-.fi
-.if n .RE
-.SS "Functions"
-.sp
-Instead of functions, Msh just calls Ruby methods
-.sp
-.if n .RS 4
-.nf
-$ echo #{def hello name; puts "hello, #{name}"; end}
-$ hello world #=> prints "hello, world"
+enter some ruby (sorry, no multiline)
+> def foo; "bar"; end
+=> :foo
+> ^D
+$ echo foo#{foo}
+foo bar
+$ echo #{self}
+<Msh::Context:0x0000557a7f0b6f68>
 .fi
 .if n .RE
 .sp
-Similarly, builtins and aliases are just Ruby methods as well.
+Functions are just method calls on that same REPL context.
+.SH "EXAMPLES"
+.sp
+Filter commands
 .sp
 .if n .RS 4
 .nf
-$ builtins
+$ repl
+enter some ruby (sorry, no multiline)
+> def upcase; ARGF.each_line.map(&:upcase).each { |l| puts l }; end
+=> :upcase
+> ^D
+$ echo hi | upcase
+HI
+.fi
+.if n .RE
+.sp
+Changing the prompt
+.sp
+.if n .RS 4
+.nf
+$ repl
+enter some ruby (sorry, no multiline)
+> def prompt; "% "; end
+=> "% "
+> ^D
+%
+.fi
+.if n .RE
+.SS "todo"
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+source
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+config file
+.RE
+.sp
+.if n .RS 4
+.nf
+$ source file.msh
 .fi
 .if n .RE
 .SH "OPTIONS"

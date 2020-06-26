@@ -4,7 +4,7 @@
 ![](https://img.shields.io/github/license/jethrodaniel/msh.svg)
 ![](https://img.shields.io/github/stars/jethrodaniel/msh?style=social)
 
-**note**: nascent, breaking changes until `v1.0.0`, stay tuned.
+**note**: not finished, breaking changes until `v1.0.0`, stay tuned.
 
 msh is a Ruby shell.
 
@@ -21,16 +21,7 @@ $ echo π is #{Math::PI} | cowsay
 
 ## goals
 
-- Use ruby in the shell
-  - global interpolation
-  - use ruby methods as functions and aliases
-  - jump to the Ruby repl at any time
-- Use less of the sh
-  - restricted subset of sh/bash
-- Be simple
-- Be lightweight
-  - packaged as a single binary via MRuby
-- Be self-documenting
+See the [manpage](man/man1/msh.1.adoc).
 
 ## installation
 
@@ -52,21 +43,6 @@ make release
 ```
 
 Or download the prebuilt binaries for your platform from the [releases page](https://github.com/jethrodaniel/msh/releases) (see [the release action](.github/workflows/release.yml).
-
-## roadmap
-
-- [ ] environment variables
-- [ ] local variables
-- [ ] commands
-- [ ] semi-colon separated commands
-- [ ] conditional and
-- [ ] conditional or
-- [ ] pipes
-- [ ] redirection
-  - [ ] `[n]>`
-  - [ ] `[n]>>`
-  - [ ] `[n]<`
-  - [ ] `&>`
 
 ## development
 

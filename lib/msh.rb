@@ -25,23 +25,38 @@ require "msh/repl"
 #
 # == description
 #
-# It supports a subset of `sh`/`bash`, including
+# Msh is a shell that shares Ruby's goal
 #
-#   - [ ] redirection `a 2>&1 > out.log`
-#     - [x] redirect output `a > b`
-#     - [x] append output `a >> b`
-#     - [x] redirect input `a < b`
-#   - [ ] conditionals `a || b && c`
-#   - [x] commands `a; b;`
-#   - [ ] grouping `a; {b}`
-#   - [ ] subshells `(a) && {b || c; }`
-#   - [x] pipes `a | b`
-#   - [ ] command substitution $(a 'b' c) (but no backticks, just `$()`)
-#   - [ ] process substitution `<(a | b)`
-#   - [x] local shell variables, and syntax to manipulate environment variables
+# [quote, Yukihiro Matsumoto]
+# ____
+# For me the purpose of life is partly to have joy. Programmers often feel
+# joy when they can concentrate on the creative side of programming, So Ruby
+# is designed to make programmers happy.
+# ____
 #
-# It uses Ruby to handle functions, and aliases, and allows for Ruby
-# interpolation anywhere in the source.
+# It supports a subset of `sh`/`bash`
+#
+# ```
+#        feature                       example
+# _____________________________________________________
+#  🗸  | redirect output             | a > b
+#  🗸  | append output               | a >> b
+#  🗸  | redirect input              | a < b
+#     | redirect to file descriptor | a 2>&1
+#  🗸  | conditionals                | a || b && c
+#  🗸  | commands                    | a; b;
+#     | grouping                    | a; {b || c}
+#     | subshells                   | (a)
+#  🗸  | pipes                       | a | b
+#     | command substitution        | $(a 'b' c)
+#     | process substitution        | <(a | b)
+#     | local variables             | a = 2; echo $a
+#  🗸  | environment variables       | a=b a b
+#     | aliases                     | alias g = 'git'
+#  🗸  | functions                   | repl "def foo; puts :bar; end"; foo
+# ```
+#
+# It allows for interpolation in any words
 #
 # ```
 # $ echo π ≈ #{Math::PI} | cowsay
@@ -55,29 +70,57 @@ require "msh/repl"
 #                 ||     ||
 # ```
 #
-# Unlike other shells, Msh doesn't have functions or aliases builtin to the
-# language, rather, it tasks that to it's host, or implementation, language
-# (here, Ruby).
+# The underlying REPL is available via the `repl` builtin. It's the same
+# context as used during interpolation.
 #
-# The host language's REPL is available via `repl` builtin, and additionally
-# processes string interpolation in all commands.
 #
-#     $ repl
-#     irb> foo = "bar"
-#     irb> quit
-#     $ echo #{foo} #=> bar
+# ```
+# $ repl
+# enter some ruby (sorry, no multiline)
+# > def foo; "bar"; end
+# => :foo
+# > ^D
+# $ echo foo#{foo}
+# foo bar
+# $ echo #{self}
+# <Msh::Context:0x0000557a7f0b6f68>
+# ```
 #
-# === Functions
+# Functions are just method calls on that same REPL context.
 #
-# Instead of functions, Msh just calls Ruby methods
+# == Examples
 #
-#     $ echo #{def hello name; puts "hello, #{name}"; end}
-#     $ hello world #=> prints "hello, world"
+# Filter commands
 #
-# Similarly, builtins and aliases are just Ruby methods as well.
+# ```
+# $ repl
+# enter some ruby (sorry, no multiline)
+# > def upcase; ARGF.each_line.map(&:upcase).each { |l| puts l }; end
+# => :upcase
+# > ^D
+# $ echo hi | upcase
+# HI
+# ```
 #
-#     $ builtins
+# Changing the prompt
 #
+# ```
+# $ repl
+# enter some ruby (sorry, no multiline)
+# > def prompt; "% "; end
+# => "% "
+# > ^D
+# %
+# ```
+#
+# === todo
+#
+# - source
+# - config file
+#
+# ```
+# $ source file.msh
+# ```
 # == options
 #
 # *-h, --help*::
@@ -101,6 +144,7 @@ require "msh/repl"
 #
 # *issue tracker*:: https://github.com/jethrodaniel/msh/issues?q=is%3Aopen.
 # *source code*:: https://github.com/jethrodaniel/msh
+#
 module Msh
   def self.root
     lib = File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
