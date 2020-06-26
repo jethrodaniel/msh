@@ -25,22 +25,14 @@ See the main [manpage](man/msh.1.adoc).
 
 Msh is both a CRuby gem and a MRuby mgem.
 
-Assuming you have CRuby installed:
-
 ```
-$ gem install msh
-$ msh -h
+$ gem install msh # cruby
+$ make release    # mruby
 ```
 
-To build a binary with MRuby
+Make sure you `git clone --recursive` or run `git submodule update`, since MRuby is a submodule.
 
-```
-git clone --recursive https://github.com/jethrodaniel/msh
-cd msh
-make release
-```
-
-Or download the prebuilt binaries for your platform from the [releases page](https://github.com/jethrodaniel/msh/releases) (see [the release action](.github/workflows/release.yml).
+Or (todo) download the prebuilt binaries for your platform from the [releases page](https://github.com/jethrodaniel/msh/releases) (see [the release action](.github/workflows/release.yml)).
 
 ## development
 
