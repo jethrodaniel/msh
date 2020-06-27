@@ -95,7 +95,7 @@ require "msh/repl"
 # ```
 # $ repl
 # enter some ruby (sorry, no multiline)
-# > def upcase; ARGF.each_line.map(&:upcase).each { |l| puts l }; end
+# > def upcase; ARGF.each_line { |l| puts l.upcase }; end
 # => :upcase
 # > ^D
 # $ echo hi | upcase
