@@ -50,31 +50,33 @@ is designed to make programmers happy.
 .RE
 .ll
 .sp
-It supports a subset of \f(CRsh\fP/\f(CRbash\fP
+It supports a subset of \f(CRsh\fP/\f(CRbash\fP, basically just the \fIessential\fP parts.
 .sp
 .if n .RS 4
 .nf
        feature                       example
-_____________________________________________________
- x | redirect output             | a > b
- x | append output               | a >> b
- x | redirect input              | a < b
-   | redirect to file descriptor | a 2>&1
- x | conditionals                | a || b && c
- x | commands                    | a; b;
-   | grouping                    | a; {b || c}
-   | subshells                   | (a)
- x | pipes                       | a | b
-   | command substitution        | $(a \(aqb\(aq c)
-   | process substitution        | <(a | b)
-   | local variables             | a = 2; echo $a
- x | environment variables       | a=b a b
-   | aliases                     | alias g = \(aqgit\(aq
- x | functions                   | repl "def foo; puts :bar; end"; foo
+┌───┬─────────────────────────────┬──────────────────────────────────────┐
+│ ✓ │ redirect output             │ a > b                                │
+│ ✓ │ append output               │ a >> b                               │
+│ ✓ │ redirect input              │ a < b                                │
+│ ✓ │ redirect to file descriptor │ a 2>&1                               │
+│ ✓ │ conditionals                │ a || b && c                          │
+│ ✓ │ commands                    │ a; b;                                │
+│   │ grouping                    │ a; {b || c}                          │
+│   │ subshells                   │ (a)                                  │
+│ ✓ │ pipes                       │ a | b                                │
+│   │ command substitution        │ $(a \(aqb\(aq c)                           │
+│   │ process substitution        │ <(a | b)                             │
+│   │ local variables             │ a = 2                                │
+│   │ variable interpolation      │ echo $HOME                           │
+│ ✓ │ environment variables       │ a=b a b                              │
+│   │ aliases                     │ alias g = \(aqgit\(aq                      │
+│ ✓ │ functions                   │ repl "def foo; puts :bar; end"; foo  │
+└───┴─────────────────────────────┴──────────────────────────────────────┘
 .fi
 .if n .RE
 .sp
-It allows for interpolation in any words
+It allows for interpolation in words
 .sp
 .if n .RS 4
 .nf
