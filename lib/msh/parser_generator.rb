@@ -53,8 +53,13 @@ class Node
     @children = children
   end
 
-  def to_s
-    "s(:#{type}, #{children.join(', ')})"
+  def to_s indent = 0
+    if children.size == 1 && children.first.is_a?(String)
+      "#{' ' * indent}s(:#{type}, #{children.first})"
+    else
+      ch = children.map { |c| "\n#{c.to_s(indent + 2)}" }.join(", ")
+      "#{' ' * indent}s(:#{type}, #{ch})"
+    end
   end
 end
 
