@@ -3,4 +3,5 @@
 
 require "msh"
 
-Msh.start
+# Msh.start
+Msh::Parser.start

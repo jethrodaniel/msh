@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 module Msh
-  # Basically a simple `StringScanner`
-  #
-  #
+  # A minimal `StringScanner` that keeps track of line and column numbers
   class Scanner
     attr_reader :line, :column, :pos
 
     def initialize string
-      @string = string.freeze
+      @string = string
       @pos = 0
       @line = 1
       @column = 1
       @last_column = 1
+      @last_line = 1
+      @newlines = {} # 0..12 => q
     end
 
     # @note advances the scanner head
@@ -24,8 +24,10 @@ module Msh
       @pos += 1
 
       if c == "\n"
-        @line += 1
+        @newlines[@last_column - 1..@pos] = @line
+        @last_line = @line
         @last_column = @column
+        @line += 1
         @column = 1
       else
         @column += 1
@@ -34,23 +36,22 @@ module Msh
       c || "\0"
     end
 
-    # def backup
-    #   if current_char == "\n"
-    #     @line -= 1
-    #     @column = @last_column
-    #   else
-    #     @column -= 1
-    #   end
-    #   @curr -= 1
-    #   current_char
-    # end
+    def backup
+      if current_char == "\n"
+        @line -= 1
+        @column = @last_column
+      else
+        @column -= 1
+      end
+      @pos -= 1
+      current_char
+    end
 
-    # FIXME: this is causing an issue with the new scanner class
-    # @param n [Integer]
-    # @return [String, nil] nth character past the scanner head
-    def peek n = 1 # rubocop:disable Naming/MethodParameterName
+    # @param nth [Integer]
+    # @return [String] nth character past the scanner head
+    def peek nth = 1
       start = @pos + 1
-      c = @string[start...start + n]
+      c = @string[start...start + nth]
       c.nil? || c.empty? ? "\0" : c
     end
 
@@ -61,9 +62,21 @@ module Msh
 
     # @return [String] the character under the scanner head, or EOF if at end
     def current_char
-      raise "pos is less than zero (#{@pos})" if @pos.negative?
+      @string[@pos] || "\0"
+    end
 
-      @string[@pos].freeze || "\0"
+    def reset pos
+      raise "pos is less than zero (#{pos})" if pos.negative?
+      raise "pos (#{pos}) exceeds source length (#{@string.size})" if pos > @string.size - 1
+
+      @pos = pos
+      require 'pry';require 'pry-byebug';binding.pry;nil
+      puts
+
+      @line = @newlines[pos]
+      @column = pos - @line
+
+      current_char
     end
   end
 end

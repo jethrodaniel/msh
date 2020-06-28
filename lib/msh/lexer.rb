@@ -39,6 +39,8 @@ module Msh
   #     "[1:10-10][EOF, \"\\u0000\"]"
   #   ]
   #   lexer.tokens.map(&:to_s) == tokens #=> true
+  #
+  # TODO: rewrite lexer in PEG
   class Lexer
     include Msh::Logger
     extend Msh::Logger
