@@ -73,7 +73,7 @@ class Parser
   def pos
     @token_stream.pos
   end
-  def pos= index
+  def reset index
     @token_stream.pos = index
   end
 
@@ -89,6 +89,7 @@ class Parser
   end
 end
 
+# program:    expr | expr SEMI | expr SEMI program
 # expr:       and_or | pipeline
 # and_or:     pipeline AND pipeline | pipeline OR pipeline
 # pipeline:   command PIPE pipeline | command
@@ -101,39 +102,49 @@ end
 #
 class ToyParser < Parser
   def parse
-    # expr
-    # command
-    word
+    program
+  end
+
+  def program
+    loc = pos
+    if e = expr
+      if s = expect(:SEMI)
+        if p = program
+          return s(:PROG, e, *p.children)
+        end
+      end
+      return s(:PROG, e)
+    else
+      reset loc
+    end
   end
 
   def expr
-    # if ao = and_or
-    #   return s(:EXPR, ao)
-    # els
-    if p = pipeline
+    if ao = and_or
+      return s(:EXPR, ao)
+    elsif p = pipeline
       return s(:EXPR, p)
     end
-
     nil
   end
 
-  # def and_or
-  #   loc = pos
-  #   if p = pipeline
-  #     if a = expect(:AND, :OR)
-  #       if p2 = pipeline
-  #         return s(a.type, p, p2)
-  #       else
-  #         pos = loc
-  #       end
-  #     else
-  #       pos = loc
-  #     end
-  #   else
-  #     pos = loc
-  #   end
-  #   nil
-  # end
+  def and_or
+    loc = pos
+    if p = pipeline
+      if a = expect(:AND, :OR)
+        if p2 = pipeline
+          return s(a.type, p, p2)
+        else
+          reset loc
+        end
+      else
+        reset loc
+      end
+    else
+      reset loc
+    end
+    nil
+  end
 
   def pipeline
     loc = pos
@@ -142,14 +153,20 @@ class ToyParser < Parser
       if expect(:PIPE)
         loc = pos
         if p = pipeline
-          return s(:PIPELINE, c, *p.children)
+          if p.type == :PIPELINE
+            return s(:PIPELINE, c, *p.children)
+          else
+            return s(:PIPELINE, c, p)
+          end
         else
-          pos = loc
+          reset loc
         end
       else
-        pos = loc
-        return s(:PIPELINE, c)
+        reset loc
+        return c
       end
+    else
+      reset loc
     end
     nil
   end
@@ -161,7 +178,7 @@ class ToyParser < Parser
       if c = command
         return s(:COMMAND, prefix, c)
       else
-        pos = loc
+        reset loc
         return s(:COMMAND, prefix)
       end
     else
@@ -171,8 +188,11 @@ class ToyParser < Parser
   end
 
   def cmd_part
+    loc = pos
     if w = word
-      return s(:WORD, w)
+      return w
+    else
+      reset loc
     end
     nil
   end
@@ -190,7 +210,7 @@ class ToyParser < Parser
         return s(:WORD, s(type, wt.value))
       end
     else
-      pos = loc
+      reset loc
     end
     nil
   end
