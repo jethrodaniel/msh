@@ -126,6 +126,7 @@ class ToyParser < Parser
     else
       reset loc
     end
+    nil
   end
 
   def expr
@@ -378,35 +379,66 @@ end
 
 module Msh
   class ParserGenerator
-    def initialize code; end
+    def initialize rules
+      @rules = rules
+    end
+
+    def generate io = $stdout
+      io.puts "class ToyParser < Parser"
+      io.puts "  def parse"
+      io.puts "    program"
+      io.puts "  end"
+      @rules.each do |rule|
+        io.puts
+        io.puts "  def #{rule.name}"
+        io.puts "    loc = pos"
+
+        rule.alts.each do |alt|
+          items = []
+          indent = 6
+          io.puts "    if (true \\"
+          alt.each_with_index do |item, index|
+            if item == item.upcase # TOKEN
+              io.print "#{' ' * (indent + 2*index)}&& expect(:#{item.to_sym})"
+              io.print " \\" unless index == alt.size - 1
+              io.puts
+            else
+              # var = item.chars.first
+              var = "_#{item.downcase}"
+              if items.include? var
+                var = "#{var}#{items.size}"
+              end
+              items << var
+              io.print "#{' ' * (indent + 2*index)}&& #{var} = #{item}"
+              io.print " \\" unless index == alt.size - 1
+              io.puts
+            end
+          end
+          io.puts "    ) then"
+
+          if items.empty?
+            # rest =
+            node_type = alt.first
+          else
+            rest = items.map { |i| i == "_#{rule.name}" ? "*#{i}.children" : i }.join(', ')
+            node_type = rule.name.upcase
+          end
+          io.puts "      return s(:#{node_type}, #{rest})"
+          io.puts "    else"
+          io.puts "      reset loc"
+          io.puts "    end"
+          io.puts
+        end
+
+        io.puts "    nil"
+        io.puts "  end"
+      end
+      io.puts "end"
+    end
   end
 end
 
 if $PROGRAM_NAME == __FILE__
-  # lexer = Msh::Lexer.new(ARGV.join(" "))
-  # puts lexer.tokens
-
-  # parser = ToyParser.new(TokenStream.new(lexer))
-
-  # ast = parser.parse
-
-  # if ast
-  #   puts ast
-  # else
-  #   p ast
-  # end
-
-  # def t type, value
-  #   Msh::Token.new type, value
-  # end
-
-  # parser = GrammarParser.new(TokenStream.new(GrammarLexer.new(<<~GR)))
-  # puts GrammarLexer.new(<<~GR).tokens
-  #   grammar: rule+ ENDMARKER
-  #   rule: NAME ':' alternative ('|' alternative)* NEWLINE
-  #   alternative: item+
-  #   item: NAME | STRING
-  # GR
   parser = GrammarParser.new(TokenStream.new(GrammarLexer.new(<<~GR)))
     program:    expr | expr SEMI | expr SEMI program
     expr:       and_or | pipeline
@@ -420,5 +452,22 @@ if $PROGRAM_NAME == __FILE__
     redirect:   REDIRECT_OUT | REDIRECT_IN
   GR
 
-  puts parser.parse
+  rules = parser.parse
+
+  gen = Msh::ParserGenerator.new rules
+
+  puts gen.generate
+
+#   lexer = Msh::Lexer.new(ARGV.join(" "))
+
+#   parser = ToyParser.new(TokenStream.new(lexer))
+
+#   ast = parser.parse
+
+#   if ast
+#     puts ast
+#   else
+#     p ast
+#   end
+
 end
