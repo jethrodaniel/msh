@@ -260,13 +260,16 @@ class ToyParser < Parser
 end
 
 class Rule
-  def initialize name, *alts
+  attr_reader :name, :alts
+
+  def initialize name, alts
     @name = name
     @alts = alts
   end
 
   def to_s
-    "#{@name}: #{@alts.join(' | ')}"
+    alts = @alts.map { |a| a.join(' ') }
+    "#{@name}: #{alts.join(' | ')}"
   end
 end
 
@@ -282,7 +285,7 @@ class GrammarParser < Parser
   def grammar
     loc = pos
     if r = rule
-      rules = []
+      rules = [r]
       while r = rule
         rules << r
       end
@@ -297,15 +300,17 @@ class GrammarParser < Parser
     loc = pos
     if n = expect(:NAME)
       if expect(:COLON)
+
         if a = alternative
-          alts = []
+          alts = [a]
           aloc = pos
           while expect(:PIPE) && alt = alternative
             alts << alt
             aloc = pos
           end
           # reset aloc
-          return Rule.new(n.value, *alts) if expect(:NEWLINE)
+          return Rule.new(n.value, alts) if expect(:NEWLINE)
+          # return Rule.new(n.value, alts.map(&:first)) if expect(:NEWLINE)
         end
       end
     else
@@ -325,8 +330,6 @@ class GrammarParser < Parser
   def item
     if name = expect(:NAME)
       return name.value
-    elsif s = expect(:STRING)
-      return s.value
     end
 
     nil
