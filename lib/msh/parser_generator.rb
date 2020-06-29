@@ -35,9 +35,7 @@ class TokenStream
   def peek
     if @pos == @tokens.size
       t = @lexer.next_token
-      while %i[SPACE COMMENT].include?(t.type)
-        t = @lexer.next_token
-      end
+      t = @lexer.next_token while %i[SPACE COMMENT].include?(t.type)
       @tokens << t.dup
       @in_word = @tokens.last.type == :WORD
     end
@@ -86,6 +84,7 @@ class Parser
   def pos
     @token_stream.pos
   end
+
   def reset index
     @token_stream.pos = index
   end
@@ -126,7 +125,7 @@ class ToyParser < Parser
           return s(:PROG, e, *p.children)
         end
       end
-      return s(:PROG, e)
+      s(:PROG, e)
     else
       reset loc
     end
@@ -138,6 +137,7 @@ class ToyParser < Parser
     elsif p = pipeline
       return s(:EXPR, p)
     end
+
     nil
   end
 
@@ -209,6 +209,7 @@ class ToyParser < Parser
     else
       reset loc
     end
+
     nil
   end
 
@@ -238,14 +239,9 @@ class ToyParser < Parser
   def redirect
     loc = pos
     if r = expect(:REDIRECT_OUT, :REDIRECT_IN, :APPEND_OUT)
-      digits, _ = r.value.chars.partition { |c| c.match? /\d/ }
+      digits, _redir = r.value.chars.partition { |c| c.match? /\d/ }
       n = digits.join
-      n = nil
-      if n == ""
-        n = nil
-      else
-        n = n.to_i
-      end
+      n = n == "" ? nil : n.to_i
 
       case r.type
       when :REDIRECT_OUT, :APPEND_OUT
@@ -281,7 +277,7 @@ module Msh
 end
 
 if $PROGRAM_NAME == __FILE__
-  lexer = Lexer.new(ARGV.join(' '))
+  lexer = Lexer.new(ARGV.join(" "))
   # puts lexer.tokens
   # ts = TokenStream.new(lexer)
 
