@@ -14,9 +14,6 @@ require "msh/core_extensions"
 require "msh/scanner"
 require "msh/lexer"
 
-Scanner = Msh::Scanner
-Lexer = Msh::Lexer
-
 class TokenStream
   attr_accessor :pos
 
@@ -263,12 +260,118 @@ class ToyParser < Parser
 end
 
 class Rule
-  def initialize name, alts
+  def initialize name, *alts
     @name = name
     @alts = alts
   end
+
+  def to_s
+    "#{@name}: #{@alts.join(' | ')}"
+  end
 end
-# end
+
+# grammar: rule+ ENDMARKER
+# rule: NAME ':' alternative ('|' alternative)* NEWLINE
+# alternative: item+
+# item: NAME | STRING
+class GrammarParser < Parser
+  def parse
+    grammar
+  end
+
+  def grammar
+    loc = pos
+    if r = rule
+      rules = []
+      while r = rule
+        rules << r
+      end
+      return rules if expect(:EOF)
+    else
+      reset loc
+    end
+    nil
+  end
+
+  def rule
+    loc = pos
+    if n = expect(:NAME)
+      if expect(:COLON)
+        if a = alternative
+          alts = []
+          aloc = pos
+          while expect(:PIPE) && alt = alternative
+            alts << alt
+            aloc = pos
+          end
+          # reset aloc
+          return Rule.new(n.value, *alts) if expect(:NEWLINE)
+        end
+      end
+    else
+      reset loc
+    end
+    nil
+  end
+
+  def alternative
+    items = []
+    while i = item
+      items << i
+    end
+    items
+  end
+
+  def item
+    if name = expect(:NAME)
+      return name.value
+    elsif s = expect(:STRING)
+      return s.value
+    end
+
+    nil
+  end
+end
+
+class GrammarLexer < Msh::BaseLexer
+  def next_token
+    reset_and_set_start
+  end
+
+  def next_token
+    reset_and_set_start
+
+    letter = -> c { ("a".."z").cover?(c) || ("A".."Z").cover?(c) || c == "_" }
+
+    # case c = advance
+    case t = advance
+    when "\0"
+      error "out of input" if @tokens.last&.type == :EOF
+      @token.type = :EOF
+
+    when letter
+      while letter.(@scanner.current_char)
+        advance
+      end
+      @token.type = :NAME
+    when " ", "\t"
+      consume_whitespace
+    when ":"
+      @token.type = :COLON
+    when "|"
+      @token.type = :PIPE
+    when "\n"
+      @token.type = :NEWLINE
+    else
+      error "unknown #{current_token}"
+    end
+
+    return next_token if @token.type.nil? || @token.type == :SPACE
+
+    @tokens << @token.dup.freeze
+    @token
+  end
+end
 
 module Msh
   class ParserGenerator
@@ -277,30 +380,42 @@ module Msh
 end
 
 if $PROGRAM_NAME == __FILE__
-  lexer = Lexer.new(ARGV.join(" "))
+  # lexer = Msh::Lexer.new(ARGV.join(" "))
   # puts lexer.tokens
-  # ts = TokenStream.new(lexer)
 
-  parser = ToyParser.new(TokenStream.new(lexer))
+  # parser = ToyParser.new(TokenStream.new(lexer))
 
-  ast = parser.parse
+  # ast = parser.parse
 
-  if ast
-    puts ast
-  else
-    p ast
-  end
+  # if ast
+  #   puts ast
+  # else
+  #   p ast
+  # end
+
+  # def t type, value
+  #   Msh::Token.new type, value
+  # end
+
+  # parser = GrammarParser.new(TokenStream.new(GrammarLexer.new(<<~GR)))
+  # puts GrammarLexer.new(<<~GR).tokens
+  #   grammar: rule+ ENDMARKER
+  #   rule: NAME ':' alternative ('|' alternative)* NEWLINE
+  #   alternative: item+
+  #   item: NAME | STRING
+  # GR
+  parser = GrammarParser.new(TokenStream.new(GrammarLexer.new(<<~GR)))
+    program:    expr | expr SEMI | expr SEMI program
+    expr:       and_or | pipeline
+    and_or:     pipeline AND pipeline | pipeline OR pipeline
+    pipeline:   command PIPE pipeline | command
+    command:    cmd_part command | cmd_part
+    cmd_part:   redirect | word | assignment
+    assignment: word EQ word
+    word:       word_type word | word_type
+    word_type:  WORD | INTERP | SUB | VAR
+    redirect:   REDIRECT_OUT | REDIRECT_IN
+  GR
+
+  puts parser.parse
 end
-# Parser.new ARGV
-# Msh::ParserGenerator.new.generate(<<~EBNF)
-#   expr: term '+' term | term
-#   term: NAME | NUMBER
-
-#   statement: assignment | expr | if_statement
-#   expr: expr '+' term | expr '-' term | term
-#   term: term '*' atom | term '/' atom | atom
-#   atom: NAME | NUMBER | '(' expr ')'
-#   assignment: target '=' expr
-#   target: NAME
-#   if_statement: 'if' expr ':' statement
-# EBNF
