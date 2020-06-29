@@ -24,6 +24,12 @@ class TokenStream
     @lexer = lexer
     @tokens = []
     @pos = 0
+    @in_word = false
+  end
+
+  # we use this to get around discarding whitespace
+  def in_word?
+    @in_word
   end
 
   def peek
@@ -33,6 +39,7 @@ class TokenStream
         t = @lexer.next_token
       end
       @tokens << t.dup
+      @in_word = @tokens.last.type == :WORD
     end
 
     @tokens[@pos]
@@ -57,7 +64,13 @@ class Node
     if children.size == 1 && children.first.is_a?(String)
       "#{' ' * indent}s(:#{type}, #{children.first})"
     else
-      ch = children.map { |c| "\n#{c.to_s(indent + 2)}" }.join(", ")
+      ch = children.map do |c|
+        if c.is_a? Node
+          "\n#{c.to_s(indent + 2)}"
+        else
+          "\n#{' ' * (indent + 2)}#{c}"
+        end
+      end.join(", ")
       "#{' ' * indent}s(:#{type}, #{ch})"
     end
   end
@@ -97,7 +110,7 @@ end
 # cmd_part:   redirect | word | assignment
 # assignment: word EQ word
 # word:       word_type word | word_type
-# word_type:  LIT | INTERP | SUB | VAR
+# word_type:  WORD | INTERP | SUB | VAR
 # redirect:   REDIRECT_OUT | REDIRECT_IN
 #
 class ToyParser < Parser
@@ -176,7 +189,7 @@ class ToyParser < Parser
     if prefix = cmd_part
       loc = pos
       if c = command
-        return s(:COMMAND, prefix, c)
+        return s(:COMMAND, prefix, *c.children)
       else
         reset loc
         return s(:COMMAND, prefix)
@@ -191,6 +204,8 @@ class ToyParser < Parser
     loc = pos
     if w = word
       return w
+    elsif r = redirect
+      return r
     else
       reset loc
     end
@@ -202,10 +217,11 @@ class ToyParser < Parser
 
     if wt = word_type
       loc = pos
-      if w = word
+      if token_stream.in_word? && w = word
         type = wt.type == :WORD ? :LIT : wt.type
         return s(:WORD, s(type, wt.value), *w.children)
       else
+        reset loc
         type = wt.type == :WORD ? :LIT : wt.type
         return s(:WORD, s(type, wt.value))
       end
@@ -217,6 +233,36 @@ class ToyParser < Parser
 
   def word_type
     expect(:WORD, :INTERP, :SUB, :VAR)
+  end
+
+  def redirect
+    loc = pos
+    if r = expect(:REDIRECT_OUT, :REDIRECT_IN, :APPEND_OUT)
+      digits, _ = r.value.chars.partition { |c| c.match? /\d/ }
+      n = digits.join
+      n = nil
+      if n == ""
+        n = nil
+      else
+        n = n.to_i
+      end
+
+      case r.type
+      when :REDIRECT_OUT, :APPEND_OUT
+        n ||= 1
+      else :REDIRECT_IN
+        n ||= 0
+      end
+
+      if f = word
+        return s(:REDIRECT, s(r.type, n, f))
+      else
+        reset loc
+      end
+    else
+      reset loc
+    end
+    nil
   end
 end
 
