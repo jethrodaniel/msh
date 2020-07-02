@@ -1,15 +1,5 @@
 # frozen_string_literal: true
 
-# Adapted from the PEG blog posts by the great Guido van Rossum (2019)
-#
-# - [index](https://medium.com/@gvanrossum_83706/peg-parsing-series-de5d41b2ed60)
-
-# grammar: rule+ ENDMARKER
-# rule: NAME ':' alternative ('|' alternative)* NEWLINE
-# alternative: item+
-# item: NAME | STRING
-# module Msh
-
 require "msh/core_extensions"
 require "msh/scanner"
 require "msh/lexer"
@@ -86,7 +76,7 @@ class Parser
     @token_stream.pos = index
   end
 
-  def expect *types
+  def consume *types
     token = @token_stream.peek
     return @token_stream.next if types.include?(token.type)
 
@@ -117,12 +107,15 @@ class ToyParser < Parser
   def program
     loc = pos
     if e = expr
-      if s = expect(:SEMI)
+      if s = consume(:SEMI)
         if p = program
           return s(:PROG, e, *p.children)
+        else
+          reset loc
         end
+        return s(:PROG, e)
       end
-      s(:PROG, e)
+      return s(:PROG, e)
     else
       reset loc
     end
@@ -142,7 +135,7 @@ class ToyParser < Parser
   def and_or
     loc = pos
     if p = pipeline
-      if a = expect(:AND, :OR)
+      if a = consume(:AND, :OR)
         if p2 = pipeline
           return s(a.type, p, p2)
         else
@@ -161,8 +154,7 @@ class ToyParser < Parser
     loc = pos
     if c = command
       loc = pos
-      if expect(:PIPE)
-        loc = pos
+      if consume(:PIPE)
         if p = pipeline
           if p.type == :PIPELINE
             return s(:PIPELINE, c, *p.children)
@@ -231,12 +223,12 @@ class ToyParser < Parser
   end
 
   def word_type
-    expect(:WORD, :INTERP, :SUB, :VAR)
+    consume(:LIT, :INTERP, :SUB, :VAR)
   end
 
   def redirect
     loc = pos
-    if r = expect(:REDIRECT_OUT, :REDIRECT_IN, :APPEND_OUT)
+    if r = consume(:REDIRECT_OUT, :REDIRECT_IN, :APPEND_OUT)
       digits, _redir = r.value.chars.partition { |c| c.match? /\d/ }
       n = digits.join
       n = n == "" ? nil : n.to_i
@@ -274,10 +266,10 @@ class Rule
   end
 end
 
-# grammar: rule+ ENDMARKER
+# grammar: rule+ EOF
 # rule: NAME ':' alternative ('|' alternative)* NEWLINE
 # alternative: item+
-# item: NAME | STRING
+# item: NAME
 class GrammarParser < Parser
   def parse
     grammar
@@ -290,7 +282,7 @@ class GrammarParser < Parser
       while r = rule
         rules << r
       end
-      return rules if expect(:EOF)
+      return rules if consume(:EOF)
     else
       reset loc
     end
@@ -299,19 +291,19 @@ class GrammarParser < Parser
 
   def rule
     loc = pos
-    if n = expect(:NAME)
-      if expect(:COLON)
+    if n = consume(:NAME)
+      if consume(:COLON)
 
         if a = alternative
           alts = [a]
           aloc = pos
-          while expect(:PIPE) && alt = alternative
+          while consume(:PIPE) && alt = alternative
             alts << alt
             aloc = pos
           end
           # reset aloc
-          return Rule.new(n.value, alts) if expect(:NEWLINE)
-          # return Rule.new(n.value, alts.map(&:first)) if expect(:NEWLINE)
+          return Rule.new(n.value, alts) if consume(:NEWLINE)
+          # return Rule.new(n.value, alts.map(&:first)) if consume(:NEWLINE)
         end
       end
     else
@@ -329,7 +321,7 @@ class GrammarParser < Parser
   end
 
   def item
-    if name = expect(:NAME)
+    if name = consume(:NAME)
       return name.value
     end
 
@@ -394,21 +386,28 @@ module Msh
         io.puts "    loc = pos"
 
         rule.alts.each do |alt|
-          items = []
+          rule_items = []
+          token_items = []
+
           indent = 6
           io.puts "    if (true \\"
           alt.each_with_index do |item, index|
+            var = "_#{item.downcase}"
             if item == item.upcase # TOKEN
-              io.print "#{' ' * (indent + 2*index)}&& expect(:#{item.to_sym})"
+              if token_items.include? var
+                var = "#{var}#{token_items.size}"
+              end
+              token_items << var
+
+              io.print "#{' ' * (indent + 2*index)}&& #{var} = consume(:#{item.to_sym})"
               io.print " \\" unless index == alt.size - 1
               io.puts
             else
-              # var = item.chars.first
-              var = "_#{item.downcase}"
-              if items.include? var
-                var = "#{var}#{items.size}"
+              if rule_items.include? var
+                var = "#{var}#{rule_items.size}"
               end
-              items << var
+              rule_items << var
+
               io.print "#{' ' * (indent + 2*index)}&& #{var} = #{item}"
               io.print " \\" unless index == alt.size - 1
               io.puts
@@ -416,11 +415,11 @@ module Msh
           end
           io.puts "    ) then"
 
-          if items.empty?
-            # rest =
+          if rule_items.empty?
+            rest = token_items.map { |t| "#{t}.value" }.join ", "
             node_type = alt.first
           else
-            rest = items.map { |i| i == "_#{rule.name}" ? "*#{i}.children" : i }.join(', ')
+            rest = rule_items.map { |i| i == "_#{rule.name}" ? "*#{i}.children" : i }.join(', ')
             node_type = rule.name.upcase
           end
           io.puts "      return s(:#{node_type}, #{rest})"
@@ -440,7 +439,7 @@ end
 
 if $PROGRAM_NAME == __FILE__
   parser = GrammarParser.new(TokenStream.new(GrammarLexer.new(<<~GR)))
-    program:    expr | expr SEMI | expr SEMI program
+    program:    expr   | expr SEMI | expr SEMI program
     expr:       and_or | pipeline
     and_or:     pipeline AND pipeline | pipeline OR pipeline
     pipeline:   command PIPE pipeline | command
@@ -448,26 +447,36 @@ if $PROGRAM_NAME == __FILE__
     cmd_part:   redirect | word | assignment
     assignment: word EQ word
     word:       word_type word | word_type
-    word_type:  WORD | INTERP | SUB | VAR
+    word_type:  LIT | INTERP | SUB | VAR
     redirect:   REDIRECT_OUT | REDIRECT_IN
   GR
 
   rules = parser.parse
+  puts rules.map(&:to_s)
 
   gen = Msh::ParserGenerator.new rules
 
   puts gen.generate
 
-#   lexer = Msh::Lexer.new(ARGV.join(" "))
 
-#   parser = ToyParser.new(TokenStream.new(lexer))
+  # print "peg> "
+  # while line = gets.chomp
+  while line = Reline.readline("peg> ", true)
+    lexer = Msh::Lexer.new line
+    parser = ToyParser.new(TokenStream.new(lexer))
+    ast = parser.parse
 
-#   ast = parser.parse
+    if ast
+      puts ast
+    else
+      p ast
+    end
 
-#   if ast
-#     puts ast
-#   else
-#     p ast
-#   end
+    if line == "q"
+      puts "bye!"
+      exit
+    end
 
+    # print "peg> "
+  end
 end

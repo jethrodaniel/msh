@@ -389,7 +389,7 @@ module Msh
     # @note we've just seen the first character of a WORD
     def consume_word
       advance until NON_WORD_CHARS.include?(@scanner.current_char)
-      @token.type = :WORD
+      @token.type = :LIT
     end
   end
 end
