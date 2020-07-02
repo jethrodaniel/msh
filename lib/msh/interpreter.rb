@@ -7,7 +7,7 @@ require "msh/errors"
 require "msh/config"
 require "msh/evaluator"
 require "msh/lexer"
-require "msh/parser"
+require "msh/parsers/simple"
 require "msh/pipe"
 
 module Msh
@@ -98,7 +98,7 @@ module Msh
 
     # @param code [String]
     def interpret code
-      parser = Parser.new code
+      parser = Parsers::Simple.new code
       process parser.parse
     end
 

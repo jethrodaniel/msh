@@ -1,6 +1,14 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require "msh/parser"
+require "msh/parsers/simple"
+require "msh/parsers/peg/msh"
 
-Msh::Parser.start
+parser = case ENV["MSH_PARSER"]
+         when "simple", ""
+           Msh::Parsers::Simple
+         when "peg"
+           Msh::Parsers::Peg::Msh
+         end
+
+parser.start
