@@ -56,7 +56,12 @@ class Node
           "\n#{' ' * (indent + 2)}#{c}"
         end
       end.join(", ")
-      "#{' ' * indent}s(:#{type}, #{ch})"
+
+      if ch == ""
+        "#{' ' * indent}s(:#{type})"
+      else
+        "#{' ' * indent}s(:#{type}, #{ch})"
+      end
     end
   end
 end
@@ -113,12 +118,15 @@ class ToyParser < Parser
         else
           reset loc
         end
+
         return s(:PROG, e)
       end
       return s(:PROG, e)
     else
       reset loc
     end
+    return s(:NOOP) if consume :EOF
+
     nil
   end
 
@@ -457,7 +465,6 @@ if $PROGRAM_NAME == __FILE__
   gen = Msh::ParserGenerator.new rules
 
   puts gen.generate
-
 
   # print "peg> "
   # while line = gets.chomp
