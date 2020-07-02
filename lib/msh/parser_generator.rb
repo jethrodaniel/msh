@@ -244,14 +244,12 @@ class ToyParser < Parser
       case r.type
       when :REDIRECT_OUT, :APPEND_OUT
         n ||= 1
-      else :REDIRECT_IN
+      when :REDIRECT_IN
         n ||= 0
       end
 
       if f = word
         return s(:REDIRECT, s(r.type, n, f))
-      else
-        reset loc
       end
     else
       reset loc
@@ -269,7 +267,7 @@ class Rule
   end
 
   def to_s
-    alts = @alts.map { |a| a.join(' ') }
+    alts = @alts.map { |a| a.join(" ") }
     "#{@name}: #{alts.join(' | ')}"
   end
 end
@@ -354,9 +352,7 @@ class GrammarLexer < Msh::BaseLexer
       @token.type = :EOF
 
     when letter
-      while letter.(@scanner.current_char)
-        advance
-      end
+      advance while letter.call(@scanner.current_char)
       @token.type = :NAME
     when " ", "\t"
       consume_whitespace
@@ -402,21 +398,17 @@ module Msh
           alt.each_with_index do |item, index|
             var = "_#{item.downcase}"
             if item == item.upcase # TOKEN
-              if token_items.include? var
-                var = "#{var}#{token_items.size}"
-              end
+              var = "#{var}#{token_items.size}" if token_items.include? var
               token_items << var
 
-              io.print "#{' ' * (indent + 2*index)}&& #{var} = consume(:#{item.to_sym})"
+              io.print "#{' ' * (indent + 2 * index)}&& #{var} = consume(:#{item.to_sym})"
               io.print " \\" unless index == alt.size - 1
               io.puts
             else
-              if rule_items.include? var
-                var = "#{var}#{rule_items.size}"
-              end
+              var = "#{var}#{rule_items.size}" if rule_items.include? var
               rule_items << var
 
-              io.print "#{' ' * (indent + 2*index)}&& #{var} = #{item}"
+              io.print "#{' ' * (indent + 2 * index)}&& #{var} = #{item}"
               io.print " \\" unless index == alt.size - 1
               io.puts
             end
@@ -427,7 +419,7 @@ module Msh
             rest = token_items.map { |t| "#{t}.value" }.join ", "
             node_type = alt.first
           else
-            rest = rule_items.map { |i| i == "_#{rule.name}" ? "*#{i}.children" : i }.join(', ')
+            rest = rule_items.map { |i| i == "_#{rule.name}" ? "*#{i}.children" : i }.join(", ")
             node_type = rule.name.upcase
           end
           io.puts "      return s(:#{node_type}, #{rest})"
