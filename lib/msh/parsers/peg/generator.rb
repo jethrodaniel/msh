@@ -128,15 +128,18 @@ module Msh
     end
 
     def generate io = $stdout
+      io.puts '# frozen_string_literal: true'
+      io.puts ''
       io.puts 'require "msh/scanner"'
       io.puts 'require "msh/lexer"'
       io.puts 'require "msh/parsers/peg"'
+      io.puts 'require "msh/parsers/peg/generator"'
       io.puts ""
       io.puts "# auto-generated, do not edit."
       io.puts "#"
-      io.puts "#    $ ruby parser.rb"
+      io.puts "#    $ bundle exec ruby parser.rb"
       io.puts "#"
-      io.puts "class MshParser < Msh::Parsers::Peg"
+      io.puts "class MshParser < Msh::Parsers::Peg::Base"
       io.puts "  def parse"
       io.puts "    program"
       io.puts "  end"
@@ -160,7 +163,7 @@ module Msh
               io.print "#{' ' * (indent + 2 * index)}&& #{var} = consume(:#{item.to_sym})"
               io.print " \\" unless index == alt.size - 1
               io.puts
-            else
+            else # rule
               var = "#{var}#{rule_items.size}" if rule_items.include? var
               rule_items << var
 
@@ -204,7 +207,7 @@ end
 
 if $PROGRAM_NAME == __FILE__
   parser = GrammarParser.new(TokenStream.new(GrammarLexer.new(<<~GR)))
-    program:    expr   | expr SEMI | expr SEMI program
+    program:    expr SEMI program | expr SEMI | expr
     expr:       and_or | pipeline
     and_or:     pipeline AND pipeline | pipeline OR pipeline
     pipeline:   command PIPE pipeline | command
