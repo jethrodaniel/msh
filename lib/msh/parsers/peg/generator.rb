@@ -6,26 +6,32 @@ require "msh/lexer"
 require "msh/parsers/peg"
 require "msh/parsers/peg/msh"
 
-class Rule
-  attr_reader :name, :alts
-
-  def initialize name, alts
-    @name = name
-    @alts = alts
-  end
-
+Alt = Struct.new :items, :action do
   def to_s
-    alts = @alts.map { |a| a.join(" ") }
-    "#{@name}: #{alts.join(' | ')}"
+    if action
+      "#{items.join(' ')} #{action}"
+    else
+      "#{items.join(' ')}"
+      # "#{items.join(' ')} { val[0] }"
+    end
+  end
+end
+
+Rule = Struct.new :name, :alts, :action do
+  def to_s
+    "#{name}: #{alts.join(' | ')};"
   end
 end
 
 # grammar: rule+ EOF
-# rule: NAME ':' alternative ('|' alternative)* NEWLINE
-# alternative: item+
+# rule: NAME ':' alternative NEWLINE* ('|' alternative NEWLINE*)* SEMI
+# alternative: NEWLINE* alt NEWLINE* action?
+# alt: item+
 # item: NAME
+# action: '{' .* '}'
 class GrammarParser < Msh::Parsers::Peg::Base
   def parse
+    skip(:NEWLINE)
     grammar
   end
 
@@ -33,7 +39,9 @@ class GrammarParser < Msh::Parsers::Peg::Base
     loc = pos
     if r = rule
       rules = [r]
+      skip(:NEWLINE)
       while r = rule
+        skip(:NEWLINE)
         rules << r
       end
       return rules if consume(:EOF)
@@ -46,18 +54,21 @@ class GrammarParser < Msh::Parsers::Peg::Base
   def rule
     loc = pos
     if n = consume(:NAME)
+       skip(:NEWLINE)
       if consume(:COLON)
 
+        skip(:NEWLINE)
         if a = alternative
           alts = [a]
           aloc = pos
-          while consume(:PIPE) && alt = alternative
+
+          skip(:NEWLINE)
+          while alt = pipe_alternative
             alts << alt
             aloc = pos
+            skip(:NEWLINE)
           end
-          # reset aloc
-          return Rule.new(n.value, alts) if consume(:NEWLINE)
-          # return Rule.new(n.value, alts.map(&:first)) if consume(:NEWLINE)
+          return Rule.new(n.value, alts) if consume(:SEMI)
         end
       end
     else
@@ -66,9 +77,37 @@ class GrammarParser < Msh::Parsers::Peg::Base
     nil
   end
 
+  def pipe_alternative
+    loc = pos
+    if consume(:PIPE)
+      skip(:NEWLINE)
+      if alt = alternative
+        return alt
+      end
+    end
+    nil
+  end
+
   def alternative
+    loc = pos
+    skip(:NEWLINE)
+    if a = alt
+      skip(:NEWLINE)
+      if act = consume(:ACTION)
+        return Alt.new(a, act.value)
+      else
+        return Alt.new(a)
+      end
+    else
+      reset loc
+    end
+    nil
+  end
+
+  def alt
     items = []
     while i = item
+      skip(:NEWLINE)
       items << i
     end
     items
@@ -93,12 +132,10 @@ class GrammarLexer < Msh::BaseLexer
 
     letter = -> c { ("a".."z").cover?(c) || ("A".."Z").cover?(c) || c == "_" }
 
-    # case c = advance
-    case t = advance
+    case c = advance
     when "\0"
       error "out of input" if @tokens.last&.type == :EOF
       @token.type = :EOF
-
     when letter
       advance while letter.call(@scanner.current_char)
       @token.type = :NAME
@@ -110,6 +147,33 @@ class GrammarLexer < Msh::BaseLexer
       @token.type = :PIPE
     when "\n"
       @token.type = :NEWLINE
+    when "{"
+      @token.type = :LEFT_BRACE
+      line = @scanner.line
+      col = @scanner.column - 1
+      l_brace_stack = [c]
+
+      while c = advance # loop until closing `}`
+        case c
+        when "{"
+          l_brace_stack << c
+        when "}"
+          break if l_brace_stack.empty?
+
+          l_brace_stack.pop
+        end
+        break if l_brace_stack.empty? || @scanner.eof?
+      end
+
+      if l_brace_stack.size.positive? # || c.nil? || eof?
+        error "unterminated action, expected `}` to complete `{` at line #{line}, column #{col}"
+      end
+
+      @token.type = :ACTION
+      @token.column = col
+      @token.line = line
+    when ";"
+      @token.type = :SEMI
     else
       error "unknown #{current_token}"
     end
@@ -148,40 +212,80 @@ module Msh
         io.puts "  def #{rule.name}"
         io.puts "    loc = pos"
 
+        # A bit messy here to deal with right-recursive rules. Given this rule,
+        #
+        #    program: expr SEMI program
+        #
+        # we want to output
+        #
+        #    s(:PROGRAM, e, *p.children)
+        #
+        # instead of
+        #
+        #    s(:PROGRAM, e, p)
+        #
+        # to avoid unneccesary nesting of nodes.
+        #
         rule.alts.each do |alt|
-          rule_items = []
-          token_items = []
+          items = []
 
+          # We start matching by making an if statement, branching for each
+          # alternative.
+          #
+          #     # WORD expr SEMI
+          #     if (true \
+          #       && _word = consume(:WORD) \
+          #         && _expr = expr \
+          #           && _semi = consume(:SEMI)
+          #     ) then
+          #       ...
+          #     else
+          #       reset loc
+          #     end
+          #
           indent = 6
           io.puts "    if (true \\"
-          alt.each_with_index do |item, index|
+
+          alt.items.each_with_index do |item, index|
             var = "_#{item.downcase}"
+
             if item == item.upcase # TOKEN
-              var = "#{var}#{token_items.size}" if token_items.include? var
-              token_items << var
+              var = "#{var}#{items.size}" if items.include? var
+              items << var
 
               io.print "#{' ' * (indent + 2 * index)}&& #{var} = consume(:#{item.to_sym})"
-              io.print " \\" unless index == alt.size - 1
-              io.puts
             else # rule
-              var = "#{var}#{rule_items.size}" if rule_items.include? var
-              rule_items << var
+              var = "#{var}#{items.size}" if items.include? var
+              items << var
 
               io.print "#{' ' * (indent + 2 * index)}&& #{var} = #{item}"
-              io.print " \\" unless index == alt.size - 1
-              io.puts
             end
+
+            io.print " \\" unless index == alt.size # line continuation
+            io.puts
           end
           io.puts "    ) then"
 
-          if rule_items.empty?
-            rest = token_items.map { |t| "#{t}.value" }.join ", "
-            node_type = alt.first
-          else
-            rest = rule_items.map { |i| i == "_#{rule.name}" ? "*#{i}.children" : i }.join(", ")
-            node_type = rule.name.upcase
+          items.map! do |i|
+            case i
+            when i.upcase
+              "#{i}.value"
+            when "_#{rule.name}"
+               "*#{i}.children"
+            else
+              i
+            end
           end
-          io.puts "      return s(:#{node_type}, #{rest})"
+
+          # io.puts "      return (#{alt.action[1...-1]})"
+          io.puts "      return begin"
+          io.puts "               val = [#{items.join(', ')}]"
+          if alt.action
+            io.puts "               #{alt.action[1...-1]}"
+          else
+            io.puts "               val[0]"
+          end
+          io.puts "             end"
           io.puts "    else"
           io.puts "      reset loc"
           io.puts "    end"
@@ -207,20 +311,35 @@ end
 
 if $PROGRAM_NAME == __FILE__
   parser = GrammarParser.new(TokenStream.new(GrammarLexer.new(<<~GR)))
-    program:    expr SEMI program | expr SEMI | expr
-    expr:       and_or | pipeline
-    and_or:     pipeline AND pipeline | pipeline OR pipeline
-    pipeline:   command PIPE pipeline | command
-    command:    cmd_part command | cmd_part
-    cmd_part:   redirect | word | assignment
-    assignment: word EQ word
-    word:       word_type word | word_type
-    word_type:  LIT | INTERP | SUB | VAR
-    redirect:   REDIRECT_OUT | REDIRECT_IN
+    program: expr SEMI program { s(:PROG, val[0], *val[2].children) }
+           | expr SEMI { s(:PROG, val[0]) }
+           | expr { s(:PROG, val[0]) }
+           ;
+    expr: and_or    { s(:EXPR, val[0]) }
+        | pipeline  { s(:EXPR, val[0]) }
+        ;
+    and_or: pipeline AND pipeline { s(:AND, *val) }
+          | pipeline OR pipeline { s(:OR, *val) }
+          ;
+    pipeline: command PIPE pipeline { s(:PIPELINE, val[0], *val[1].children) }
+            | command
+            ;
+    command: cmd_part command { s(:COMMAND, val[0], *val[1].children) }
+           | cmd_part         { s(:COMMAND, val[0]) }
+           ;
+    cmd_part:   redirect | word | assignment;
+    assignment: word EQ word { s(:ASSIGN, val[0], val[2]) };
+
+    word: word_type word { s(:WORD, val[0], *val[1].children) }
+        | word_type      { s(:WORD, s(val[0].type, val[0].value)) }
+        ;
+
+    word_type: LIT | INTERP | SUB | VAR;
+    redirect: REDIRECT_OUT | REDIRECT_IN;
   GR
 
   rules = parser.parse
-  puts rules.map(&:to_s)
+  puts rules
 
   gen = Msh::ParserGenerator.new rules
   puts "-> parser.rb"

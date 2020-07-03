@@ -52,7 +52,8 @@ module Msh
     # @param other [Token]
     # @return [bool]
     def == other
-      @line == other.line \
+      other.is_a?(Token) \
+        && @line == other.line \
         && @column == other.column \
         && @value == other.value \
         && @type == other.type \

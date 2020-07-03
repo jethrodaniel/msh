@@ -89,6 +89,12 @@ module Msh
           nil
         end
 
+        def skip *types
+          while types.include? @token_stream.peek.type
+            @token_stream.next
+          end
+        end
+
         def s type, *children
           Node.new type, children
         end
