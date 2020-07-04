@@ -11,15 +11,16 @@ Alt = Struct.new :items, :action do
     if action
       "#{items.join(' ')} #{action}"
     else
-      "#{items.join(' ')}"
-      # "#{items.join(' ')} { val[0] }"
+      items.join(" ")
     end
   end
 end
 
 Rule = Struct.new :name, :alts, :action do
   def to_s
-    "#{name}: #{alts.join(' | ')};"
+    "#{name}\n" \
+    "  : #{alts.join("\n  | ")}\n" \
+    "  ;"
   end
 end
 
@@ -54,7 +55,7 @@ class GrammarParser < Msh::Parsers::Peg::Base
   def rule
     loc = pos
     if n = consume(:NAME)
-       skip(:NEWLINE)
+      skip(:NEWLINE)
       if consume(:COLON)
 
         skip(:NEWLINE)
@@ -83,6 +84,8 @@ class GrammarParser < Msh::Parsers::Peg::Base
       skip(:NEWLINE)
       if alt = alternative
         return alt
+      else
+        return Alt.new(%w(_))
       end
     end
     nil
@@ -192,8 +195,8 @@ module Msh
     end
 
     def generate io = $stdout
-      io.puts '# frozen_string_literal: true'
-      io.puts ''
+      io.puts "# frozen_string_literal: true"
+      io.puts ""
       io.puts 'require "msh/scanner"'
       io.puts 'require "msh/lexer"'
       io.puts 'require "msh/parsers/peg"'
@@ -209,6 +212,8 @@ module Msh
       io.puts "  end"
       @rules.each do |rule|
         io.puts
+        io.puts "  # #{rule.name}"
+        io.puts "  #   : #{rule.alts.join("\n  #   | ")}"
         io.puts "  def #{rule.name}"
         io.puts "    loc = pos"
 
@@ -244,24 +249,30 @@ module Msh
           #     end
           #
           indent = 6
+          io.puts "    # #{alt}"
           io.puts "    if (true \\"
 
           alt.items.each_with_index do |item, index|
+            is_epsilon = item == "_"
             var = "_#{item.downcase}"
+            indent = ' ' * ((2 * index) + 8)
 
-            if item == item.upcase # TOKEN
+            if is_epsilon
+              io.print "      # epsilon"
+            elsif item == item.upcase # TOKEN
               var = "#{var}#{items.size}" if items.include? var
               items << var
 
-              io.print "#{' ' * (indent + 2 * index)}&& #{var} = consume(:#{item.to_sym})"
+              io.print "#{indent}&& #{var} = consume(:#{item.to_sym})"
             else # rule
               var = "#{var}#{items.size}" if items.include? var
               items << var
 
-              io.print "#{' ' * (indent + 2 * index)}&& #{var} = #{item}"
+              io.print "#{indent}&& #{var} = #{item}"
             end
 
-            io.print " \\" unless index == alt.size # line continuation
+            # line continuation
+            io.print " \\" unless index == alt.size || is_epsilon
             io.puts
           end
           io.puts "    ) then"
@@ -271,7 +282,7 @@ module Msh
             when i.upcase
               "#{i}.value"
             when "_#{rule.name}"
-               "*#{i}.children"
+              "*#{i}.children"
             else
               i
             end
@@ -311,31 +322,40 @@ end
 
 if $PROGRAM_NAME == __FILE__
   parser = GrammarParser.new(TokenStream.new(GrammarLexer.new(<<~GR)))
-    program: expr SEMI program { s(:PROG, val[0], *val[2].children) }
-           | expr SEMI { s(:PROG, val[0]) }
-           | expr { s(:PROG, val[0]) }
-           ;
-    expr: and_or    { s(:EXPR, val[0]) }
-        | pipeline  { s(:EXPR, val[0]) }
-        ;
-    and_or: pipeline AND pipeline { s(:AND, *val) }
-          | pipeline OR pipeline { s(:OR, *val) }
-          ;
-    pipeline: command PIPE pipeline { s(:PIPELINE, val[0], *val[1].children) }
-            | command
-            ;
-    command: cmd_part command { s(:COMMAND, val[0], *val[1].children) }
-           | cmd_part         { s(:COMMAND, val[0]) }
-           ;
-    cmd_part:   redirect | word | assignment;
-    assignment: word EQ word { s(:ASSIGN, val[0], val[2]) };
-
-    word: word_type word { s(:WORD, val[0], *val[1].children) }
-        | word_type      { s(:WORD, s(val[0].type, val[0].value)) }
-        ;
-
+    program
+      : expr SEMI program { s(:PROG, val[0], *val[2].children) }
+      | expr SEMI         { s(:PROG, val[0]) }
+      | expr              { s(:PROG, val[0]) }
+      | _                 { s(:NOOP) }
+      ;
+    expr
+      : and_or    { s(:EXPR, val[0]) }
+      | pipeline  { s(:EXPR, val[0]) }
+      ;
+    and_or
+      : pipeline AND pipeline { s(:AND, *val) }
+      | pipeline OR pipeline  { s(:OR, *val) }
+      ;
+    pipeline
+      : command PIPE pipeline { s(:PIPELINE, val[0], *val[1].children) }
+      | command
+      ;
+    command
+      : cmd_part command { s(:COMMAND, val[0], *val[1].children) }
+      | cmd_part         { s(:COMMAND, val[0]) }
+      ;
+    cmd_part
+      : redirect | word | assignment
+      ;
+    assignment
+      : word EQ word { s(:ASSIGN, val[0], val[2]) }
+      ;
+    word
+      : word_type word { s(:WORD, val[0], *val[1].children) }
+      | word_type      { s(:WORD, s(val[0].type, val[0].value)) }
+      ;
     word_type: LIT | INTERP | SUB | VAR;
-    redirect: REDIRECT_OUT | REDIRECT_IN;
+    redirect:  REDIRECT_OUT | REDIRECT_IN;
   GR
 
   rules = parser.parse
