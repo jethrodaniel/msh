@@ -3,24 +3,10 @@
 require "msh/readline"
 require "msh/errors"
 require "msh/logger"
-require "msh/token"
-require "msh/scanner"
+
+require "lex/lex"
 
 module Msh
-  # The lexer breaks down input text into a series of tokens.
-  #
-  # By definition, a token contains a type (which token), and a value (the
-  # matched string). They also usually contain line and column number
-  # information, and other metadata as well. See {Msh::Token}.
-  #
-  # A lexer operates like so:
-  #
-  # - As long as input is available, grab the next character
-  # - Attempt to match a token
-  #
-  # The match attempt logic is {#next_token}, which is just a a big switch
-  # statement on the next character, more or less.
-  #
   # Note: this lexer is lossless, i.e, the completed tokens contain the entire
   # source code, including tabs, spaces, and comments.
   #
@@ -40,96 +26,7 @@ module Msh
   #   ]
   #   lexer.tokens.map(&:to_s) == tokens #=> true
   #
-  # TODO: rewrite lexer in PEG
-  class BaseLexer
-    include Msh::Logger
-    extend Msh::Logger
-
-    attr_reader :line, :column
-
-    # @param input [String]
-    def initialize input
-      @scanner = Scanner.new input
-      @tokens  = []
-      @token   = Token.new
-    end
-
-    # Run the lexer on the input until we collect all the tokens.
-    #
-    # @return [Array<Msh::Token>] all tokens in the input
-    def tokens
-      next_token until @tokens.last&.type == :EOF
-      @tokens
-    end
-
-    # {Scanner#eof?} but in such a way that you still get true when the next
-    # token is an EOF
-    #
-    # @return [Boolean] whether the last token is *not* an EOF
-    def next?
-      @tokens.last&.type != :EOF
-    end
-
-    def eof?
-      !next?
-    end
-
-    # @return [Token, nil]
-    def current_token
-      @tokens.last
-    end
-
-    protected
-
-    # Raise an error with helpful output.
-    #
-    # @raise [Errors::LexerError]
-    def error msg = nil
-      raise Errors::LexerError, "error at line #{@token.line}, " \
-                                "column #{@token.column}: #{msg}"
-    end
-
-    def set_token_start
-      @token.line = @scanner.line
-      @token.column = @scanner.column
-    end
-
-    # nils out all of our current token's fields
-    #
-    # @return [Token]
-    def reset_token
-      @token.tap do |t|
-        t.type   = nil
-        t.value  = ""
-        t.line   = nil
-        t.column = nil
-      end
-    end
-
-    def reset_and_set_start
-      reset_token
-      set_token_start
-    end
-
-    def advance
-      c = @scanner.advance
-      @token.value += c
-      c
-    end
-
-    # @note we've just seen either a ` ` or a `\t`
-    def consume_whitespace
-      @token.type = :SPACE
-      return if @scanner.current_char == "\0"
-
-      while @scanner.current_char == " " ||
-            @scanner.current_char == "\t"
-        advance
-      end
-    end
-  end
-
-  class Lexer < BaseLexer
+  class Lexer < Lex::Lexer
     # TODO: there's def more of these
     NON_WORD_CHARS = [
       "\0",
@@ -303,7 +200,12 @@ module Msh
       end
     end
 
-    private
+     private
+
+    def error msg = nil
+      raise Errors::LexerError, "error at line #{@token.line}, " \
+                                "column #{@token.column}: #{msg}"
+    end
 
     # @note we've just seen a `#`
     #
@@ -391,5 +293,5 @@ module Msh
       advance until NON_WORD_CHARS.include?(@scanner.current_char)
       @token.type = :LIT
     end
-  end
+   end
 end
