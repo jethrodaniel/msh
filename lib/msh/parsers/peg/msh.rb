@@ -130,8 +130,8 @@ module Msh
 
           if wt = word_type
             loc = pos
-            if token_stream.in_word? && w = word
-            # if w = word
+            # if token_stream.in_word? && w = word
+            if w = word
               type = wt.type == :WORD ? :LIT : wt.type
               return s(:WORD, s(type, wt.value), *w.children)
             else

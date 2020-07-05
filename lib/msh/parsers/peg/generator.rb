@@ -8,10 +8,11 @@ require "msh/parsers/peg/msh"
 
 Alt = Struct.new :items, :action do
   def to_s
+    i = items.map { |i| i.is_a?(Msh::Token) ? i.value.inspect : i }
     if action
-      "#{items.join(' ')} #{action}"
+      "#{i.join(' ')} #{action}"
     else
-      items.join(" ")
+      i.join(" ")
     end
   end
 end
@@ -21,6 +22,22 @@ Rule = Struct.new :name, :alts, :action do
     "#{name}\n" \
     "  : #{alts.join("\n  | ")}\n" \
     "  ;"
+  end
+end
+
+Item = Struct.new :value, :zero_or_more, :one_or_more, :literal do
+  def literal?
+    !!literal
+  end
+
+  def to_s
+    if zero_or_more
+      "#{value}*"
+    elsif one_or_more
+      "#{value}+"
+    else
+      value.to_s
+    end
   end
 end
 
@@ -85,7 +102,7 @@ class GrammarParser < Msh::Parsers::Peg::Base
       if alt = alternative
         return alt
       else
-        return Alt.new(%w(_))
+        return Alt.new(%w[_])
       end
     end
     nil
@@ -97,9 +114,9 @@ class GrammarParser < Msh::Parsers::Peg::Base
     if a = alt
       skip(:NEWLINE)
       if act = consume(:ACTION)
-        return Alt.new(a, act.value)
+        return Alt.new(a, act.value[1...-1])
       else
-        return Alt.new(a)
+        return Alt.new(a, "val[0]")
       end
     else
       reset loc
@@ -118,7 +135,15 @@ class GrammarParser < Msh::Parsers::Peg::Base
 
   def item
     if name = consume(:NAME)
-      return name.value
+      return Item.new(name.value, true) if consume(:STAR)
+
+      return Item.new(name.value)
+    elsif lit = consume(:LIT)
+      return Item.new(lit.value[1...-1], true) if consume(:STAR)
+
+      i = Item.new(lit.value[1...-1])
+      i.literal = true
+      return i
     end
 
     nil
@@ -126,10 +151,6 @@ class GrammarParser < Msh::Parsers::Peg::Base
 end
 
 class GrammarLexer < Msh::BaseLexer
-  def next_token
-    reset_and_set_start
-  end
-
   def next_token
     reset_and_set_start
 
@@ -150,6 +171,15 @@ class GrammarLexer < Msh::BaseLexer
       @token.type = :PIPE
     when "\n"
       @token.type = :NEWLINE
+    when "\""
+      while c = advance
+        if c == "\""
+          @token.type = :LIT
+          break
+        end
+
+        error "unexpected end of input when matching a LIT token" if c == "\0"
+      end
     when "{"
       @token.type = :LEFT_BRACE
       line = @scanner.line
@@ -177,6 +207,14 @@ class GrammarLexer < Msh::BaseLexer
       @token.line = line
     when ";"
       @token.type = :SEMI
+    when "*"
+      @token.type = :STAR
+    when "+"
+      @token.type = :PLUS
+    when "#"
+      until (c = advance) == "\n"
+      end
+      @token.type = :COMMENT
     else
       error "unknown #{current_token}"
     end
@@ -192,6 +230,12 @@ module Msh
   class ParserGenerator
     def initialize rules
       @rules = rules
+      abort "no rules" if rules.nil?
+      @vars = 0.step
+    end
+
+    def new_var
+      "_#{@vars.next}"
     end
 
     def generate io = $stdout
@@ -208,99 +252,66 @@ module Msh
       io.puts "#"
       io.puts "class MshParser < Msh::Parsers::Peg::Base"
       io.puts "  def parse"
-      io.puts "    program"
+      io.puts "    #{@rules.first.name}"
       io.puts "  end"
       @rules.each do |rule|
         io.puts
-        io.puts "  # #{rule.name}"
-        io.puts "  #   : #{rule.alts.join("\n  #   | ")}"
+        # TODO: add rule as comment
+        # io.puts "  # #{rule.name}"
+        # io.puts "  #   : #{rule.alts.join("\n  #   | ")}"
         io.puts "  def #{rule.name}"
         io.puts "    loc = pos"
+        io.puts "    val = []"
 
-        # A bit messy here to deal with right-recursive rules. Given this rule,
-        #
-        #    program: expr SEMI program
-        #
-        # we want to output
-        #
-        #    s(:PROGRAM, e, *p.children)
-        #
-        # instead of
-        #
-        #    s(:PROGRAM, e, p)
-        #
-        # to avoid unneccesary nesting of nodes.
-        #
         rule.alts.each do |alt|
-          items = []
+          ends = []
 
           # We start matching by making an if statement, branching for each
           # alternative.
           #
-          #     # WORD expr SEMI
-          #     if (true \
-          #       && _word = consume(:WORD) \
-          #         && _expr = expr \
-          #           && _semi = consume(:SEMI)
-          #     ) then
-          #       ...
-          #     else
-          #       reset loc
-          #     end
-          #
-          indent = 6
-          io.puts "    # #{alt}"
-          io.puts "    if (true \\"
+          depth = 2
+          io.puts
 
-          alt.items.each_with_index do |item, index|
-            is_epsilon = item == "_"
-            var = "_#{item.downcase}"
-            indent = ' ' * ((2 * index) + 8)
+          # TODO: add alternate as comment
+          # io.puts "    # #{alt}"
+
+          alt.items.each_with_index do |item, _index|
+            is_epsilon = item.value == "_"
+            is_token = item.value == item.value.upcase
+            indent = " " * (depth += 2)
 
             if is_epsilon
-              io.print "      # epsilon"
-            elsif item == item.upcase # TOKEN
-              var = "#{var}#{items.size}" if items.include? var
-              items << var
+              io.puts "#{indent}if true # epsilon"
+              io.puts "#{indent}  val << nil"
+            elsif is_token
+              var = new_var
 
-              io.print "#{indent}&& #{var} = consume(:#{item.to_sym})"
-            else # rule
-              var = "#{var}#{items.size}" if items.include? var
-              items << var
+              if item.zero_or_more
+                io.puts "#{indent}if #{var} = consume_star(:#{item.value}) # token"
+              else
+                io.puts "#{indent}if #{var} = consume(:#{item.value}) # token"
+              end
 
-              io.print "#{indent}&& #{var} = #{item}"
-            end
-
-            # line continuation
-            io.print " \\" unless index == alt.size || is_epsilon
-            io.puts
-          end
-          io.puts "    ) then"
-
-          items.map! do |i|
-            case i
-            when i.upcase
-              "#{i}.value"
-            when "_#{rule.name}"
-              "*#{i}.children"
+              io.puts "#{indent}  val << #{var}"
             else
-              i
+              var = new_var
+              io.puts "#{indent}if #{var} = #{item.value} # rule"
+              io.puts "#{indent}  val << #{var}"
             end
+            ends << indent
           end
 
-          # io.puts "      return (#{alt.action[1...-1]})"
-          io.puts "      return begin"
-          io.puts "               val = [#{items.join(', ')}]"
-          if alt.action
-            io.puts "               #{alt.action[1...-1]}"
-          else
-            io.puts "               val[0]"
+          indent = " " * depth
+          io.puts "#{indent}  return begin"
+          io.puts "#{indent}           #{alt.action}"
+          io.puts "#{indent}         end"
+
+          ends.reverse_each do |e|
+            io.puts "#{e}else"
+            io.puts "#{e}  val.pop"
+            io.puts "#{e}  reset loc"
+            io.puts "#{e}end"
           end
-          io.puts "             end"
-          io.puts "    else"
-          io.puts "      reset loc"
-          io.puts "    end"
-          io.puts
         end
 
         io.puts "    nil"
@@ -323,7 +334,16 @@ end
 if $PROGRAM_NAME == __FILE__
   parser = GrammarParser.new(TokenStream.new(GrammarLexer.new(<<~GR)))
     program
-      : expr SEMI program { s(:PROG, val[0], *val[2].children) }
+      : expr SEMI SPACE* program
+        {
+          if val[3].type == :PROG
+            s(:PROG, val[0], *val[3].children)
+          elsif val[3].type == :NOOP
+            s(:PROG, val[0])
+          else
+            s(:PROG, val[0], val[3])
+          end
+        }
       | expr SEMI         { s(:PROG, val[0]) }
       | expr              { s(:PROG, val[0]) }
       | _                 { s(:NOOP) }
@@ -333,16 +353,23 @@ if $PROGRAM_NAME == __FILE__
       | pipeline  { s(:EXPR, val[0]) }
       ;
     and_or
-      : pipeline AND pipeline { s(:AND, *val) }
-      | pipeline OR pipeline  { s(:OR, *val) }
+      : pipeline AND SPACE* pipeline { s(:AND, val[0], val[3]) }
+      | pipeline OR  SPACE* pipeline { s(:OR, val[0], val[3]) }
       ;
     pipeline
-      : command PIPE pipeline { s(:PIPELINE, val[0], *val[1].children) }
+      : command PIPE SPACE* pipeline SPACE*
+        {
+          if val[3].type == :PIPELINE
+            s(:PIPELINE, val[0], *val[3].children)
+          else
+            s(:PIPELINE, val[0], val[3])
+          end
+        }
       | command
       ;
     command
-      : cmd_part command { s(:COMMAND, val[0], *val[1].children) }
-      | cmd_part         { s(:COMMAND, val[0]) }
+      : cmd_part SPACE* command SPACE* { s(:COMMAND, val[0], *val[2].children) }
+      | cmd_part SPACE*                { s(:COMMAND, val[0]) }
       ;
     cmd_part
       : redirect | word | assignment
@@ -352,9 +379,14 @@ if $PROGRAM_NAME == __FILE__
       ;
     word
       : word_type word { s(:WORD, val[0], *val[1].children) }
-      | word_type      { s(:WORD, s(val[0].type, val[0].value)) }
+      | word_type      { s(:WORD, val[0]) }
       ;
-    word_type: LIT | INTERP | SUB | VAR;
+    word_type
+      : LIT    { s(:LIT, val[0].value) }
+      | INTERP { s(:INTERP, val[0].value) }
+      | SUB    { s(:SUB, val[0].value) }
+      | VAR    { s(:VAR, val[0].value) }
+      ;
     redirect:  REDIRECT_OUT | REDIRECT_IN;
   GR
 

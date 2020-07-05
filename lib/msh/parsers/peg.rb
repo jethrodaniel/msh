@@ -9,20 +9,12 @@ class TokenStream
     @lexer = lexer
     @tokens = []
     @pos = 0
-    @in_word = false
-  end
-
-  # we use this to get around discarding whitespace
-  def in_word?
-    @in_word
   end
 
   def peek
     if @pos == @tokens.size
       t = @lexer.next_token
-      t = @lexer.next_token while %i[SPACE COMMENT].include?(t.type)
       @tokens << t.dup
-      @in_word = @tokens.last.type == :WORD
     end
 
     @tokens[@pos]
@@ -87,6 +79,14 @@ module Msh
           return @token_stream.next if types.include?(token.type)
 
           nil
+        end
+
+        def consume_star *types
+          ret = []
+          while types.include? @token_stream.peek.type
+            ret << @token_stream.next
+          end
+          ret
         end
 
         def skip *types

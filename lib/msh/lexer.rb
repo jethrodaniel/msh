@@ -85,9 +85,6 @@ module Msh
     #
     # @raise [Errors::LexerError]
     def error msg = nil
-    require 'pry';require 'pry-byebug';binding.pry;nil
-    puts
-
       raise Errors::LexerError, "error at line #{@token.line}, " \
                                 "column #{@token.column}: #{msg}"
     end
