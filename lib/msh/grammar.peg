@@ -1,0 +1,55 @@
+program
+  : expr SEMI SPACE* program
+    {
+      if val[3].type == :PROG
+        s(:PROG, val[0], *val[3].children)
+      elsif val[3].type == :NOOP
+        s(:PROG, val[0])
+      else
+        s(:PROG, val[0], val[3])
+      end
+    }
+  | expr SEMI { s(:PROG, val[0]) }
+  | expr      { s(:PROG, val[0]) }
+  | _         { s(:NOOP) }
+  ;
+expr
+  : and_or    { s(:EXPR, val[0]) }
+  | pipeline  { s(:EXPR, val[0]) }
+  ;
+and_or
+  : pipeline AND SPACE* pipeline { s(:AND, val[0], val[3]) }
+  | pipeline OR  SPACE* pipeline { s(:OR, val[0], val[3]) }
+  ;
+pipeline
+  : command PIPE SPACE* pipeline SPACE*
+    {
+      if val[3].type == :PIPELINE
+        s(:PIPELINE, val[0], *val[3].children)
+      else
+        s(:PIPELINE, val[0], val[3])
+      end
+    }
+  | command
+  ;
+command
+  : cmd_part SPACE* command SPACE* { s(:COMMAND, val[0], *val[2].children) }
+  | cmd_part SPACE*                { s(:COMMAND, val[0]) }
+  ;
+cmd_part
+  : redirect | word | assignment
+  ;
+assignment
+  : word EQ word { s(:ASSIGN, val[0], val[2]) }
+  ;
+word
+  : word_type word { s(:WORD, val[0], *val[1].children) }
+  | word_type      { s(:WORD, val[0]) }
+  ;
+word_type
+  : LIT    { s(:LIT, val[0].value) }
+  | INTERP { s(:INTERP, val[0].value) }
+  | SUB    { s(:SUB, val[0].value) }
+  | VAR    { s(:VAR, val[0].value) }
+  ;
+redirect:  REDIRECT_OUT | REDIRECT_IN;

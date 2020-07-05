@@ -240,16 +240,17 @@ module Msh
 
     def generate io = $stdout
       io.puts "# frozen_string_literal: true"
-      io.puts ""
+      io.puts
+      io.puts "# **note**: auto-generated, do not edit."
+      io.puts "#"
+      io.puts "#    $ bundle exec ruby parser.rb"
+      io.puts "#"
+      io.puts
       io.puts 'require "msh/scanner"'
       io.puts 'require "msh/lexer"'
       io.puts 'require "msh/parsers/peg"'
       io.puts 'require "msh/parsers/peg/generator"'
       io.puts ""
-      io.puts "# auto-generated, do not edit."
-      io.puts "#"
-      io.puts "#    $ bundle exec ruby parser.rb"
-      io.puts "#"
       io.puts "class MshParser < Msh::Parsers::Peg::Base"
       io.puts "  def parse"
       io.puts "    #{@rules.first.name}"
@@ -281,21 +282,21 @@ module Msh
             indent = " " * (depth += 2)
 
             if is_epsilon
-              io.puts "#{indent}if true # epsilon"
+              io.puts "#{indent}if true"
               io.puts "#{indent}  val << nil"
             elsif is_token
               var = new_var
 
               if item.zero_or_more
-                io.puts "#{indent}if #{var} = consume_star(:#{item.value}) # token"
+                io.puts "#{indent}if #{var} = consume_star :#{item.value}"
               else
-                io.puts "#{indent}if #{var} = consume(:#{item.value}) # token"
+                io.puts "#{indent}if #{var} = consume :#{item.value}"
               end
 
               io.puts "#{indent}  val << #{var}"
             else
               var = new_var
-              io.puts "#{indent}if #{var} = #{item.value} # rule"
+              io.puts "#{indent}if #{var} = #{item.value}"
               io.puts "#{indent}  val << #{var}"
             end
             ends << indent
@@ -332,63 +333,7 @@ module Msh
 end
 
 if $PROGRAM_NAME == __FILE__
-  parser = GrammarParser.new(TokenStream.new(GrammarLexer.new(<<~GR)))
-    program
-      : expr SEMI SPACE* program
-        {
-          if val[3].type == :PROG
-            s(:PROG, val[0], *val[3].children)
-          elsif val[3].type == :NOOP
-            s(:PROG, val[0])
-          else
-            s(:PROG, val[0], val[3])
-          end
-        }
-      | expr SEMI         { s(:PROG, val[0]) }
-      | expr              { s(:PROG, val[0]) }
-      | _                 { s(:NOOP) }
-      ;
-    expr
-      : and_or    { s(:EXPR, val[0]) }
-      | pipeline  { s(:EXPR, val[0]) }
-      ;
-    and_or
-      : pipeline AND SPACE* pipeline { s(:AND, val[0], val[3]) }
-      | pipeline OR  SPACE* pipeline { s(:OR, val[0], val[3]) }
-      ;
-    pipeline
-      : command PIPE SPACE* pipeline SPACE*
-        {
-          if val[3].type == :PIPELINE
-            s(:PIPELINE, val[0], *val[3].children)
-          else
-            s(:PIPELINE, val[0], val[3])
-          end
-        }
-      | command
-      ;
-    command
-      : cmd_part SPACE* command SPACE* { s(:COMMAND, val[0], *val[2].children) }
-      | cmd_part SPACE*                { s(:COMMAND, val[0]) }
-      ;
-    cmd_part
-      : redirect | word | assignment
-      ;
-    assignment
-      : word EQ word { s(:ASSIGN, val[0], val[2]) }
-      ;
-    word
-      : word_type word { s(:WORD, val[0], *val[1].children) }
-      | word_type      { s(:WORD, val[0]) }
-      ;
-    word_type
-      : LIT    { s(:LIT, val[0].value) }
-      | INTERP { s(:INTERP, val[0].value) }
-      | SUB    { s(:SUB, val[0].value) }
-      | VAR    { s(:VAR, val[0].value) }
-      ;
-    redirect:  REDIRECT_OUT | REDIRECT_IN;
-  GR
+  parser = GrammarParser.new(TokenStream.new(GrammarLexer.new(File.read("lib/msh/grammar.peg"))))
 
   rules = parser.parse
   puts rules
