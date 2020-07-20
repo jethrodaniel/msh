@@ -34,7 +34,10 @@ module Msh
       :to_s,
       :class,
 
-      :puts
+      :puts,
+
+      :fork,
+      :exec
     ].freeze
 
     HIDDEN = instance_methods - NEEDED

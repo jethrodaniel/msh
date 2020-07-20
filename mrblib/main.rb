@@ -3,6 +3,7 @@
 # Extensions to make MRuby _compatible_ with CRuby
 
 $CHILD_STATUS = $? # rubocop:disable Style/SpecialGlobalVars
+$LOAD_PATH = $:    # rubocop:disable Style/SpecialGlobalVars
 
 class Object
   def freeze
@@ -40,8 +41,13 @@ module Kernel
 
     Exec.execve(env, cmd, *args)
   end
+
+  def fork &block
+    Process.fork(&block)
+  end
 end
 
+# sorry, mruby-dir, this is good enough for now
 class Dir
   def self.home
     ENV["HOME"]
@@ -64,7 +70,7 @@ end
 
 # load up the `lib` directory
 dir = File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
-$: << File.join(dir, "../lib") # rubocop:disable Style/SpecialGlobalVars
+$LOAD_PATH << File.join(dir, "../lib")
 
 require "msh"
 
