@@ -2,7 +2,7 @@
 
 require "msh/parser"
 
-include AST::Sexp
+include Msh::AST::Sexp
 
 def it_parses code, ast
   assert code do
