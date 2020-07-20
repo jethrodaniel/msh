@@ -82,10 +82,23 @@ module Msh
     #
     # Each `on_TOKEN` type is responsible for handling its children. This
     # allows `process` to recursively traverse the AST.
-    include ::AST::Processor::Mixin
+    # include ::AST::Processor::Mixin
+    def process node
+      return if node.nil?
+
+      meth = :"on_#{node.type}"
+      return send(meth, node) if respond_to?(meth)
+
+      handler_missing node
+    end
+
+    # def process_all *nodes
+    def process_all node
+      node.to_a.map { |n| process n }
+    end
 
     # create nodes with `s(:TOKEN, ...)`
-    include ::AST::Sexp
+    include AST::Sexp
 
     Redirect = Struct.new :io, :dup, :file
 

@@ -30,11 +30,10 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.required_ruby_version = ">= 2.5"
 
-  spec.add_dependency "ast", "~> 2.4"
   spec.add_dependency "reline", "~> 0.1.4"
 
   spec.add_development_dependency "asciidoctor"
-  spec.add_development_dependency "asciidoctor-pdf"
+  # spec.add_development_dependency "asciidoctor-pdf"
   spec.add_development_dependency "benchmark_driver"
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
