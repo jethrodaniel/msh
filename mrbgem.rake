@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "msh/version"
 
 MRuby::Gem::Specification.new("mruby-bin-msh") do |spec|
@@ -8,6 +6,8 @@ MRuby::Gem::Specification.new("mruby-bin-msh") do |spec|
   spec.summary = "Ruby shell"
   spec.version = Msh::VERSION
   spec.bins = ["msh"]
+  # spec.cxx_srcs = %w(tools)
+  # spec.cxx_srcs = ['src', 'test', 'tools']
 
   minimal_default_gems spec
 
@@ -25,9 +25,6 @@ MRuby::Gem::Specification.new("mruby-bin-msh") do |spec|
 
   # missing `Dir.home`
   # spec.add_dependency "mruby-dir",   :github => "iij/mruby-dir"
-
-  spec.add_dependency "mruby-ast", :github => "jethrodaniel/mruby-ast"
-  # spec.add_dependency "mruby-ast",     :github => "jethrodaniel/mruby-ast", :branch => 'freeze'
 
   spec.add_dependency "mruby-require" # , :github => "jethrodaniel/mruby-require"
 
