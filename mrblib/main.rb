@@ -1,13 +1,7 @@
 # Extensions to make MRuby _compatible_ with CRuby
 
 $CHILD_STATUS = $? # rubocop:disable Style/SpecialGlobalVars
-$LOAD_PATH = $:    # rubocop:disable Style/SpecialGlobalVars
-
-# class Object
-#   def freeze
-#     self
-#   end
-# end
+$LOAD_PATH    = $: # rubocop:disable Style/SpecialGlobalVars
 
 module Kernel
   def puts obj
@@ -45,8 +39,8 @@ module Kernel
   end
 end
 
-# sorry, mruby-dir, this is good enough for now
 class Dir
+  # mruby-dir does not provide this
   def self.home
     ENV["HOME"]
   end
