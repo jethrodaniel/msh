@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "yard"
 require "yard/doctest/rake"
 require "rspec/core/rake_task"

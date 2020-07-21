@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # Backports for nice things.
 
 version = RUBY_VERSION[0..2].to_f

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 RSpec.describe Msh do
   it "has a version number" do
     expect(Msh::VERSION).not_to be nil

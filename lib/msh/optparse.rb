@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Msh
   # Stupid simple option parser _clone_, since optparse is pretty heavyweight,
   # and pulls in onigmo (regexp) on mruby.

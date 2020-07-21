@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 def t type, value, line, column
   Msh::Token.new :type => type, :value => value, :line => line, :column => column
 end

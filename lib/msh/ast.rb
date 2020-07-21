@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # Minimal version of whitequark's excellent AST library: https://github.com/whitequark/ast
 #
 #     require "ast"

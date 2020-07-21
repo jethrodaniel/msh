@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "msh/lexer"
 
 def it_lexes code, tokens

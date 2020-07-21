@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # Adapted from https://stackoverflow.com/a/11482430/7132678
 class String
   def black

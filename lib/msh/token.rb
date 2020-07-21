@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Msh
   # A Token is the smallest unit of source code recognized.
   #

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 DEV_CONF = <<~'RB'
   # Turn on `enable_debug` for better debugging
   enable_debug

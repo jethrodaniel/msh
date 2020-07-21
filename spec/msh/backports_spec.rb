@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "msh/backports"
 
 version = RUBY_VERSION[0..2].to_f

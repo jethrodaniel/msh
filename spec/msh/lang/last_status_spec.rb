@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 describe "last status" do
   subject { Msh::Interpreter.new }
 

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 describe "msh" do
   it "-h, --help" do
     expect(sh("msh -h")).to eq <<~MSG
@@ -22,7 +20,7 @@ describe "msh" do
 
   describe "-c <cmd_string>" do
     it "runs the command string as shell input" do
-      expect(sh('msh -c ./spec/fixtures/stdout_and_stderr.rb')).to eq(<<~SH)
+      expect(sh("msh -c ./spec/fixtures/stdout_and_stderr.rb")).to eq(<<~SH)
         this goes to std err
         and this goes to std out
       SH

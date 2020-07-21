@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "msh/core_extensions"
 require "msh/readline"
 require "msh/errors"

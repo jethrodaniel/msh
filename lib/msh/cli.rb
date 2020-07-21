@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "msh/optparse"
 require "msh/version"
 require "msh/interpreter"

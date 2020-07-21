@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Msh
   module Errors
     class Error < StandardError; end
