@@ -1,15 +1,13 @@
-# frozen_string_literal: true
-
 # Extensions to make MRuby _compatible_ with CRuby
 
 $CHILD_STATUS = $? # rubocop:disable Style/SpecialGlobalVars
 $LOAD_PATH = $:    # rubocop:disable Style/SpecialGlobalVars
 
-class Object
-  def freeze
-    self
-  end
-end
+# class Object
+#   def freeze
+#     self
+#   end
+# end
 
 module Kernel
   def puts obj

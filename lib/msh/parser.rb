@@ -116,7 +116,7 @@ module Msh
   class Parser
     include Msh::Logger
 
-    REDIRECTS = [
+    REDIRECTS = [ # rubocop:disable Style/MutableConstant
       :REDIRECT_OUT,         # [n]>
       :REDIRECT_IN,          # [n]<
       :APPEND_OUT,           # [n]>>
@@ -125,15 +125,15 @@ module Msh
       :DUP_OUT_FD,           # [n]>&n
       :DUP_IN_FD,            # [n]<&n
       :NO_CLOBBER            # [n]>|
-    ].freeze
+    ]
 
-    WORDS = [
+    WORDS = [ # rubocop:disable Style/MutableConstant
       :WORD,        # echo
       :TIME,        # echo time
       :VAR,         # $USER
       :INTERP,      # echo the time is #{Time.now}
       :LAST_STATUS  # $?
-    ].freeze
+    ]
 
     attr_reader :lexer
 
@@ -293,6 +293,7 @@ module Msh
       if match?(*WORDS) && match?(*REDIRECTS)
         puts ">>>>>>>>>>>>>>>>>>>>>"
       end
+
       # somehow mruby is matching redirects **and** words..
       while match?(*WORDS)
         c = current_token
