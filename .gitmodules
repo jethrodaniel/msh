@@ -6,9 +6,3 @@
 
 # mruby gems
 
-[submodule "mrbgems/mruby-ast"]
-	path = mrbgems/mruby-ast
-	url = https://github.com/jethrodaniel/mruby-ast
-; [submodule "mrbgems/mruby-fcntl"]
-; 	path = mrbgems/mruby-fcntl
-; 	url = https://github.com/jethrodaniel/mruby-fcntl
