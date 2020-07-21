@@ -34,10 +34,13 @@ module Msh
       :to_s,
       :class,
 
+      # Useful stuff
       :puts,
-
       :fork,
-      :exec
+      :exec,
+      :abort,
+      :warn,
+      :exit!
     ].freeze
 
     HIDDEN = instance_methods - NEEDED
@@ -90,6 +93,7 @@ module Msh
       0
     end
 
+    # alias _exit exit
     def quit code = 1
       puts "goodbye! <3"
       exit! code
