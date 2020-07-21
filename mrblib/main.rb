@@ -18,9 +18,9 @@ module Kernel
     $stderr.puts msg # rubocop:disable Style/StderrPuts
   end
 
-  def abort msg
+  def abort msg, exit_code = 1
     warn msg
-    exit!(1)
+    exit! exit_code
   end
 
   def exec cmd, *args
