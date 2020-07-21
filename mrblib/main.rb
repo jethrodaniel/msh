@@ -20,7 +20,7 @@ module Kernel
 
   def abort msg
     warn msg
-    exit(1)
+    exit!(1)
   end
 
   def exec cmd, *args
