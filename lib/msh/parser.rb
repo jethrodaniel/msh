@@ -114,7 +114,7 @@ module Msh
   class Parser
     include Msh::Logger
 
-    REDIRECTS = [ # rubocop:disable Style/MutableConstant
+    REDIRECTS = [
       :REDIRECT_OUT,         # [n]>
       :REDIRECT_IN,          # [n]<
       :APPEND_OUT,           # [n]>>
@@ -123,15 +123,15 @@ module Msh
       :DUP_OUT_FD,           # [n]>&n
       :DUP_IN_FD,            # [n]<&n
       :NO_CLOBBER            # [n]>|
-    ]
+    ].freeze
 
-    WORDS = [ # rubocop:disable Style/MutableConstant
+    WORDS = [
       :WORD,        # echo
       :TIME,        # echo time
       :VAR,         # $USER
       :INTERP,      # echo the time is #{Time.now}
       :LAST_STATUS  # $?
-    ]
+    ].freeze
 
     attr_reader :lexer
 
@@ -153,7 +153,7 @@ module Msh
     # @param types [Array<Symbol>]
     # @return [bool]
     def match? *types
-      # log.debug { "  match? #{types} | #{current_token} =#{types.include? current_token.type}" }
+      log.debug { "  match? #{types} | #{current_token} =#{types.include? current_token.type}" }
       types.include? current_token.type
     end
 
@@ -195,9 +195,6 @@ module Msh
     # @return [AST]
     def parse
       _program
-      # _command # frozen error?
-      # _word # works
-      # _redirect
     end
 
     # @return [AST]
@@ -256,6 +253,10 @@ module Msh
       cmd_parts = []
 
       while match?(*WORDS, *REDIRECTS)
+        if match?(*REDIRECTS) && match?(*WORDS)
+          error "current token is both a redrect and a word? #{current_token}"
+        end
+
         if match?(*WORDS)
           cmd_parts << _word
         elsif match?(*REDIRECTS)
@@ -288,16 +289,12 @@ module Msh
 
       word_pieces = []
 
-      if match?(*WORDS) && match?(*REDIRECTS)
-        puts ">>>>>>>>>>>>>>>>>>>>>"
-      end
-
       # somehow mruby is matching redirects **and** words..
       while match?(*WORDS)
         c = current_token
-        log.debug { ":#{__method__}: #{current_token} | match?(*WORDS): #{match?(*WORDS)} | match?(*REDIRECTS): #{match?(*REDIRECTS)}" }
+        # log.debug { ":#{__method__}: #{current_token} | match?(*WORDS): #{match?(*WORDS)} | match?(*REDIRECTS): #{match?(*REDIRECTS)}" }
         # log.debug { "  2#{__method__}: #{current_token}" }
-        log.debug { "  2#{__method__}: #{current_token.type.inspect} | match?(*WORDS): #{match?(*WORDS)} | match?(*REDIRECTS): #{match?(*REDIRECTS)}" }
+        # log.debug { "  2#{__method__}: #{current_token.type.inspect} | match?(*WORDS): #{match?(*WORDS)} | match?(*REDIRECTS): #{match?(*REDIRECTS)}" }
         # next if  # why?
 
         case c.type
@@ -312,11 +309,11 @@ module Msh
         else
           error "expected a word type, got `#{current_token}`"
         end
-        log.debug { "-> #{current_token} | match?(*REDIRECTS):#{match?(*REDIRECTS)} | match?(*WORDS): #{match?(*WORDS)} " }
+        # log.debug { "-> #{current_token} | match?(*REDIRECTS):#{match?(*REDIRECTS)} | match?(*WORDS): #{match?(*WORDS)} " }
 
         advance
         # break unless match? :WORD
-        log.debug { p "-> #{current_token} | match?(*REDIRECTS):#{match?(*REDIRECTS)} | match?(*WORDS): #{match?(*WORDS)} "}
+        # log.debug { p "-> #{current_token} | match?(*REDIRECTS):#{match?(*REDIRECTS)} | match?(*WORDS): #{match?(*WORDS)} "}
       end
 
       error "expected a word" if word_pieces.empty?

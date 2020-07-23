@@ -44,9 +44,9 @@ class Pipeline
 end
 
 # ruby lib/msh/pipe.rb
-if $PROGRAM_NAME == __FILE__
-  commands = %w[fortune rev cowsay]
+# if $PROGRAM_NAME == __FILE__
+#   commands = %w[fortune rev cowsay]
 
-  p = Pipeline.new commands
-  p.run { |c| exec(*c.cmd) }
-end
+#   p = Pipeline.new commands
+#   p.run { |c| exec(*c.cmd) }
+# end

@@ -40,7 +40,7 @@ module Kernel
 end
 
 class Dir
-  # mruby-dir does not provide this
+  # mruby-dir doesn't provide this
   def self.home
     ENV["HOME"]
   end
