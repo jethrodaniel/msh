@@ -1,124 +1,44 @@
 require "msh/version"
 
-MRuby::Gem::Specification.new("mruby-bin-msh") do |spec|
+MRuby::Gem::Specification.new("mruby-bin-msh") do |spec| # rubocop:disable Metrics/BlockLength
   spec.license = "MIT"
   spec.author  = "Mark Delk"
   spec.summary = "Ruby shell"
   spec.version = Msh::VERSION
-  spec.bins = ["msh"]
-  # spec.cxx_srcs = %w(tools)
-  # spec.cxx_srcs = ['src', 'test', 'tools']
+  spec.bins    = ["msh"]
 
-  minimal_default_gems spec
+  {
+    "errno" => "iij",
+    "process" => "iij",
+    "exec" => "haconiwa"
+  }.each do |gem, author|
+    spec.add_dependency "mruby-#{gem}", :github => "#{author}/mruby-#{gem}"
+  end
 
-  spec.add_dependency "mruby-logger"
-  spec.add_dependency "mruby-env"
-  # spec.add_dependency "mruby-file-stat"
-  spec.add_dependency "mruby-errno",   :github => "iij/mruby-errno"
-  spec.add_dependency "mruby-exec",    :github => "haconiwa/mruby-exec"
-  spec.add_dependency "mruby-process", :github => "iij/mruby-process"
-  # windows support, as well as `spawn` that didn't work well with redirections..
-  # spec.add_dependency "mruby-process", :github => "appPlant/mruby-process"
-  spec.add_dependency "mruby-eval"
-  spec.add_dependency "mruby-method"
-  spec.add_dependency "mruby-fcntl", :github => "jethrodaniel/mruby-fcntl"
+  %w[
+    metaprog
+    io
+    print
+    math
+    struct
+    enum-ext
+    string-ext
+    numeric-ext
+    array-ext
+    hash-ext
+    object-ext
+    toplevel-ext
+    kernel-ext
+    logger
+    env
+    eval
+    method
+    require
 
-  # missing `Dir.home`
-  # spec.add_dependency "mruby-dir",   :github => "iij/mruby-dir"
-
-  spec.add_dependency "mruby-require" # , :github => "jethrodaniel/mruby-require"
-
-  # spec.rbfiles += Dir.glob(File.join(__dir__, "lib/**/*.rb"))
-end
-
-def minimal_default_gems spec
-  # Meta-programming features
-  spec.add_dependency "mruby-metaprog"
-
-  # Use standard IO/File class
-  spec.add_dependency "mruby-io"
-
-  # # Use standard Array#pack, String#unpack methods
-  # spec.add_dependency "mruby-pack"
-
-  # # Use standard Kernel#sprintf method
-  # spec.add_dependency "mruby-sprintf"
-
-  # Use standard print/puts/p
-  spec.add_dependency "mruby-print"
-
-  # Use standard Math module
-  spec.add_dependency "mruby-math"
-
-  # # Use standard Time class
-  # spec.add_dependency "mruby-time"
-
-  # Use standard Struct class
-  spec.add_dependency "mruby-struct"
-
-  # # Use Comparable module extension
-  # spec.add_dependency "mruby-compar-ext"
-
-  # Use Enumerable module extension
-  spec.add_dependency "mruby-enum-ext"
-
-  # Use String class extension
-  spec.add_dependency "mruby-string-ext"
-
-  # Use Numeric class extension
-  spec.add_dependency "mruby-numeric-ext"
-
-  # # Use Array class extension
-  spec.add_dependency "mruby-array-ext"
-
-  # # Use Hash class extension
-  spec.add_dependency "mruby-hash-ext"
-
-  # # Use Range class extension
-  # spec.add_dependency "mruby-range-ext"
-
-  # # Use Proc class extension
-  # spec.add_dependency "mruby-proc-ext"
-
-  # # Use Symbol class extension
-  # spec.add_dependency "mruby-symbol-ext"
-
-  # # Use Random class
-  # spec.add_dependency "mruby-random"
-
-  # Use Object class extension
-  spec.add_dependency "mruby-object-ext"
-
-  # Use ObjectSpace class
-  # spec.add_dependency "mruby-objectspace"
-
-  # Use Fiber class
-  # spec.add_dependency "mruby-fiber"
-
-  # Use Enumerator class (require mruby-fiber)
-  # spec.add_dependency "mruby-enumerator"
-
-  # Use Enumerator::Lazy class (require mruby-enumerator)
-  # spec.add_dependency "mruby-enum-lazy"
-
-  # Use toplevel object (main) methods extension
-  spec.add_dependency "mruby-toplevel-ext"
-
-  # Generate mirb command
-  spec.add_dependency "mruby-bin-mirb"
-
-  # Generate mruby command
-  spec.add_dependency "mruby-bin-mruby"
-
-  # Generate mruby-strip command
-  # spec.add_dependency "mruby-bin-strip"
-
-  # Use Kernel module extension
-  spec.add_dependency "mruby-kernel-ext"
-
-  # # Use class/module extension
-  # spec.add_dependency "mruby-class-ext"
-
-  # # Use mruby-compiler to build other mrbgems
-  # spec.add_dependency "mruby-compiler"
+    bin-mruby
+    bin-mirb
+    bin-strip
+  ].each do |gem|
+    spec.add_dependency "mruby-#{gem}"
+  end
 end

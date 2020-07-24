@@ -37,6 +37,10 @@ module Msh
 
         sexp
       end
+
+      def == other
+        type == other.type && children == other.children
+      end
     end
 
     module Sexp
