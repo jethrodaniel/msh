@@ -44,9 +44,9 @@ $ make release    # mruby
 
 Make sure you `git clone --recursive` or run `git submodule update`, since MRuby is a submodule.
 
-Or (todo) download the prebuilt binaries for your platform from the [releases page](https://github.com/jethrodaniel/msh/releases) (see [the release action](.github/workflows/release.yml)).
+**todo**: download the prebuilt binaries for your platform from the [releases page](https://github.com/jethrodaniel/msh/releases) (see [the release action](.github/workflows/release.yml)).
 
-**note**: mruby redirection and pipes won't work until we have `IO.reopen`
+**note**: mruby redirection and pipes won't work until we have `IO#reopen`
 
 ## development
 
