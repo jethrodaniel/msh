@@ -3,4 +3,4 @@
 require "msh"
 
 # let us use `s(:TOKEN, ...)` in doctests
-include ::AST::Sexp # rubocop:disable Style/MixinUsage
+include Msh::AST::Sexp # rubocop:disable Style/MixinUsage

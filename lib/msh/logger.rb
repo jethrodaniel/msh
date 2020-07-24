@@ -23,12 +23,12 @@ module Msh
     end
 
     LEVELS = {
-      "debug"   => Logger::DEBUG,
-      "info"    => Logger::INFO,
-      "warn"    => Logger::WARN,
-      "error"   => Logger::ERROR,
-      "fatal"   => Logger::FATAL,
-      "unknown" => Logger::UNKNOWN
+      "debug"   => ::Logger::DEBUG,
+      "info"    => ::Logger::INFO,
+      "warn"    => ::Logger::WARN,
+      "error"   => ::Logger::ERROR,
+      "fatal"   => ::Logger::FATAL,
+      "unknown" => ::Logger::UNKNOWN
     }.freeze
 
     # Access a logger, to stdout (for now).

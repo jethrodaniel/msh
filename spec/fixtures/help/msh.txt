@@ -14,27 +14,29 @@ DESCRIPTION
           of programming, So Ruby is designed to make programmers happy.
             — Yukihiro Matsumoto
 
-       It supports a subset of sh/bash
+       It supports a subset of sh/bash, basically just the essential parts.
 
                   feature                       example
-           _____________________________________________________
-            x | redirect output             | a > b
-            x | append output               | a >> b
-            x | redirect input              | a < b
-              | redirect to file descriptor | a 2>&1
-            x | conditionals                | a || b && c
-            x | commands                    | a; b;
-              | grouping                    | a; {b || c}
-              | subshells                   | (a)
-            x | pipes                       | a | b
-              | command substitution        | $(a 'b' c)
-              | process substitution        | <(a | b)
-              | local variables             | a = 2; echo $a
-            x | environment variables       | a=b a b
-              | aliases                     | alias g = 'git'
-            x | functions                   | repl "def foo; puts :bar; end"; foo
+           ┌───┬─────────────────────────────┬──────────────────────────────────────┐
+           │ ✓ │ redirect output             │ a > b                                │
+           │ ✓ │ append output               │ a >> b                               │
+           │ ✓ │ redirect input              │ a < b                                │
+           │ ✓ │ redirect to file descriptor │ a 2>&1                               │
+           │ ✓ │ conditionals                │ a || b && c                          │
+           │ ✓ │ commands                    │ a; b;                                │
+           │   │ grouping                    │ a; {b || c}                          │
+           │   │ subshells                   │ (a)                                  │
+           │ ✓ │ pipes                       │ a | b                                │
+           │   │ command substitution        │ $(a 'b' c)                           │
+           │   │ process substitution        │ <(a | b)                             │
+           │   │ local variables             │ a = 2                                │
+           │   │ variable interpolation      │ echo $HOME                           │
+           │ ✓ │ environment variables       │ a=b a b                              │
+           │   │ aliases                     │ alias g = 'git'                      │
+           │ ✓ │ functions                   │ repl "def foo; puts :bar; end"; foo  │
+           └───┴─────────────────────────────┴──────────────────────────────────────┘
 
-       It allows for interpolation in any words
+       It allows for interpolation in words
 
            $ echo π ≈ #{Math::PI} | cowsay
             _________________________
@@ -66,7 +68,7 @@ EXAMPLES
 
            $ repl
            enter some ruby (sorry, no multiline)
-           > def upcase; ARGF.each_line.map(&:upcase).each { |l| puts l }; end
+           > def upcase; ARGF.each_line { |l| puts l.upcase }; end
            => :upcase
            > ^D
            $ echo hi | upcase
@@ -115,4 +117,4 @@ RESOURCES
 MSH
        Part of msh(1).
 
-Msh v0.2.0                        2020-06-26                            MSH(1)
+Msh v0.2.0                        2020-07-24                            MSH(1)

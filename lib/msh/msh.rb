@@ -134,7 +134,7 @@
 module Msh
   def self.root
     lib = File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
-    File.realpath(File.join(lib, ".."))
+    File.realpath(File.join(lib, "../.."))
   end
 
   # Entry point for the `msh` command.

@@ -1,5 +1,5 @@
 # @example
-#     commands = %w[fortune rev cowsay]
+#     commands = %w[date cat]
 #
 #     p = Pipeline.new commands
 #     p.run { |c| exec(*c.cmd) }
