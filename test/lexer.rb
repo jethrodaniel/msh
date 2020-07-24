@@ -1,4 +1,4 @@
-require "msh/lexer"
+# require "msh/lexer"
 
 def it_lexes code, tokens
   assert code do

@@ -1,4 +1,4 @@
 default:
-	bundle exec rake mruby && du -hs msh
+	bundle exec rake -B mruby && du -hs msh
 release:
-	RELEASE=true bundle exec rake mruby && du -hs msh
+	RELEASE=true bundle exec rake -B mruby && du -hs msh

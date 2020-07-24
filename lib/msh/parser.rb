@@ -131,7 +131,7 @@ module Msh
       :VAR,         # $USER
       :INTERP,      # echo the time is #{Time.now}
       :LAST_STATUS  # $?
-    ].freeze
+    ]#.freeze
 
     attr_reader :lexer
 

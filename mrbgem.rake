@@ -28,7 +28,7 @@ MRuby::Gem::Specification.new("mruby-bin-msh") do |spec|
 
   spec.add_dependency "mruby-require" # , :github => "jethrodaniel/mruby-require"
 
-  spec.rbfiles += Dir.glob(File.join(__dir__, "lib/**/*.rb"))
+  # spec.rbfiles += Dir.glob(File.join(__dir__, "lib/**/*.rb"))
 end
 
 def minimal_default_gems spec

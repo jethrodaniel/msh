@@ -1,5 +1,3 @@
-require "msh/parser"
-
 include Msh::AST::Sexp
 
 def it_parses code, ast
