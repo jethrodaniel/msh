@@ -34,6 +34,8 @@ Make sure you `git clone --recursive` or run `git submodule update`, since MRuby
 
 Or (todo) download the prebuilt binaries for your platform from the [releases page](https://github.com/jethrodaniel/msh/releases) (see [the release action](.github/workflows/release.yml)).
 
+**note**: mruby redirection and pipes won't work until we have `IO.reopen`
+
 ## development
 
 See `rake -T` and tools in `./bin/`.
@@ -45,17 +47,6 @@ $ make                  # mruby
 
 Check out [the CI](https://github.com/jethrodaniel/msh/actions/) to see the specs' last executions 🔪.
 
-### mruby
-
-Differences
-
-```
-# without the parens, we get `warning: '*' interpreted as argument prefix`
-Kernel.puts(*objs)
-```
-
-Lack of `IO#reopen`, `IO#fcntl`, `Binding`, etc...
-
 ## contributing
 
 Bug reports and pull requests are welcome on [GitHub](https://github.com/jethrodaniel/msh).
@@ -63,8 +54,7 @@ Bug reports and pull requests are welcome on [GitHub](https://github.com/jethrod
 ```sh
 git clone --recursive https://github.com/jethrodaniel/msh
 cd msh
-bundle && bundle exec rake
-make
+bundle && bundle exec rake && make
 ```
 
 ## license
