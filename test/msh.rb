@@ -1,3 +1,3 @@
 assert "Msh" do
-  assert_equal "0.2.0", Msh::VERSION
+  assert_equal "0.3.0", Msh::VERSION
 end

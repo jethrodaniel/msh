@@ -1,3 +1,5 @@
+require "English"
+
 # @example
 #     commands = %w[date cat]
 #

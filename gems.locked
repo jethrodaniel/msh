@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    msh (0.2.0)
+    msh (0.3.0)
       reline (~> 0.1.4)
 
 GEM

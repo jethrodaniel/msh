@@ -33,9 +33,11 @@ def make_file name, source
   File.open(name, "w") { |f| f.puts source }
 end
 
+directory "mrblib"
 SINGLE_MSH = "mrblib/msh.rb".freeze
+CLEAN << "mrblib"
 
-file SINGLE_MSH => Dir.glob("lib/**/*.rb") do |t|
+file SINGLE_MSH => Dir.glob("lib/**/*.rb") + ["mrblib"] do |t|
   sh "cp lib/msh/mruby.rb #{t.name}"
   sh "./bin/consolidate lib/msh.rb >> #{t.name}"
 end

@@ -1,3 +1,5 @@
+require "English"
+
 module Msh
   class Context
     NEEDED = [
@@ -66,7 +68,8 @@ module Msh
     end
 
     attr_reader :_
-    alias :$? _
+
+    # alias :$? _
 
     def repl
       puts "enter some ruby (sorry, no multiline)"
@@ -134,7 +137,7 @@ module Msh
 
       Process.wait pid
 
-      $CHILD_STATUS.exitstatus
+      $?.exitstatus # rubocop:disable Style/SpecialGlobalVars
     end
     alias_method :'?', :help # rubocop:disable Style/Alias (ruby can't parse this)
   end

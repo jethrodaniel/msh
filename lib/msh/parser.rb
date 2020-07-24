@@ -125,13 +125,13 @@ module Msh
       :NO_CLOBBER            # [n]>|
     ].freeze
 
-    WORDS = [
+    WORDS = [ # rubocop:disable Style/MutableConstant
       :WORD,        # echo
       :TIME,        # echo time
       :VAR,         # $USER
       :INTERP,      # echo the time is #{Time.now}
       :LAST_STATUS  # $?
-    ].freeze # .freeze
+    ] # .freeze   TODO: doesn't work in mruby
 
     attr_reader :lexer
 

@@ -1,3 +1,5 @@
+require "English"
+
 require "msh/logger"
 require "msh/errors"
 require "msh/config"

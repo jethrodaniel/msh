@@ -5,7 +5,7 @@ describe "msh" do
           msh [options]... [file]...
 
       Options:
-          -V, --version  show the version   (0.2.0)
+          -V, --version  show the version
           -c, --command  runs a string as shell input
           -h, --help     print this help
     MSG

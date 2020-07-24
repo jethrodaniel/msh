@@ -21,7 +21,7 @@ Options:
           exit 2
         end
 
-        opts.on "-V", "--version", "show the version   (#{Msh::VERSION})" do
+        opts.on "-V", "--version", "show the version" do
           puts "msh version #{Msh::VERSION}"
           exit 2
         end
