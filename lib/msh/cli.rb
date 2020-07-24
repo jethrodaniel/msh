@@ -4,7 +4,7 @@ require "msh/interpreter"
 
 module Msh
   module CLI
-    BANNER = <<-B
+    BANNER = <<-B.freeze
 Usage:
     msh [options]... [file]...
 

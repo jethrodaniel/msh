@@ -85,6 +85,6 @@ class String
   end
 
   def no_colors
-    gsub /\e\[\d+m/, ""
+    gsub(/\e\[\d+m/, "")
   end
 end

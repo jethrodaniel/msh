@@ -131,7 +131,7 @@ module Msh
       :VAR,         # $USER
       :INTERP,      # echo the time is #{Time.now}
       :LAST_STATUS  # $?
-    ]#.freeze
+    ].freeze # .freeze
 
     attr_reader :lexer
 
@@ -140,7 +140,7 @@ module Msh
     end
 
     delegate :current_token, :lexer
-    delegate :advance,       :lexer,         :via => :next_token
+    delegate :advance,       :lexer, :via => :next_token
     delegate :eof?,          :lexer
     delegate :line,          :current_token
     delegate :column,        :current_token
@@ -253,9 +253,7 @@ module Msh
       cmd_parts = []
 
       while match?(*WORDS, *REDIRECTS)
-        if match?(*REDIRECTS) && match?(*WORDS)
-          error "current token is both a redrect and a word? #{current_token}"
-        end
+        error "current token is both a redrect and a word? #{current_token}" if match?(*REDIRECTS) && match?(*WORDS)
 
         if match?(*WORDS)
           cmd_parts << _word

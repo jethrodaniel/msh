@@ -22,6 +22,15 @@ module Msh
       "[#{severity.ljust(5, ' ')}][#{time}]: #{msg}\n"
     end
 
+    LEVELS = {
+      "debug"   => Logger::DEBUG,
+      "info"    => Logger::INFO,
+      "warn"    => Logger::WARN,
+      "error"   => Logger::ERROR,
+      "fatal"   => Logger::FATAL,
+      "unknown" => Logger::UNKNOWN
+    }.freeze
+
     # Access a logger, to stdout (for now).
     #
     # Uses logging level ENV['MSH_LOG'], which can be WARN, INFO, etc
@@ -35,22 +44,7 @@ module Msh
     end
 
     def log_level
-      case severity = ENV["MSH_LOG"].to_s.downcase
-      when "debug"
-        ::Logger::DEBUG
-      when "info"
-        ::Logger::INFO
-      when "warn"
-        ::Logger::WARN
-      when "error"
-        ::Logger::ERROR
-      when "fatal"
-        ::Logger::FATAL
-      when "unknown"
-        ::Logger::UNKNOWN
-      else
-        6 # Some large positive, so we don't log anything
-      end
+      LEVELS[ENV["MSH_LOG"].to_s.downcase] || 6
     end
   end
 end

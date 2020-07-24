@@ -48,12 +48,10 @@ module Msh
                    @actions.find { |a| a.short == switch }
                  end
 
-        if action
-          puts(@banner) if action.long == "--help"
-          action.block.(files.join(" "))
-        else
-          raise InvalidOption, "invalid option `#{switch}`"
-        end
+        raise InvalidOption, "invalid option `#{switch}`" unless action
+
+        puts(@banner) if action.long == "--help"
+        action.block.call(files.join(" "))
       end
     end
   end

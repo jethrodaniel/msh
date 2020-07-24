@@ -1,3 +1,9 @@
+# @example
+#     commands = %w[fortune rev cowsay]
+#
+#     p = Pipeline.new commands
+#     p.run { |c| exec(*c.cmd) }
+#
 class Pipeline
   attr_reader :cmds
 
@@ -21,7 +27,8 @@ class Pipeline
   def run
     pids = []
     exit_code = nil
-    @cmds.each_with_index do |cmd, _index|
+
+    @cmds.each do |cmd|
       cmd.pid = fork do
         $stdin.reopen  cmd.in
         $stdout.reopen cmd.out
@@ -42,11 +49,3 @@ class Pipeline
     end
   end
 end
-
-# ruby lib/msh/pipe.rb
-# if $PROGRAM_NAME == __FILE__
-#   commands = %w[fortune rev cowsay]
-
-#   p = Pipeline.new commands
-#   p.run { |c| exec(*c.cmd) }
-# end

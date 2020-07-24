@@ -1,5 +1,3 @@
-# rubocop:disable Style/SpecialGlobalVars
-
 require "msh/logger"
 require "msh/errors"
 require "msh/config"
@@ -123,6 +121,8 @@ module Msh
       error "no handler for node: #{node}"
     end
 
+    # rubocop:disable Naming/MethodName
+
     # @param node [Msh::AST::Node] :PROG
     # @return [Integer] exit status
     def on_PROG node
@@ -150,14 +150,14 @@ module Msh
       p = Pipeline.new node.children
       p.run { |c| process c.cmd }
 
-      $?.exitstatus
+      $CHILD_STATUS.exitstatus
     end
 
     # @param node [Msh::AST::Node] :OR
     # @return [Integer] exit status
     def on_OR node
       process node.children.first
-      return $? if $?.exitstatus.zero?
+      return $CHILD_STATUS if $CHILD_STATUS.exitstatus.zero?
 
       process node.children.last
     end
@@ -166,7 +166,7 @@ module Msh
     # @return [Integer] exit status
     def on_AND node
       process node.children.first
-      return $? unless $?.exitstatus.zero?
+      return $CHILD_STATUS unless $CHILD_STATUS.exitstatus.zero?
 
       process node.children.last
     end
@@ -327,6 +327,8 @@ module Msh
       [r, err]
     end
 
+    # rubocop:enable Naming/MethodName
+
     private
 
     attr_reader :local_sh_variables
@@ -356,5 +358,3 @@ module Msh
     end
   end
 end
-
-# rubocop:enable Style/SpecialGlobalVars

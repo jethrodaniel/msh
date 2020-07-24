@@ -70,7 +70,6 @@ DEPENDENCIES
   benchmark_driver
   bundler
   msh!
-  parser (~> 2.7)
   pry
   pry-byebug
   rake
