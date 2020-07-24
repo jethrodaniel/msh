@@ -11,5 +11,5 @@ namespace :test do
   end
 end
 
-task :test => %w[test:rspec test:doctest install]
+task :test => %w[test:rspec test:doctest install man]
 task :spec => :test

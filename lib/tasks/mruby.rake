@@ -35,7 +35,7 @@ end
 
 directory "mrblib"
 SINGLE_MSH = "mrblib/msh.rb".freeze
-CLEAN << "mrblib"
+CLEAN << "mrblib" << "msh"
 
 file SINGLE_MSH => Dir.glob("lib/**/*.rb") + ["mrblib"] do |t|
   sh "cp lib/msh/mruby.rb #{t.name}"
