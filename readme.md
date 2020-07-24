@@ -9,14 +9,26 @@
 msh is a Ruby shell.
 
 ```
-$ echo π is #{Math::PI} | cowsay
-< π is 3.141592653589793 >
- ------------------------
+$ msh
+Welcome to msh v0.3.0 (`?` for help)
+~/msh λ echo pi is #{Math::PI} | cowsay
+ _________________________
+< pi is 3.141592653589793 >
+ -------------------------
         \   ^__^
          \  (oo)\_______
             (__)\       )\/\
                 ||----w |
                 ||     ||
+~/msh λ repl
+enter some ruby (sorry, no multiline)
+> def upcase; ARGF.each_line { |l| puts l.upcase }; end
+=> :upcase
+> def prompt; "% "; end
+=> :prompt
+^D
+% fortune | upcase
+LIVE IN A WORLD OF YOUR OWN, BUT ALWAYS WELCOME VISITORS.
 ```
 
 See the main [manpage](man/msh.1.adoc).
