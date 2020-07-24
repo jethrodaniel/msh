@@ -1,9 +1,12 @@
+#!/usr/bin/env ruby
+# vim: set filetype=ruby:
+
 # Simple tool to generate a single ruby file from a Ruby gem, by resolving
 # `require`s, similar to combining c/c++ header files without duplication.
 #
 # See https://blogs.grammatech.com/visualizing-include-graphs
 #
-#     $ ruby bin/consolidate.rb lib/msh.rb > exe
+#     $ consolidate lib/msh.rb > exe
 #
 #     $ ruby bin/consolidate.rb lib/msh.rb >/dev/null
 #     => English              (stdlib) English
@@ -140,14 +143,14 @@ if $PROGRAM_NAME == __FILE__
 
   puts <<~RB
 
-   # Consolidate files into a single executable via
-   #
-   #     ruby #{__FILE__} gem/entry/path.rb >exe && chmod u+x exe && ./exe
-   #
-   # To see the dependency graph
-   #
-   #     ruby #{__FILE__} gem/entry/path.rb >exe && chmod u+x exe && ./exe
-   #
-   #{footer}
+    # Consolidate files into a single executable via
+    #
+    #     ruby #{__FILE__} gem/entry/path.rb >exe && chmod u+x exe && ./exe
+    #
+    # To see the dependency graph
+    #
+    #     ruby #{__FILE__} gem/entry/path.rb >exe && chmod u+x exe && ./exe
+    #
+    #{footer}
   RB
 end
