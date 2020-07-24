@@ -4,9 +4,11 @@
 # Simple tool to generate a single ruby file from a Ruby gem, by resolving
 # `require`s, similar to combining c/c++ header files without duplication.
 #
-# See https://blogs.grammatech.com/visualizing-include-graphs
+# Consolidate files into a single executable via
 #
 #     $ consolidate lib/msh.rb > exe
+#
+# To see the dependency graph
 #
 #     $ ruby bin/consolidate.rb lib/msh.rb >/dev/null
 #     => English              (stdlib) English
@@ -17,7 +19,8 @@
 #           => logger                 (stdlib) logger
 #             => msh/errors           lib/msh/errors.rb
 #             => msh/ansi             lib/msh/ansi.rb
-
+#
+# See https://blogs.grammatech.com/visualizing-include-graphs
 
 require "bundler/inline"
 
@@ -136,21 +139,22 @@ if $PROGRAM_NAME == __FILE__
     # - standard library `require`s are moved to **before** the file. TODO: fix this.
     # - `require`s for non-standard library files are absent (obviously)
     #
+    # **Note**: currently, only the following structure is allowed
+    #
+    #     lib
+    #     ├── foo
+    #     │     ├── version.rb
+    #     │     └── foo.rb
+    #     └── foo.rb
+    #
+    # Also, the gem entry point (`lib/foo.rb` in the above) must **only**
+    # contain `require` statements, since it's content (besides it's
+    # `require`s) won't be in the consolidated file.
+    #
   RB
 
   ast = Parser::CurrentRuby.parse(file)
   Require.new(lib).process(ast)
 
-  puts <<~RB
-
-    # Consolidate files into a single executable via
-    #
-    #     ruby #{__FILE__} gem/entry/path.rb >exe && chmod u+x exe && ./exe
-    #
-    # To see the dependency graph
-    #
-    #     ruby #{__FILE__} gem/entry/path.rb >exe && chmod u+x exe && ./exe
-    #
-    #{footer}
-  RB
+  puts footer
 end
