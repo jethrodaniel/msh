@@ -5,6 +5,6 @@
 
 # TODO: https://github.com/aycabta/yamatanooroti/blob/master/test/yamatanooroti/test_multiplatform.rb
 
-assert 'version' do
+assert "version" do
   assert_equal `msh --version`.strip, "msh version 0.3.0"
 end

@@ -2,9 +2,9 @@ require "msh/token"
 
 describe Msh::Token do
   subject do
-    Msh::Token.new :type => :WORD,
-                   :value => "echo",
-                   :line => 6,
+    Msh::Token.new :type   => :WORD,
+                   :value  => "echo",
+                   :line   => 6,
                    :column => 2
   end
 
