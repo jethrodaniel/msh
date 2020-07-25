@@ -20,7 +20,8 @@ namespace :pkg do
   end
 
   file MAN do
-    sh "cp -r ./man/* #{MAN_DIR}"
+    sh "cp -r ./man/man* #{MAN_DIR}"
+    sh "gzip -9 #{MAN_DIR}/**/*.[1-9]"
   end
 
   common =  " --force"
@@ -35,10 +36,6 @@ namespace :pkg do
   %i[deb rpm].each do |type|
     task type => [BIN_DIR, MAN_DIR, MSH, MAN] do |t|
       sh "fpm --output-type #{type} #{common} --name msh --package pkg/ -C pkg --input-type dir usr"
-
-      if type == :tar
-        sh "gzip -9 --force #{Dir.glob("pkg/*.tar").first}"
-      end
     end
   end
 

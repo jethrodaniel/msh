@@ -75,11 +75,15 @@ module Msh
     # alias :$? _
 
     def repl
-      puts "enter some ruby (sorry, no multiline)"
+      puts "Enter some ruby (sorry, no multiline). ^D to exit."
       loop do
         print "> "
-        line = gets.chomp
-        next if line.nil? || line == ""
+        line = gets&.chomp
+
+        if line.nil? || line == ""
+          puts ""
+          return
+        end
 
         begin
           @_ = instance_eval(line)

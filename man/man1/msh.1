@@ -2,12 +2,12 @@
 .\"     Title: msh
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.10
-.\"      Date: 2020-07-24
+.\"      Date: 2020-07-26
 .\"    Manual: Msh Manual
 .\"    Source: Msh v0.3.0
 .\"  Language: English
 .\"
-.TH "MSH" "1" "2020-07-24" "Msh v0.3.0" "Msh Manual"
+.TH "MSH" "1" "2020-07-26" "Msh v0.3.0" "Msh Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -34,7 +34,12 @@ msh \- a ruby shell
 \fBmsh\fP [\fIoptions\fP]... [\fIfile\fP]...
 .SH "DESCRIPTION"
 .sp
-Msh is a shell that shares Ruby\(cqs goal
+Msh is an command language interpreter that executes commands read from
+standard input or from a file.
+.sp
+It combines the "good" parts of *nix shells with the power of Ruby.
+.sp
+Msh\(cqs goal is the same as that of Ruby
 .RS 3
 .ll -.6i
 .sp
@@ -59,22 +64,31 @@ It supports a subset of \f(CRsh\fP/\f(CRbash\fP, basically just the \fIessential
 │ ✓ │ redirect output             │ a > b                                │
 │ ✓ │ append output               │ a >> b                               │
 │ ✓ │ redirect input              │ a < b                                │
-│ ✓ │ redirect to file descriptor │ a 2>&1                               │
-│ ✓ │ conditionals                │ a || b && c                          │
+│   │ redirect to file descriptor │ a 2>&1                               │
+│ ~ │ conditionals                │ a || b && c                          │
 │ ✓ │ commands                    │ a; b;                                │
 │   │ grouping                    │ a; {b || c}                          │
 │   │ subshells                   │ (a)                                  │
-│ ✓ │ pipes                       │ a | b                                │
+│ ✓ │ pipes*                      │ a | b                                │
 │   │ command substitution        │ $(a \(aqb\(aq c)                           │
 │   │ process substitution        │ <(a | b)                             │
 │   │ local variables             │ a = 2                                │
-│   │ variable interpolation      │ echo $HOME                           │
+│ ✓ │ variable interpolation      │ echo $HOME                           │
 │ ✓ │ environment variables       │ a=b a b                              │
-│   │ aliases                     │ alias g = \(aqgit\(aq                      │
-│ ✓ │ functions                   │ repl "def foo; puts :bar; end"; foo  │
+│   │ aliases                     │ alias g \(aqgit\(aq                        │
+│ ✓ │ functions                   │ repl; def foo;puts :bar;end; ^D foo  │
 └───┴─────────────────────────────┴──────────────────────────────────────┘
+┌───┬─────────────────────────────┐┌───┬─────────────────────────────┐
+│ ✓ │ feature fully supported     ││   │ feature pending             │
+│ ~ │ feature sorta supported     ││ x │ won\(aqt support               │
+└───┴─────────────────────────────┘└───┴─────────────────────────────┘
 .fi
 .if n .RE
+.sp
+\fBNOTE\fP: redirection and pipes won\(cqt work in the executable version of msh
+until MRuby supports \f(CRIO#reopen\fP.
+.sp
+\fBNOTE\fP: this is an intentionally small subset of \f(CRsh\fP, for now.
 .sp
 It allows for interpolation in words
 .sp
@@ -138,33 +152,39 @@ enter some ruby (sorry, no multiline)
 %
 .fi
 .if n .RE
-.SS "todo"
+.SH "BUILTINS"
 .sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-source
-.RE
+Msh\(cqs usage of the term \fIbuiltin\fP is a bit loose here \- \fIbuiltins\fP can fork
+and exec if they want.
 .sp
-.RS 4
-.ie n \{\
-\h'-04'\(bu\h'+03'\c
-.\}
-.el \{\
-.  sp -1
-.  IP \(bu 2.3
-.\}
-config file
-.RE
+Plus, since functions are just method calls to a single object, there\(cqs a
+number of \fIbuiltins\fP already available, such as \f(CRputs\fP, \f(CRprint\fP,
+\f(CRrespond_to?\fP, etc.
 .sp
 .if n .RS 4
 .nf
-$ source file.msh
+┌───────────────────┬─────────────────────────────────────────────────┐
+│ parser [files]... │ Run Msh\(aqs parser on input files, or from stdin  │
+│ lexer  [files]... │ Run Msh\(aqs lexer on input files, or from stdin   │
+│ help  [topics]... │ Equivalent to `man msh\-topic ...` or `man msh`  │
+│ cd                │ Change directory, respects `\-`, `PWD/OLDPWD`    │
+└───────────────────┴─────────────────────────────────────────────────┘
+.fi
+.if n .RE
+.SS "TODO"
+.sp
+\fBNote\fP: not a comprehensive list, by any means.
+.sp
+.if n .RS 4
+.nf
+┌───┬───────────────────────────────────────────────────────────────────┐
+│   │`source file.msh`                                                  │
+│ ~ │ config files                                                      │
+│   │ interrupt handling                                                │
+│   │ control flow such as `if/else/while/loop`                         │
+│   │ tab\-completion                                                    │
+│   │ pretty colors                                                     │
+└───┴───────────────────────────────────────────────────────────────────┘
 .fi
 .if n .RE
 .SH "OPTIONS"
@@ -177,11 +197,6 @@ Show usage information.
 \fB\-V, \-\-version\fP
 .RS 4
 Show the version.
-.RE
-.sp
-\fB\-\-copyright, \-\-license\fP
-.RS 4
-Show the copyright.
 .RE
 .sp
 \fB\-c <command>\fP
@@ -203,6 +218,14 @@ Free use of this software is granted under the terms of the MIT License.
 .RS 4
 .URL "https://github.com/jethrodaniel/msh" "" ""
 .RE
+.sp
+\fBreleases\fP
+.RS 4
+.URL "https://github.com/jethrodaniel/msh/releases" "" ""
+.RE
+.SH "SHAMELESS PLUG"
+.sp
+Donations are appreciated. Stay safe y\(cqall.
 .SH "MSH"
 .sp
 Part of msh(1).

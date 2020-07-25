@@ -1,14 +1,19 @@
-# == name
+# == NAME
 #
 # msh - a ruby shell
 #
-# == synopsis
+# == SYNOPSIS
 #
 # *msh* [_options_]... [_file_]...
 #
-# == description
+# == DESCRIPTION
 #
-# Msh is a shell that shares Ruby's goal
+# Msh is an command language interpreter that executes commands read from
+# standard input or from a file.
+#
+# It combines the "good" parts of *nix shells with the power of Ruby.
+#
+# Msh's goal is the same as that of Ruby
 #
 # [quote, Yukihiro Matsumoto]
 # ____
@@ -26,21 +31,30 @@
 # │ ✓ │ redirect output             │ a > b                                │
 # │ ✓ │ append output               │ a >> b                               │
 # │ ✓ │ redirect input              │ a < b                                │
-# │ ✓ │ redirect to file descriptor │ a 2>&1                               │
-# │ ✓ │ conditionals                │ a || b && c                          │
+# │   │ redirect to file descriptor │ a 2>&1                               │
+# │ ~ │ conditionals                │ a || b && c                          │
 # │ ✓ │ commands                    │ a; b;                                │
 # │   │ grouping                    │ a; {b || c}                          │
 # │   │ subshells                   │ (a)                                  │
-# │ ✓ │ pipes                       │ a | b                                │
+# │ ✓ │ pipes*                      │ a | b                                │
 # │   │ command substitution        │ $(a 'b' c)                           │
 # │   │ process substitution        │ <(a | b)                             │
 # │   │ local variables             │ a = 2                                │
-# │   │ variable interpolation      │ echo $HOME                           │
+# │ ✓ │ variable interpolation      │ echo $HOME                           │
 # │ ✓ │ environment variables       │ a=b a b                              │
-# │   │ aliases                     │ alias g = 'git'                      │
-# │ ✓ │ functions                   │ repl "def foo; puts :bar; end"; foo  │
+# │   │ aliases                     │ alias g 'git'                        │
+# │ ✓ │ functions                   │ repl; def foo;puts :bar;end; ^D foo  │
 # └───┴─────────────────────────────┴──────────────────────────────────────┘
+# ┌───┬─────────────────────────────┐┌───┬─────────────────────────────┐
+# │ ✓ │ feature fully supported     ││   │ feature pending             │
+# │ ~ │ feature sorta supported     ││ x │ won't support               │
+# └───┴─────────────────────────────┘└───┴─────────────────────────────┘
 # ```
+#
+# **NOTE**: redirection and pipes won't work in the executable version of msh
+#   until MRuby supports `IO#reopen`.
+#
+# **NOTE**: this is an intentionally small subset of `sh`, for now.
 #
 # It allows for interpolation in words
 #
@@ -58,7 +72,6 @@
 #
 # The underlying REPL is available via the `repl` builtin. It's the same
 # context as used during interpolation.
-#
 #
 # ```
 # $ repl
@@ -99,15 +112,40 @@
 # %
 # ```
 #
-# === todo
+# == Builtins
 #
-# - source
-# - config file
+# Msh's usage of the term _builtin_ is a bit loose here - _builtins_ can fork
+# and exec if they want.
+#
+# Plus, since functions are just method calls to a single object, there's a
+# number of _builtins_ already available, such as `puts`, `print`,
+# `respond_to?`, etc.
 #
 # ```
-# $ source file.msh
+# ┌───────────────────┬─────────────────────────────────────────────────┐
+# │ parser [files]... │ Run Msh's parser on input files, or from stdin  │
+# │ lexer  [files]... │ Run Msh's lexer on input files, or from stdin   │
+# │ help  [topics]... │ Equivalent to 'man msh-topic ...' or 'man msh'  │
+# │ cd                │ Change directory, respects '-', 'PWD/OLDPWD'    │
+# └───────────────────┴─────────────────────────────────────────────────┘
 # ```
-# == options
+#
+# === TODO
+#
+# **Note**: not a comprehensive list, by any means.
+#
+# ```
+# ┌───┬───────────────────────────────────────────────────────────────────┐
+# │   │`source file.msh`                                                  │
+# │ ~ │ config files                                                      │
+# │   │ interrupt handling                                                │
+# │   │ control flow such as `if/else/while/loop`                         │
+# │   │ tab-completion                                                    │
+# │   │ pretty colors                                                     │
+# └───┴───────────────────────────────────────────────────────────────────┘
+# ```
+#
+# == Options
 #
 # *-h, --help*::
 #   Show usage information.
@@ -115,21 +153,23 @@
 # *-V, --version*::
 #   Show the version.
 #
-# *--copyright, --license*::
-#   Show the copyright.
-#
 # *-c <command>*::
 #   Run a command string as input.
 #
-# == copying
+# == Copying
 #
 # Copyright \(C) 2020 Mark Delk.
 # Free use of this software is granted under the terms of the MIT License.
 #
-# == resources
+# == Resources
 #
 # *issue tracker*:: https://github.com/jethrodaniel/msh/issues?q=is%3Aopen.
 # *source code*:: https://github.com/jethrodaniel/msh
+# *releases*:: https://github.com/jethrodaniel/msh/releases
+#
+# == Shameless Plug
+#
+# Donations are appreciated. Stay safe y'all.
 #
 module Msh
   def self.root

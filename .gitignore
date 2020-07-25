@@ -18,3 +18,5 @@
 
 msh
 mrblib/msh.rb
+
+man/**/*.gz
