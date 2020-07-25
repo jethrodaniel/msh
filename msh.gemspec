@@ -9,6 +9,12 @@ Gem::Specification.new do |spec|
   spec.authors  = ["Mark Delk"].freeze
   spec.email    = "jethrodaniel@gmail.com"
   spec.summary  = "a ruby shell"
+  spec.description = <<~DESC
+    Msh is an command language interpreter that executes commands read from
+    standard input or from a file.
+
+    It combines the "good" parts of *nix shells with the power of Ruby.
+  DESC
   spec.homepage = "https://github.com/jethrodaniel/msh"
   spec.license  = "MIT"
   spec.metadata = {
@@ -34,6 +40,7 @@ Gem::Specification.new do |spec|
   # spec.add_development_dependency "asciidoctor-pdf"
   spec.add_development_dependency "benchmark_driver"
   spec.add_development_dependency "bundler"
+  spec.add_development_dependency "fpm", "~> 1.11"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec"
   spec.add_development_dependency "rubocop"

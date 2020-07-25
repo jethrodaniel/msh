@@ -36,6 +36,9 @@ module Msh
 
       # Useful stuff
       :puts,
+      :print,
+      :gets,
+      :loop,
       :fork,
       :exec,
       :abort,
@@ -75,11 +78,15 @@ module Msh
       puts "enter some ruby (sorry, no multiline)"
       loop do
         print "> "
-        line = gets
-        return if line.nil?
+        line = gets.chomp
+        next if line.nil? || line == ""
 
-        @_ = instance_eval(line)
-
+        begin
+          @_ = instance_eval(line)
+        rescue => e
+          puts e.message
+          next
+        end
         puts "=> #{_.inspect}"
       end
     end
