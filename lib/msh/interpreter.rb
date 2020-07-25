@@ -104,7 +104,7 @@ module Msh
       @evaluator = Evaluator.new
       @local_sh_variables = {}
       Config.load!
-      setup_manpath!
+      setup_manpath! unless RUBY_ENGINE == "mruby"
     end
 
     # @param code [String]

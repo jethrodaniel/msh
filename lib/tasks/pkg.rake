@@ -15,6 +15,7 @@ namespace :pkg do
   directory MAN_DIR
 
   file MSH => :mruby do
+    sh "strip ./msh"
     sh "cp ./msh #{BIN_DIR}"
   end
 
@@ -26,11 +27,12 @@ namespace :pkg do
   common += " --version #{VERSION}"
   common += " --license #{LICENSE}"
   common += " --maintainer #{MAINTAINER}"
+  common += " --vendor #{MAINTAINER}"
   common += " --description '#{DESC}'"
   common += " --url #{URL}"
   common += " --category #{CATEGORY}"
 
-  %i[deb rpm tar zip].each do |type|
+  %i[deb rpm].each do |type|
     task type => [BIN_DIR, MAN_DIR, MSH, MAN] do |t|
       sh "fpm --output-type #{type} #{common} --name msh --package pkg/ -C pkg --input-type dir usr"
 
@@ -39,5 +41,9 @@ namespace :pkg do
       end
     end
   end
-  task :all => %i[deb rpm tar zip]
+
+  task :bin do
+    sh "cp ./msh pkg/msh-#{VERSION}"
+  end
+  task :all => %i[deb rpm bin]
 end

@@ -7,7 +7,7 @@ on:
     types: [published]
 
 jobs:
-  dist_linux:
+  generate:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -15,7 +15,7 @@ jobs:
         submodules: true
 
     - name: apt dependencies
-      run: sudo apt install -y gperf bison gcc g++
+      run: sudo apt install -y gperf bison gcc g++   curl rpm debsigs
 
     - name: set up ruby for building
       uses: actions/setup-ruby@v1
@@ -30,15 +30,11 @@ jobs:
 
     - name: build
       run: |
-        # TODO: prod flags, strip binary, etc
-        make
+        bundle exec rake pkg:all
 
-    - name: upload
-      uses: actions/upload-release-asset@v1.0.1
+    - name: Upload the artifacts
+      uses: skx/github-action-publish-binaries@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./msh
-        asset_name: msh-${{ github.event.release.tag_name }}-linux-x86_64
-        asset_content_type: binary/octet-stream
+        args: 'pkg/*msh*'
