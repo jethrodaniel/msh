@@ -4,7 +4,9 @@
 ![](https://img.shields.io/github/license/jethrodaniel/msh.svg)
 ![](https://img.shields.io/github/stars/jethrodaniel/msh?style=social)
 
-**note**: not finished, breaking changes until `v1.0.0`, stay tuned.
+**NOTE**: not finished, breaking changes until `v1.0.0`, stay tuned.
+
+**NOTE**: mruby redirection and pipes won't work until we get mruby to support `IO#reopen`
 
 msh is a Ruby shell.
 
@@ -35,49 +37,33 @@ See the main [manpage](man/msh.1.adoc).
 
 ## installation
 
-Msh is both a CRuby gem and a MRuby mgem.
+Msh is available (in order of preference) as
 
-```
-$ gem install msh # cruby
-$ make release    # mruby
-```
-
-Make sure you `git clone --recursive` or run `git submodule update`, since MRuby is a submodule.
-
-**todo**: download the prebuilt binaries for your platform from the [releases page](https://github.com/jethrodaniel/msh/releases) (see [the release action](.github/workflows/release.yml)).
-
-**note**: mruby redirection and pipes won't work until we have `IO#reopen`
+- a single executable (see the [releases page](https://github.com/jethrodaniel/msh/releases))
+- a single Ruby script (`make; ruby mrblib/msh.rb`)
+- a Ruby gem (`gem install msh` once this is pushed, clone and `rake` until then)
 
 ## development
 
-See `rake -T` and tools in `./bin/`.
-
-```sh
-$ bundle exec rake spec # cruby
-$ make                  # mruby
+```
+git clone --recursive https://github.com/jethrodaniel/msh
 ```
 
-Check out [the CI](https://github.com/jethrodaniel/msh/actions/) to see the specs' last executions 🔪.
+See `rake -T` and tools in `./bin/`.
+
+Check out [the CI](https://github.com/jethrodaniel/msh/actions/) to see the specs' lastest executions 🔪.
 
 ## contributing
 
-Bug reports and pull requests are welcome on [GitHub](https://github.com/jethrodaniel/msh).
+Please do.
 
-```sh
-git clone --recursive https://github.com/jethrodaniel/msh
-cd msh
-bundle && bundle exec rake && make
-```
+Bug reports and pull requests are welcome on [GitHub](https://github.com/jethrodaniel/msh).
 
 ## license
 
 MIT, see the [license file](license.txt).
 
-## references
-
-- [POSIX specifications](https://pubs.opengroup.org/onlinepubs/9699919799/)
-
-## alternatives
+## some alternative shells
 
 - https://github.com/bminor/bash
 - https://github.com/zsh-users/zsh
