@@ -26,8 +26,7 @@ Gem::Specification.new do |spec|
     readme.md
     msh.gemspec
     license.txt
-    exe/msh
-  ] + Dir.glob("man/man1/*") + Dir.glob("lib/**/*.rb")
+  ] + Dir.glob("man/man1/*") + Dir.glob("lib/**/*.rb") + Dir.glob("exe/*")
 
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
