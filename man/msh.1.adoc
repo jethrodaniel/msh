@@ -125,8 +125,8 @@ number of _builtins_ already available, such as `puts`, `print`,
 ┌───────────────────┬─────────────────────────────────────────────────┐
 │ parser [files]... │ Run Msh's parser on input files, or from stdin  │
 │ lexer  [files]... │ Run Msh's lexer on input files, or from stdin   │
-│ help  [topics]... │ Equivalent to `man msh-topic ...` or `man msh`  │
-│ cd                │ Change directory, respects `-`, `PWD/OLDPWD`    │
+│ help  [topics]... │ Equivalent to 'man msh-topic ...' or 'man msh'  │
+│ cd                │ Change directory, respects '-', 'PWD/OLDPWD'    │
 └───────────────────┴─────────────────────────────────────────────────┘
 ```
 

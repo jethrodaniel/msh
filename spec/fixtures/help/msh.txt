@@ -108,8 +108,8 @@ BUILTINS
            ┌───────────────────┬─────────────────────────────────────────────────┐
            │ parser [files]... │ Run Msh's parser on input files, or from stdin  │
            │ lexer  [files]... │ Run Msh's lexer on input files, or from stdin   │
-           │ cd                │ Change directory, respects `-`, `PWD/OLDPWD`    │
-           │ help [topics]... │ Equivalent to `man msh-topic ...` or `man msh`  │
+           │ help  [topics]... │ Equivalent to 'man msh-topic ...' or 'man msh'  │
+           │ cd                │ Change directory, respects '-', 'PWD/OLDPWD'    │
            └───────────────────┴─────────────────────────────────────────────────┘
 
    TODO
