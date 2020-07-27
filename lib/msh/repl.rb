@@ -19,11 +19,20 @@ module Msh
 
     def initialize
       @interpreter = Msh::Interpreter.new
-      puts "Welcome to msh v#{Msh::VERSION} (`?` for help)" if $stdin.tty?
+      @checker = Msh::Readline::TerminationChecker.new
+
+      puts "Welcome to msh v#{Msh::VERSION} (`?` for help)"
+
+      unless RUBY_ENGINE == "mruby"
+        Reline.prompt_proc = -> buffer do
+          return [interpreter.prompt] + ["> "] * buffer.size if buffer.size > 1
+
+          [interpreter.prompt]
+        end
+      end
 
       with_interrupt_handling do
         input_loop do |line|
-          add_to_history line
           interpreter.interpret line
         end
       end
@@ -32,40 +41,25 @@ module Msh
     private
 
     # mruby has no interrupts
-    def with_interrupt_handling &block
+    def with_interrupt_handling
       if RUBY_ENGINE == "mruby"
-        with_interrupt_handling_mruby(&block)
-      else
-        with_interrupt_handling_ruby(&block)
+        yield
+        return
       end
-    end
 
-    def with_interrupt_handling_ruby
-      yield
-    rescue Interrupt
-      puts "^C"
-      exit 0
-    end
-
-    def with_interrupt_handling_mruby
-      yield
+      begin
+        yield
+      rescue Interrupt
+        puts "^C"
+        exit 0
+      end
     end
 
     # @yield [String] the next line of input
     def input_loop
-      get_line = if !$stdin.tty? || ENV["NO_READLINE"]
-                   -> { ARGF.gets&.chomp }
-                 else
-                   -> { Msh::Readline.readline(interpreter.prompt) }
-                 end
-
-      while line = get_line.call
+      while line = Msh::Readline.readline(interpreter.prompt, true) { |code| @checker.terminated?(code) }
         yield line
       end
-    end
-
-    def add_to_history line
-      Msh::Readline.add_to_history line
     end
   end
 end

@@ -153,7 +153,6 @@ module Msh
     # @param types [Array<Symbol>]
     # @return [bool]
     def match? *types
-      log.debug { "  match? #{types} | #{current_token} =#{types.include? current_token.type}" }
       types.include? current_token.type
     end
 
@@ -199,7 +198,7 @@ module Msh
 
     # @return [AST]
     def _program
-      _skip_ignored :NEWLINE
+      _skip_ignored
 
       return s(:NOOP) if eof?
 
@@ -234,11 +233,11 @@ module Msh
     def _expr
       c = _pipeline
 
-      _skip_ignored_no_newline
+      _skip_ignored
 
       if match? :AND, :OR
         op = consume :AND, :OR, "expected an `&&` or an `||`"
-        _skip_whitespace
+        _skip_ignored
         right = _pipeline
         return s(:EXPR, s(op.type, c, right))
       end
@@ -260,13 +259,16 @@ module Msh
         elsif match?(*REDIRECTS)
           cmd_parts << _redirect
         end
+        _skip_ignored
         _skip_whitespace
 
         next unless match? :EQ
 
         consume :EQ, "expected an `=`"
         _skip_whitespace
+
         error "missing value for variable assignment" unless match?(*WORDS)
+
         cmd_parts << s(:ASSIGN, cmd_parts.pop, _word)
         _skip_whitespace
 
@@ -283,18 +285,12 @@ module Msh
     # @return [AST] :WORD
     def _word
       log.debug { ":#{__method__}: #{current_token} | match?(*WORDS): #{match?(*WORDS)} | match?(*REDIRECTS): #{match?(*REDIRECTS)}" }
-      # log.debug { "#{__method__}: #{current_token}" }
 
       word_pieces = []
 
       # somehow mruby is matching redirects **and** words..
       while match?(*WORDS)
         c = current_token
-        # log.debug { ":#{__method__}: #{current_token} | match?(*WORDS): #{match?(*WORDS)} | match?(*REDIRECTS): #{match?(*REDIRECTS)}" }
-        # log.debug { "  2#{__method__}: #{current_token}" }
-        # log.debug { "  2#{__method__}: #{current_token.type.inspect} | match?(*WORDS): #{match?(*WORDS)} | match?(*REDIRECTS): #{match?(*REDIRECTS)}" }
-        # next if  # why?
-
         case c.type
         when :WORD, :TIME
           word_pieces << s(:LIT, c.value)
@@ -307,11 +303,8 @@ module Msh
         else
           error "expected a word type, got `#{current_token}`"
         end
-        # log.debug { "-> #{current_token} | match?(*REDIRECTS):#{match?(*REDIRECTS)} | match?(*WORDS): #{match?(*WORDS)} " }
 
         advance
-        # break unless match? :WORD
-        # log.debug { p "-> #{current_token} | match?(*REDIRECTS):#{match?(*REDIRECTS)} | match?(*WORDS): #{match?(*WORDS)} "}
       end
 
       error "expected a word" if word_pieces.empty?
@@ -331,7 +324,6 @@ module Msh
       when :DUP_OUT_FD # 2>&1
         s(:REDIRECT, n, r.type)
       else
-        # f = consume(*WORDS, "expected a filename to complete redirection #{r}")
         f = consume(:WORD, "expected a filename to complete redirection #{r}")
 
         case r.type
@@ -354,7 +346,7 @@ module Msh
       while match? :PIPE
         advance
 
-        _skip_whitespace
+        _skip_ignored
 
         if match?(*WORDS, *REDIRECTS)
           commands << _command
