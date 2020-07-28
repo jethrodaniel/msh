@@ -50,6 +50,18 @@ module Msh
 
     HIDDEN.each { |m| undef_method m }
 
+    def initialize
+      @aliases = {}
+    end
+
+    # not really `alias` support, more like default arguments
+    #
+    #     alias ls --color -F # `alias ls='ls --color -F'
+    #
+    def alias cmd, *args
+      @aliases[cmd.to_sym] = args
+    end
+
     def hi name
       puts "hello, #{name}"
     end
@@ -61,6 +73,10 @@ module Msh
     end
 
     def run cmd, *args
+      if aliased_args = @aliases[cmd.to_sym]
+        args += aliased_args
+      end
+
       pid = fork do
         exec cmd, *args
       rescue Errno::ENOENT => e # No such file or directory
