@@ -1,3 +1,26 @@
+module Msh
+  module Readline
+    # TODO: color via the ast, not via tokens
+    # TODO: integrate with completion, like fish
+    class SyntaxHighlighter
+      attr_reader :code
+
+      def initialize code
+        lex = Msh::Lexer.new code
+
+        @code = lex.tokens.map do |t|
+          case t.type
+          when :WORD
+            t.value.blue
+          else
+            t.value
+          end
+        end.join
+      end
+    end
+  end
+end
+
 unless RUBY_ENGINE == "mruby"
   require "reline"
 
@@ -24,22 +47,40 @@ unless RUBY_ENGINE == "mruby"
   #   line * 2
   # end
 
-  # Colorize here
-  Reline.output_modifier_proc = -> output, complete: do
-    # puts "%" if complete
-    output
-  end
+  # Reline.output_modifier_proc = -> output, complete: do
+  #   Msh::Readline::SyntaxHighlighter.new(output).code
+  # end
 end
 
 module Msh
   module Readline
+    class SyntaxHighlighter
+      attr_reader :code
+
+      def initialize code
+        lex = Msh::Lexer.new code
+
+        @code = lex.tokens.map do |t|
+          case t.type
+          when :WORD
+            t.value.blue
+          when :PIPE, :AND, :OR
+            t.value.cyan
+          when :EOF
+            ""
+          else
+            t.value
+          end
+        end.join
+      end
+    end
+
     class TerminationChecker
       NON_FINISHED_CHARS = %w[&& || |].freeze
 
       # TODO: in block, etc
       def terminated? code
         code.gsub!(/\n*$/, "").concat("\n")
-
         NON_FINISHED_CHARS.none? { |c| code.strip.end_with? c }
       end
     end
@@ -55,15 +96,6 @@ module Msh
 
       print prompt
       gets&.chomp
-    end
-
-    def self.add_to_history line
-      return if ENV["NO_READLINE"] || RUBY_ENGINE == "mruby"
-
-      # don't add blank lines or duplicates to history
-      return unless /\A\s+\z/ =~ line || ::Reline::HISTORY.to_a.dig(-2) == line
-
-      ::Reline::HISTORY.pop
     end
   end
 end

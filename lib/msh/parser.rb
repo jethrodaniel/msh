@@ -189,6 +189,10 @@ module Msh
     skip_rule :ignored,    :SPACE, :COMMENT, :NEWLINE
     skip_rule :ignored_no_newline, :SPACE, :COMMENT
 
+    def skip *types
+      advance while match?(*types)
+    end
+
     # Parse all tokens into an AST
     #
     # @return [AST]
