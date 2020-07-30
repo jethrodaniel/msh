@@ -237,7 +237,7 @@ module Msh
     def _expr
       c = _pipeline
 
-      _skip_ignored
+      _skip_ignored_no_newline
 
       if match? :AND, :OR
         op = consume :AND, :OR, "expected an `&&` or an `||`"
@@ -263,7 +263,7 @@ module Msh
         elsif match?(*REDIRECTS)
           cmd_parts << _redirect
         end
-        _skip_ignored
+        _skip_ignored_no_newline
         _skip_whitespace
 
         next unless match? :EQ
