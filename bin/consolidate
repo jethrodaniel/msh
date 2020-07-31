@@ -21,19 +21,27 @@
 #             => msh/ansi             lib/msh/ansi.rb
 #
 # See https://blogs.grammatech.com/visualizing-include-graphs
+#
+# == how it works
+#
+# Pretty simple, really. As long as your gem follows the canonical gem
+# file structure and `require` conventions, then this should work
+#
+# 1. Start at the gem entry point, i.e, `lib/gemname.rb`, see `gem which`
+# 2. Parse using whitequark's parser
 
 require "bundler/inline"
 
 gemfile do
   gem "parser", "~> 2.7"
+  gem "unparser", "~> 0.4.7"
   gem "pry-byebug"
 end
 
 require "parser/current"
+require "unparser"
 
 class Require
-  include AST::Processor::Mixin
-
   STD_LIBS = %w[
     English
     logger
@@ -43,118 +51,126 @@ class Require
     fileutils
     jruby
     readline
+    io/console
+    timeout
+    forwardable
+    pathname
+    tempfile
+    fiddle/import
+    win32api
   ].freeze
+end
 
-  def initialize lib, indent = 0, files = []
-    @lib = lib
-    @indent = indent
-    @files = files
+# see https://blog.arkency.com/rewriting-deprecated-apis-with-parser-gem/
+#
+#     insert_after(range, content)
+#     insert_before(range, content)
+#     remove(range)
+#     replace(range, content)
+#
+class GemConsolidator < Parser::TreeRewriter # < Parser::AST::Processor
+  # @todo spec.require_paths = ["lib"]
+  #
+  def initialize gem_entry
+    @gem_entry = gem_entry
+    @name      = File.basename(@gem_entry).delete_suffix(".rb")
+    @lib_dir   = Pathname.new(File.dirname(@gem_entry))
+    @gem_root  = @lib_dir + ".."
+    gemspec    = (@gem_root + "#{@name}.gemspec").realpath
+    @gem       = Gem::Specification.load(gemspec.to_s)
+
+    @files = @gem.files.filter_map do |f|
+      pre = @gem.require_paths.find { |p| f.start_with?(p) }
+
+      if pre
+        req = f.delete_prefix("#{pre}/").delete_suffix(".rb")
+        path = Pathname.new(@gem_root) + f
+        {req => path}
+      end
+    end.reduce(:merge)
+
+    @parser = Parser::CurrentRuby.new
   end
 
-  def indent
-    @indent += 2
+  def self.run gem_entry
+    consolidator = new(gem_entry)
+    consolidator.consolidate File.read(gem_entry)
   end
 
-  def dedent
-    @indent -= 2 unless @indent.zero?
+  def consolidate str
+    buffer = Parser::Source::Buffer.new("(string)")
+    buffer.source = str
+    rewrite(buffer, @parser.parse(buffer))
   end
 
-  # s(:send, nil, :require,
-  #   s(:str, "parser/current"))
+  def stdlib? lib
+    Require::STD_LIBS.include? lib
+  end
+
+  #     $ ruby-parse -e "require 'ast'"
+  #     (send nil :require
+  #       (str "ast"))
+  #
   def on_send node
     if node.children[1] == :require && node.children[2].type == :str
-      required = node.children[2].children[0]
-      handle_require required
-    end
-    node
-  end
+      lib = node.children[2].children[0]
 
-  # recurse on the new require'd file
-  def handle_require require_stmt
-    first_part, *rest = *require_stmt.split("/")
-    lib = @lib.dup
-    gem_name = File.basename(File.dirname(@lib))
+      return node if stdlib?(lib)
 
-    file_name = require_stmt
-    file_name = File.join(gem_name, file_name) unless file_name.start_with?(gem_name)
 
-    file = (@lib + file_name).sub_ext(".rb")
+      req_file = @files[node.children.last.children.last]
 
-    if STD_LIBS.include? require_stmt
-      puts "require '#{require_stmt}' unless RUBY_ENGINE == 'mruby'\n"
-      warn "#{' ' * @indent}=> #{require_stmt.ljust(20, ' ')}\t(stdlib) #{require_stmt}"
-      return
-    end
+      buffer = Parser::Source::Buffer.new("(string)")
+      buffer.source = File.read(req_file)
 
-    # Don't traverse the same file more than once.
-    #
-    # Also prevents looping indefinately if file `a.rb` contains `require "a"`
-    return if @files.include?(file)
+      @parser.reset
+      req_ast = @parser.parse buffer
 
-    indent
+      req_contents = Unparser.unparse(req_ast)
 
-    Require.new(lib, @indent, @files << file).process(Parser::CurrentRuby.parse(File.read(file)))
-
-    header = "\n#+----------------- `#{file}`"
-    puts header
-
-    warn "#{' ' * @indent}=> #{require_stmt.ljust(20, ' ')}\t#{file}"
-
-    out = File.read(file)
-    non_std_libs = out.scan(/[\s]*require (?<req>[^\n]*)$/).reject { |req| STD_LIBS.include?(req) }
-    non_std_libs.each do |req|
-      out.gsub! "require #{req.first}", ""
-    end
-    puts out.strip
-    puts "#+#{'-' * (header.size - 3)}\n"
-
-    dedent
-  end
-
-  def handler_missing node
-    node.children.each do |child|
-      process child if child.respond_to?(:type) && child.respond_to?(:children)
+      replace node.location.expression, "\n#{req_contents}\n"
+      node
+    else
+      node
     end
   end
 end
 
-if $PROGRAM_NAME == __FILE__
-  file = File.read ARGV[0]
-  lib = Pathname.new(File.dirname(ARGV[0]))
+puts GemConsolidator.run(ARGV[0]) if $PROGRAM_NAME == __FILE__
 
-  header = <<~RB
-    #!/usr/bin/env ruby
-  RB
-  footer = <<~RB
-    Msh.start if $0 == __FILE__
-  RB
+# #  header = <<~RB
+# #    #!/usr/bin/env ruby
+# #  RB
+# #  footer = <<~RB
+# #    Msh.start if $0 == __FILE__
+# #  RB
 
-  puts <<~RB
-    #{header}
+# #  puts <<~RB
+# #    #{header}
 
-    # Autogenerated single-file version of `#{ARGV[0]}`.
-    #
-    # Each file is present below, but
-    #
-    # - standard library `require`s are moved to **before** the file. TODO: fix this.
-    # - `require`s for non-standard library files are absent (obviously)
-    #
-    # **Note**: currently, only the following structure is allowed
-    #
-    #     lib
-    #     ├── foo
-    #     │     ├── version.rb
-    #     │     └── foo.rb
-    #     └── foo.rb
-    #
-    # Also, the gem entry point (`lib/foo.rb` in the above) must **only**
-    # contain `require` statements, since it's content (besides it's
-    # `require`s) won't be in the consolidated file.
-    #
-  RB
+# #    # Autogenerated single-file version of `#{ARGV[0]}`.
+# #    #
+# #    # Each file is present below, but
+# #    #
+# #    # - standard library `require`s are moved to **before** the file. TODO: fix this.
+# #    # - `require`s for non-standard library files are absent (obviously)
+# #    #
+# #    # **Note**: currently, only the following structure is allowed
+# #    #
+# #    #     lib
+# #    #     ├── foo
+# #    #     │     ├── version.rb
+# #    #     │     └── foo.rb
+# #    #     └── foo.rb
+# #    #
+# #    # Also, the gem entry point (`lib/foo.rb` in the above) must **only**
+# #    # contain `require` statements, since it's content (besides it's
+# #    # `require`s) won't be in the consolidated file.
+# #    #
+# #  RB
 
-  ast = Parser::CurrentRuby.parse(file)
-  Require.new(lib).process(ast)
+# # puts Unparser.unparse(ast)
+# # Require.new(lib).process(ast)
 
-  puts footer
-end
+# # puts footer
+# end
