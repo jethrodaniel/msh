@@ -23,13 +23,6 @@
 
 require "parser/current"
 
-# see https://blog.arkency.com/rewriting-deprecated-apis-with-parser-gem/
-#
-#     insert_after(range, content)
-#     insert_before(range, content)
-#     remove(range)
-#     replace(range, content)
-#
 class RequireResolver < Parser::TreeRewriter
   STD_LIBS = %w[
     English
@@ -104,7 +97,9 @@ class GemConsolidator
     @lib_dir   = Pathname.new(File.dirname(@gem_entry))
     @gem_root  = @lib_dir + ".."
     gemspec    = @gem_root + "#{@name}.gemspec"
-    @gem       = Gem::Specification.load(gemspec.to_s)
+    Dir.chdir(@gem_root) do
+      @gem = Gem::Specification.load(gemspec.to_s)
+    end
 
     @files = @gem.files.filter_map do |f|
       pre = @gem.require_paths.find { |p| f.start_with?(p) }
