@@ -39,7 +39,7 @@ CLEAN << "mrblib" << "msh"
 
 file SINGLE_MSH => Dir.glob("lib/**/*.rb") + ["mrblib"] do |t|
   sh "cp lib/msh/mruby.rb #{t.name}"
-  sh "./bin/consolidate lib/msh.rb >> #{t.name}"
+  sh "gem consolidate msh --footer='Msh.start if $0 == __FILE__' --no-stdlib >> #{t.name}"
 end
 
 desc 'creates an executable with MRuby'
@@ -47,8 +47,7 @@ task :mruby => SINGLE_MSH do
   Dir.chdir "third_party/mruby" do
     # sh "git checkout -- ."
     make_file "build_config.rb", BUILD_CONFIG
-    # sh "make clean"
-    sh "make"
+    sh "make clean all"
     sh "strip -s -R .comment -R .gnu.version --strip-unneeded ./bin/msh" if ENV["RELEASE"]
     sh "cp -v bin/msh ../../"
     # sh "git checkout -- ."

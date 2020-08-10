@@ -1,4 +1,4 @@
-require "logger" unless RUBY_ENGINE == "mruby"
+require "logger"
 
 require "msh/errors"
 require "msh/ansi"

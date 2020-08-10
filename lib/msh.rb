@@ -1,4 +1,4 @@
-require "English" unless RUBY_ENGINE == "mruby"
+require "English"
 
 require "msh/backports"
 require "msh/core_extensions"
