@@ -180,8 +180,9 @@ require "msh/repl"
 #
 module Msh
   def self.root
-    lib = File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
-    File.realpath(File.join(lib, "../.."))
+    raise Error, "`Msh.root` is unsupported" if RUBY_ENGINE == "mruby"
+
+    Gem::Specification.find_by_name("msh").gem_dir
   end
 
   # Entry point for the `msh` command.
