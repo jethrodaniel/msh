@@ -1,13 +1,13 @@
-# Minimal version of whitequark's excellent AST library: https://github.com/whitequark/ast
-#
-#     require "ast"
-#
-#     include AST:Sexp
-#     s(:DIG, 10) #=> AST::Node.new(:DIG, 10)
-#
-# Seriously, use whitequark's if you can.
-#
 module Msh
+  # Minimal version of whitequark's excellent AST library: https://github.com/whitequark/ast
+  #
+  #     require "ast"
+  #
+  #     include AST:Sexp
+  #     s(:DIG, 10) #=> AST::Node.new(:DIG, 10)
+  #
+  # Seriously, use whitequark's if you can.
+  #
   module AST
     class Node
       attr_reader :type, :children

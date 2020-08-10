@@ -5,15 +5,15 @@ require "msh/core_extensions"
 require "msh/cli"
 require "msh/repl"
 
-# == NAME
+# == name
 #
 # msh - a ruby shell
 #
-# == SYNOPSIS
+# == synopsis
 #
 # *msh* [_options_]... [_file_]...
 #
-# == DESCRIPTION
+# == description
 #
 # Msh is an command language interpreter that executes commands read from
 # standard input or from a file.
@@ -137,7 +137,7 @@ require "msh/repl"
 # └───────────────────┴─────────────────────────────────────────────────┘
 # ```
 #
-# === TODO
+# == TODO
 #
 # **Note**: not a comprehensive list, by any means.
 #
@@ -173,10 +173,6 @@ require "msh/repl"
 # *issue tracker*:: https://github.com/jethrodaniel/msh/issues?q=is%3Aopen.
 # *source code*:: https://github.com/jethrodaniel/msh
 # *releases*:: https://github.com/jethrodaniel/msh/releases
-#
-# == Shameless Plug
-#
-# Donations are appreciated. Stay safe y'all.
 #
 module Msh
   def self.root

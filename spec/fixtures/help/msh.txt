@@ -112,7 +112,7 @@ BUILTINS
            │ cd                │ Change directory, respects '-', 'PWD/OLDPWD'    │
            └───────────────────┴─────────────────────────────────────────────────┘
 
-   TODO
+TODO
        Note: not a comprehensive list, by any means.
 
            ┌───┬───────────────────────────────────────────────────────────────────┐
@@ -148,10 +148,7 @@ RESOURCES
        releases
            https://github.com/jethrodaniel/msh/releases
 
-SHAMELESS PLUG
-       Donations are appreciated. Stay safe y’all.
-
 MSH
        Part of msh(1).
 
-Msh v0.3.0                        2020-07-26                            MSH(1)
+Msh v0.3.0                        2020-08-09                            MSH(1)

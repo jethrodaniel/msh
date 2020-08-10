@@ -1,4 +1,3 @@
-exe/**/*
 lib/**/*.rb
 
 --markup     asciidoc
