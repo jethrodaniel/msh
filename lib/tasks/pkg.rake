@@ -44,9 +44,13 @@ namespace :pkg do
   end
   task :all => %i[deb rpm bin]
 
-  namespace :deb do
-    task :install do
+  namespace :install do
+    task :deb do
       sh "sudo apt install ./pkg/msh_0.3.0_amd64.deb"
+    end
+
+    task :rpm do
+      sh "rpm -U ./pkg/msh-0.3.0-1.x86_64.rpm"
     end
   end
 end
