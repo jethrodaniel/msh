@@ -43,4 +43,10 @@ namespace :pkg do
     sh "cp ./msh pkg/msh-#{VERSION}"
   end
   task :all => %i[deb rpm bin]
+
+  namespace :deb do
+    task :install do
+      sh "sudo apt install ./pkg/msh_0.3.0_amd64.deb"
+    end
+  end
 end

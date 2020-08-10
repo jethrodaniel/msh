@@ -24,7 +24,7 @@ def create_manpage cmd, man_src
 
   Asciidoctor.convert(
     man,
-    :to_dir => "man/man1/",
+    :to_dir  => "man/man1/",
     :to_file => "#{cmd}.1",
     :doctype => "manpage",
     :backend => "manpage"
