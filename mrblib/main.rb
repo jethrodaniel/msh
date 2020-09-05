@@ -61,7 +61,14 @@ if RUBY_ENGINE == "mruby"
     alias to_h to_hash
   end
 
-  def __main__ _argv
-    Msh.start
-  end
+end
+
+# load up the `lib` directory
+dir = File.dirname(File.realpath(__FILE__)) # rubocop:disable Style/Dir
+$LOAD_PATH << File.join(dir, "../lib")
+
+require "msh"
+
+def __main__ _argv
+  Msh.start
 end

@@ -1,4 +1,4 @@
-require "English"
+require "English" unless RUBY_ENGINE == "mruby"
 
 require "msh/logger"
 require "msh/errors"

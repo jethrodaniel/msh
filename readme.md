@@ -37,13 +37,13 @@ See the main [manpage](man/msh.1.adoc).
 
 ## installation
 
-Msh is available (in order of preference) as
+Msh is available as
 
 - `deb` and `rpm` packages via `rake pkg:all`
-- a single Ruby script (`make; ruby mrblib/msh.rb`)
-- a Ruby gem (`gem install msh` once this is pushed, clone and `rake` until then)
+- a Ruby gem (`gem install msh` once this is pushed, clone and run `rake` until then)
 
 Check out the [releases page](https://github.com/jethrodaniel/msh/releases) for pre-built packages.
+
 ## development
 
 ```
@@ -53,10 +53,6 @@ git clone --recursive https://github.com/jethrodaniel/msh
 See `rake -T` and tools in `./bin/`.
 
 Check out [the CI](https://github.com/jethrodaniel/msh/actions/) to see the specs' lastest executions 🔪.
-
-## verification
-
-`ssh512` checksums are in the `certs` directory. See `rake checksums`.
 
 ## contributing
 

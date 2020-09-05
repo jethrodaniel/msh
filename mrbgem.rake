@@ -8,6 +8,7 @@ end
 MRuby::Gem::Specification.new("mruby-bin-#{msh.name}") do |spec| # rubocop:disable Metrics/BlockLength
   %i[license author summary version].each { |attr| spec.send("#{attr}=", msh.send(attr)) }
   spec.bins = msh.executables # = ["msh"]
+  # spec.rbfiles += Dir.glob("lib/**/*.rb")
 
   {
     "errno"   => "iij",

@@ -33,17 +33,11 @@ def make_file name, source
   File.open(name, "w") { |f| f.puts source }
 end
 
-directory "mrblib"
-SINGLE_MSH = "mrblib/msh.rb".freeze
-CLEAN << "mrblib" << "msh"
-
-file SINGLE_MSH => Dir.glob("lib/**/*.rb") + ["mrblib"] do |t|
-  sh "cp lib/msh/mruby.rb #{t.name}"
-  sh "gem consolidate msh --footer='Msh.start if $0 == __FILE__' --no-stdlib >> #{t.name}"
-end
+# directory "mrblib"
+# CLEAN << "mrblib" << "msh"
 
 desc 'creates an executable with MRuby'
-task :mruby => SINGLE_MSH do
+task :mruby do
   Dir.chdir "third_party/mruby" do
     # sh "git checkout -- ."
     make_file "build_config.rb", BUILD_CONFIG
