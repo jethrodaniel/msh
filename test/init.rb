@@ -1,4 +1,4 @@
 require "msh"
 
-require 'test_bench'
+require "test_bench"
 TestBench.activate

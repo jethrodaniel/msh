@@ -1,40 +1,37 @@
-# frozen_string_literal: true
-
-require "msh/lexer"
+require_relative "../init"
 
 def it_lexes code, tokens
-  it code do
-    expected = Msh::Lexer.new(code).tokens.map(&:to_s)
+  test code do
+    actual = Msh::Lexer.new(code).tokens.map(&:to_s)
 
-    expect(expected).to eq tokens
+    assert(actual == tokens)
   end
 end
 
-describe Msh::Lexer do
-  # @todo smaller test here
-  describe "incremental lexing" do
+context Msh::Lexer do
+  context "incremental lexing" do
     def t type, value, line, column
-      Msh::Token.new :type => type,
-                     :value => value,
-                     :line => line,
+      Msh::Token.new :type   => type,
+                     :value  => value,
+                     :line   => line,
                      :column => column
     end
 
-    it "lexes one token at a time" do
+    test "lexes one token at a time" do
       lex = Msh::Lexer.new "fortune | cowsay\n"
 
-      expect(lex.next?).to be true
-      expect(lex.current_token).to be nil
+      assert lex.next?
+      assert(lex.current_token.nil?)
 
-      expect(lex.next_token).to eq t(:WORD, "fortune", 1, 1)
-      expect(lex.next_token).to eq t(:SPACE, " ", 1, 8)
-      expect(lex.next_token).to eq t(:PIPE, "|", 1, 9)
-      expect(lex.next_token).to eq t(:SPACE, " ", 1, 10)
-      expect(lex.next_token).to eq t(:WORD, "cowsay", 1, 11)
-      expect(lex.next_token).to eq t(:NEWLINE, "\n", 1, 17)
-      expect(lex.next?).to be true
-      expect(lex.next_token).to eq t(:EOF, "\u0000", 2, 1)
-      expect(lex.next?).to be false
+      assert lex.next_token == t(:WORD, "fortune", 1, 1)
+      assert lex.next_token == t(:SPACE, " ", 1, 8)
+      assert lex.next_token == t(:PIPE, "|", 1, 9)
+      assert lex.next_token == t(:SPACE, " ", 1, 10)
+      assert lex.next_token == t(:WORD, "cowsay", 1, 11)
+      assert lex.next_token == t(:NEWLINE, "\n", 1, 17)
+      assert lex.next?
+      assert lex.next_token == t(:EOF, "\u0000", 2, 1)
+      refute lex.next?
 
       # err = "error at line 2, column 2: out of input"
       # expect do
@@ -44,8 +41,8 @@ describe Msh::Lexer do
   end
 end
 
-describe "Lexer smoke tests" do
-  describe "basics" do
+context "Lexer smoke tests" do
+  context "basics" do
     it_lexes "echo hi", [
       '[1:1-4][WORD, "echo"]',
       '[1:5-5][SPACE, " "]',
@@ -64,7 +61,7 @@ describe "Lexer smoke tests" do
     ]
   end
 
-  describe "mutliple commands" do
+  context "mutliple commands" do
     it_lexes "echo; echo; echo", [
       '[1:1-4][WORD, "echo"]',
       '[1:5-5][SEMI, ";"]',
@@ -77,7 +74,7 @@ describe "Lexer smoke tests" do
     ]
   end
 
-  describe "conditionals" do
+  context "conditionals" do
     it_lexes "echo a && echo b", [
       '[1:1-4][WORD, "echo"]',
       '[1:5-5][SPACE, " "]',
@@ -103,7 +100,7 @@ describe "Lexer smoke tests" do
       '[1:17-17][EOF, "\u0000"]'
     ]
   end
-  describe "pipes" do
+  context "pipes" do
     it_lexes "fortune | cowsay | wc -l", [
       '[1:1-7][WORD, "fortune"]',
       '[1:8-8][SPACE, " "]',
@@ -119,7 +116,7 @@ describe "Lexer smoke tests" do
       '[1:25-25][EOF, "\u0000"]'
 
     ]
-    describe "|&" do
+    context "|&" do
       it_lexes "fortune |& cowsay", [
         '[1:1-7][WORD, "fortune"]',
         '[1:8-8][SPACE, " "]',
@@ -130,8 +127,8 @@ describe "Lexer smoke tests" do
       ]
     end
   end
-  describe "redirections" do
-    describe "redirect output" do
+  context "redirections" do
+    context "redirect output" do
       it_lexes ">out", [
         '[1:1-1][REDIRECT_OUT, ">"]',
         '[1:2-4][WORD, "out"]',
@@ -152,7 +149,7 @@ describe "Lexer smoke tests" do
         '[1:6-6][EOF, "\u0000"]'
       ]
     end
-    describe "redirect input" do
+    context "redirect input" do
       it_lexes "<in", [
         '[1:1-1][REDIRECT_IN, "<"]',
         '[1:2-3][WORD, "in"]',
@@ -172,7 +169,7 @@ describe "Lexer smoke tests" do
       '[1:16-16][EOF, "\u0000"]'
     ]
   end
-  describe "comments" do
+  context "comments" do
     it_lexes "#x", [
       '[1:1-2][COMMENT, "#x"]',
       '[1:3-3][EOF, "\\u0000"]'
@@ -192,7 +189,7 @@ describe "Lexer smoke tests" do
       '[1:55-55][EOF, "\u0000"]'
     ]
   end
-  describe "job control" do
+  context "job control" do
     it_lexes "a &", [
       '[1:1-1][WORD, "a"]',
       '[1:2-2][SPACE, " "]',
@@ -200,7 +197,7 @@ describe "Lexer smoke tests" do
       '[1:4-4][EOF, "\u0000"]'
     ]
   end
-  describe "newlines" do
+  context "newlines" do
     code = <<~L
       echo hi
       echo newlines
@@ -222,7 +219,7 @@ describe "Lexer smoke tests" do
       '[4:1-1][EOF, "\u0000"]'
     ]
   end
-  describe "interpolation" do
+  context "interpolation" do
     it_lexes "echo \#{Math::PI}", [
       '[1:1-4][WORD, "echo"]',
       '[1:5-5][SPACE, " "]',
@@ -255,7 +252,7 @@ describe "Lexer smoke tests" do
       '[1:42-42][EOF, "\u0000"]'
     ]
   end
-  describe "if/else" do
+  context "if/else" do
     code = <<~L
       if echo a
         echo b
