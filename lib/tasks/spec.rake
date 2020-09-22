@@ -11,7 +11,7 @@ namespace :test do
   end
 
   task :bench do
-    sh "bundle exec bench #{Dir["test/**/*_test.rb"].join(' ')}"
+    sh "bundle exec ruby #{Dir["test/**/*_test.rb"].join(' ')}"
   end
 end
 
