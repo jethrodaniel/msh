@@ -9,7 +9,10 @@ namespace :test do
     t.doctest_opts = %w[--verbose --pride]
     t.pattern = "lib/**/*.rb"
   end
+
+  task :bench do
+    sh "bundle exec bench #{Dir["test/**/*_test.rb"].join(' ')}"
+  end
 end
 
-task :test => %w[install test:rspec test:doctest]
-task :spec => :test
+task :spec => %w[install test:bench test:rspec test:doctest]

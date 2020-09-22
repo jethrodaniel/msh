@@ -25,4 +25,8 @@ file "readme.md" do |t|
   File.open(t.name, "w") { |f| f.puts erb_string }
 end
 
+task :test do
+  sh "bundle exec bench #{Dir["test/**/*_test.rb"].join(' ')}"
+end
+
 Dir["lib/tasks/*.rake"].each(&method(:load))
