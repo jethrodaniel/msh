@@ -198,11 +198,11 @@ context "Lexer smoke tests" do
     ]
   end
   context "newlines" do
-    code = <<~L
-      echo hi
-      echo newlines
-      echo yay
-    L
+    code = <<-L
+echo hi
+echo newlines
+echo yay
+L
     it_lexes code, [
       '[1:1-4][WORD, "echo"]',
       '[1:5-5][SPACE, " "]',
@@ -253,10 +253,10 @@ context "Lexer smoke tests" do
     ]
   end
   context "if/else" do
-    code = <<~L
-      if echo a
-        echo b
-      end
+    code = <<-L
+if echo a
+  echo b
+end
     L
     it_lexes code, [
       '[1:1-2][IF, "if"]',

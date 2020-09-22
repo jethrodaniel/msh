@@ -1,2 +1,1 @@
-require "ast"
-include AST::Sexp
+include Msh::AST::Sexp

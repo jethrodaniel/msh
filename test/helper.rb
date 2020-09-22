@@ -1,10 +1,9 @@
-require "pty"
-require "expect"
-require "yaml"
-require "stringio"
-require "tempfile"
-require "tmpdir"
-require "fileutils"
+# require "expect"
+# require "yaml"
+# require "stringio"
+# require "tempfile"
+# require "tmpdir"
+# require "fileutils"
 
 def with_80_columns
   return yield unless $stdout.isatty

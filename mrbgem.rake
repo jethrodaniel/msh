@@ -45,4 +45,7 @@ MRuby::Gem::Specification.new("mruby-bin-#{msh.name}") do |spec| # rubocop:disab
   ].each do |gem|
     spec.add_dependency "mruby-#{gem}"
   end
+
+  # TODO: get this to work
+  # spec.add_test_dependency "mruby-test-bench", :git => "https://github.com/test-bench/test-bench"
 end

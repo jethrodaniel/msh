@@ -4,15 +4,15 @@ require_relative "../helper"
 context "msh" do
   test "-h, --help" do
     output = sh("msh -h")
-    asserted = <<~MSG
-      Usage:
-          msh [options]... [file]...
+    asserted = <<-MSG
+Usage:
+    msh [options]... [file]...
 
-      Options:
-          -V, --version  show the version
-          -c, --command  runs a string as shell input
-          -h, --help     print this help
-    MSG
+Options:
+    -V, --version  show the version
+    -c, --command  runs a string as shell input
+    -h, --help     print this help
+MSG
     assert(output == asserted)
     assert(sh("msh -h") == `msh --help`)
   end
