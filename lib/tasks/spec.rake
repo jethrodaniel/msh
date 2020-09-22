@@ -11,7 +11,9 @@ namespace :test do
   end
 
   task :bench do
-    sh "bundle exec ruby #{Dir["test/**/*_test.rb"].join(' ')}"
+    Dir["test/**/*_test.rb"].each do |t|
+      sh "bundle exec ruby #{t}"
+    end
   end
 end
 

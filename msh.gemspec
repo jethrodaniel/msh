@@ -36,8 +36,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "reline", "~> 0.1.4"
 
   spec.add_development_dependency "asciidoctor"
-  # spec.add_development_dependency "asciidoctor-pdf"
-  spec.add_development_dependency "benchmark_driver"
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "fpm"
   spec.add_development_dependency "parser"
