@@ -46,7 +46,7 @@ describe Msh::Interpreter do
     describe "help" do
       it "shows `msh` when called with no args" do
         man = File.read(Msh.root + "spec/fixtures/help/msh.txt")
-        expect(sh("MANPAGER=cat msh -c help")).to eq(man)
+        expect(sh("MANPAGER=cat bundle exec #{__dir__}/../../exe/msh -c help")).to eq(man)
       end
 
       it "has tab completion" do

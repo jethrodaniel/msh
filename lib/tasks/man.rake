@@ -73,7 +73,7 @@ namespace :man do
 
       require_relative "../../spec/spec_helper"
       with_80_columns do
-        sh "2>&1 MANPAGER=cat msh -c '#{cmd}' > spec/fixtures/help/#{topic}.txt"
+        sh "2>&1 MANPAGER=cat bundle exec ./exe/msh -c '#{cmd}' > spec/fixtures/help/#{topic}.txt"
       end
     end
   end
