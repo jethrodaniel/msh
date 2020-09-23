@@ -1,5 +1,5 @@
-require "msh/readline"
-require "msh/interpreter"
+require_relative "readline"
+require_relative "interpreter"
 
 module Msh
   # A read-eval print loop (REPL), continuously reads in user input, then

@@ -1,12 +1,12 @@
 require "English" unless RUBY_ENGINE == "mruby"
 
-require "msh/logger"
-require "msh/errors"
-require "msh/config"
-require "msh/evaluator"
-require "msh/lexer"
-require "msh/parser"
-require "msh/pipe"
+require_relative "logger"
+require_relative "errors"
+require_relative "config"
+require_relative "evaluator"
+require_relative "lexer"
+require_relative "parser"
+require_relative "pipe"
 
 module Msh
   # The interpreter executes an AST.

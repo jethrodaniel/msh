@@ -1,4 +1,4 @@
-require "msh/version"
+require_relative "version"
 
 module Msh
   # Stupid simple option parser _clone_, since optparse is pretty heavyweight,

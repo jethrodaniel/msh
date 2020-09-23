@@ -12,58 +12,6 @@ module Msh
           case t.type
           when :WORD
             t.value.blue
-          else
-            t.value
-          end
-        end.join
-      end
-    end
-  end
-end
-
-unless RUBY_ENGINE == "mruby"
-  require "reline"
-
-  Reline.prompt_proc = -> buffer do
-    return [interpreter.prompt] + ["> "] * buffer.size if buffer.size > 1
-
-    [interpreter.prompt]
-  end
-
-  Reline.completion_proc = -> input do
-    opts = Dir.glob("#{input}*").sort
-    opts.map! { |o| o.gsub " ", "\\ " } if Reline.completion_quote_character.nil?
-    opts
-  end
-
-  # Reline.completion_append_character = " "
-  Reline.completer_quote_characters = "\"'"
-
-  # Reline.auto_indent_proc = -> _lines, line, _column, _check_new_auto_indent do
-  #   # puts "lines: #{lines}"
-  #   # puts "line: #{line}"
-  #   # puts "column: #{column}"
-  #   # puts "check_new_auto_indent: #{check_new_auto_indent}"
-  #   line * 2
-  # end
-
-  # Reline.output_modifier_proc = -> output, complete: do
-  #   Msh::Readline::SyntaxHighlighter.new(output).code
-  # end
-end
-
-module Msh
-  module Readline
-    class SyntaxHighlighter
-      attr_reader :code
-
-      def initialize code
-        lex = Msh::Lexer.new code
-
-        @code = lex.tokens.map do |t|
-          case t.type
-          when :WORD
-            t.value.blue
           when :PIPE, :AND, :OR
             t.value.cyan
           when :EOF
@@ -99,3 +47,36 @@ module Msh
     end
   end
 end
+
+unless RUBY_ENGINE == "mruby"
+  require "reline"
+
+  # Reline.prompt_proc = -> buffer do
+  #   return [interpreter.prompt] + ["> "] * buffer.size if buffer.size > 1
+
+  #   [interpreter.prompt]
+  # end
+
+  Reline.completion_proc = -> input do
+    opts = Dir.glob("#{input}*").sort
+    opts.map! { |o| o.gsub " ", "\\ " } if Reline.completion_quote_character.nil?
+    opts
+  end
+
+  # Reline.completion_append_character = " "
+  Reline.completer_quote_characters = "\"'"
+
+  # Reline.auto_indent_proc = -> _lines, line, _column, _check_new_auto_indent do
+  #   # puts "lines: #{lines}"
+  #   # puts "line: #{line}"
+  #   # puts "column: #{column}"
+  #   # puts "check_new_auto_indent: #{check_new_auto_indent}"
+  #   line * 2
+  # end
+
+  # Reline.output_modifier_proc = -> output, complete: do
+  #   Msh::Readline::SyntaxHighlighter.new(output).code
+  # end
+end
+
+

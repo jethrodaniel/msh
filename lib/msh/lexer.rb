@@ -1,8 +1,8 @@
-require "msh/readline"
-require "msh/errors"
-require "msh/logger"
-require "msh/token"
-require "msh/scanner"
+require_relative "readline"
+require_relative "errors"
+require_relative "logger"
+require_relative "token"
+require_relative "scanner"
 
 module Msh
   # The lexer breaks down input text into a series of tokens.

@@ -1,4 +1,4 @@
-require "msh/context"
+require_relative "context"
 
 module Msh
   class Evaluator

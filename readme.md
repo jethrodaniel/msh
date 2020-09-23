@@ -41,6 +41,7 @@ Msh is available as
 
 - `deb` and `rpm` packages via `rake pkg:all`
 - a Ruby gem (`gem install msh` once this is pushed, clone and run `rake` until then)
+- a single script via `rake consolidate`
 
 Check out the [releases page](https://github.com/jethrodaniel/msh/releases) for pre-built packages.
 

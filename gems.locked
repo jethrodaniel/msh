@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/jethrodaniel/gem-consolidate.git
+  revision: aeb4b33fc4aed8bbce39c5a3827fe47fb5698516
+  specs:
+    gem-consolidate (0.1.0)
+      parser
+
 PATH
   remote: .
   specs:
@@ -106,6 +113,7 @@ DEPENDENCIES
   asciidoctor
   bundler
   fpm
+  gem-consolidate!
   msh!
   parser
   pry

@@ -1,9 +1,9 @@
 require "English" unless RUBY_ENGINE == "mruby"
 
-require "msh/backports"
-require "msh/core_extensions"
-require "msh/cli"
-require "msh/repl"
+require_relative "msh/backports"
+require_relative "msh/core_extensions"
+require_relative "msh/cli"
+require_relative "msh/repl"
 
 # == name
 #
@@ -178,7 +178,14 @@ module Msh
   def self.root
     raise Error, "`Msh.root` is unsupported" if RUBY_ENGINE == "mruby"
 
-    Gem::Specification.find_by_name("msh").gem_dir
+    path = Dir.pwd
+
+    begin
+      path = Gem::Specification.find_by_name("msh").gem_dir
+    rescue Gem::MissingSpecError => e
+      warn "`msh` not installed. Assuming root dir is the current dir"
+    end
+    Pathname.new(path)
   end
 
   # Entry point for the `msh` command.

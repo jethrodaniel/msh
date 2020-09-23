@@ -1,6 +1,6 @@
-require "msh/optparse"
-require "msh/version"
-require "msh/interpreter"
+require_relative "../msh/optparse"
+require_relative "../msh/version"
+require_relative "../msh/interpreter"
 
 module Msh
   module CLI

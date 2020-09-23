@@ -1,7 +1,7 @@
-require "logger" unless RUBY_ENGINE == "mruby"
+require "logger" #unless RUBY_ENGINE == "mruby"
 
-require "msh/errors"
-require "msh/ansi"
+require_relative "errors"
+require_relative "ansi"
 
 module Msh
   module Logger

@@ -1,9 +1,9 @@
-require "msh/core_extensions"
-require "msh/readline"
-require "msh/errors"
-require "msh/ast"
-require "msh/lexer"
-require "msh/logger"
+require_relative "core_extensions"
+require_relative "readline"
+require_relative "errors"
+require_relative "ast"
+require_relative "lexer"
+require_relative "logger"
 
 module Msh
   # The parser converts a series of tokens into an abstract syntax tree (AST).
