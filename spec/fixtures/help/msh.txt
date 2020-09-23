@@ -1,5 +1,7 @@
 MSH(1)                            Msh Manual                            MSH(1)
 
+
+
 NAME
        msh - a ruby shell
 
@@ -151,4 +153,6 @@ RESOURCES
 MSH
        Part of msh(1).
 
-Msh v0.3.0                        2020-08-09                            MSH(1)
+
+
+Msh v0.3.0                        2020-09-23                            MSH(1)
