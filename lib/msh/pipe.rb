@@ -1,11 +1,9 @@
 require "English" unless RUBY_ENGINE == "mruby"
 
 # @example
-#     commands = %w[date cat]
-#
-#     p = Pipeline.new commands
-#     p.run { |c| exec(*c.cmd) }
-#
+#   commands = %w[fortune cowsay]
+#   p = Pipeline.new commands
+#   p.run { |c| exec(*c.cmd) }
 class Pipeline
   attr_reader :cmds
 
@@ -27,13 +25,15 @@ class Pipeline
   end
 
   def run
+    abort "IO#reopen is not available on MRuby" if RUBY_ENGINE == "mruby"
+
     pids = []
     exit_code = nil
 
     @cmds.each do |cmd|
       cmd.pid = fork do
-        $stdin.reopen  cmd.in
-        $stdout.reopen cmd.out
+        $stdin.reopen(cmd.in)
+        $stdout.reopen(cmd.out)
 
         raise "need block" unless block_given?
 
@@ -43,10 +43,10 @@ class Pipeline
       end
       pids << cmd.pid
 
+      Process.wait cmd.pid
+
       cmd.in.close  if cmd.close_in?
       cmd.out.close if cmd.close_out?
-
-      Process.wait cmd.pid
       cmd.status = $CHILD_STATUS&.exitstatus || exit_code
     end
   end
