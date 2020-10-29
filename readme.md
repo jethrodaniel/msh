@@ -51,7 +51,7 @@ Check out the [releases page](https://github.com/jethrodaniel/msh/releases) for 
 git clone --recursive https://github.com/jethrodaniel/msh
 ```
 
-See `rake -T` and tools in `./bin/`.
+See `rake -T`.
 
 Check out [the CI](https://github.com/jethrodaniel/msh/actions/) to see the specs' lastest executions 🔪.
 
