@@ -2,7 +2,7 @@
 
 if RUBY_ENGINE == "mruby"
   $CHILD_STATUS = $? # rubocop:disable Style/SpecialGlobalVars
-  # $LOAD_PATH    = $: # rubocop:disable Style/SpecialGlobalVars
+  ARGV        ||= []
 
   module Kernel
     def puts obj
@@ -24,7 +24,7 @@ if RUBY_ENGINE == "mruby"
       if (path = ENV["PATH"]).include? ":"
         p = path.split(":").find do |p|
           f = File.join(p, cmd)
-          File.file?(f) # && File.executable?(f) && !File.directory?(f)
+          File.file?(f) # && File.executable?(f)
         end
         if p
           exe = File.join(p, cmd)
@@ -59,5 +59,9 @@ if RUBY_ENGINE == "mruby"
 
   ENV.instance_eval do
     alias to_h to_hash
+  end
+
+  def __main__ argv
+    Msh.start(argv)
   end
 end

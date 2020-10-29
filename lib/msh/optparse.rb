@@ -15,7 +15,8 @@ module Msh
 
     attr_accessor :banner
 
-    def initialize
+    def initialize argv
+      @argv = argv
       @actions = []
       @banner = nil
       yield self if block_given?
@@ -39,7 +40,7 @@ module Msh
     end
 
     def parse!
-      switches, files = ARGV.partition { |e| e.start_with?("-") }
+      switches, files = @argv.partition { |e| e.start_with?("-") }
 
       switches.each do |switch|
         action = if switch.start_with?("--")

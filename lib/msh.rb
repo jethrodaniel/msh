@@ -191,14 +191,14 @@ module Msh
   # Entry point for the `msh` command.
   #
   # Parses options/commands, then runs either interactively or on files.
-  def self.start
-    Msh::CLI.handle_options!
+  def self.start argv = ARGV
+    Msh::CLI.handle_options! argv
 
-    return Msh::Repl.new if ARGV.size.zero?
+    return Msh::Repl.new if argv.size.zero?
 
     interpreter = Msh::Interpreter.new
 
-    ARGV.each do |file|
+    argv.each do |file|
       abort "`#{file}` not found" unless File.file?(file)
       interpreter.interpret File.read(file)
     end

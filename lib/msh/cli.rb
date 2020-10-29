@@ -12,8 +12,8 @@ Options:
     B
 
     # @return [OptionParser]
-    def self.option_parser
-      OptionParser.new do |opts|
+    def self.option_parser argv
+      OptionParser.new(argv) do |opts|
         opts.banner = Msh::CLI::BANNER
 
         opts.on "-h", "--help", "print this help" do
@@ -36,8 +36,8 @@ Options:
     end
 
     # @todo configure Msh::Config here, if needed
-    def self.handle_options!
-      option_parser.parse!
+    def self.handle_options! argv
+      option_parser(argv).parse!
     rescue OptionParser::MissingArgument, OptionParser::InvalidOption => e
       abort e.message
     end
