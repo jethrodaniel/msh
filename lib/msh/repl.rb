@@ -21,7 +21,7 @@ module Msh
       @interpreter = Msh::Interpreter.new
       @checker = Msh::Readline::TerminationChecker.new
 
-      puts "Welcome to msh v#{Msh::VERSION} (`?` for help)"
+      puts "#{VERSION_STRING} (`?` for help)"
 
       unless RUBY_ENGINE == "mruby"
         Reline.prompt_proc = -> buffer do

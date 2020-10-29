@@ -22,7 +22,7 @@ Options:
         end
 
         opts.on "-V", "--version", "show the version" do
-          puts "msh version #{Msh::VERSION}"
+          puts Msh::VERSION_STRING
           exit 2
         end
 

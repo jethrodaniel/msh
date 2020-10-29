@@ -13,9 +13,8 @@ describe "msh" do
   end
 
   it "-V, --version" do
-    msg = "msh version #{Msh::VERSION}\n"
-    expect(sh("msh -V")).to eq msg
-    expect(sh("msh --version")).to eq msg
+    msg = "msh v#{Msh::VERSION}"
+    expect(sh("msh --version")).to include msg
   end
 
   describe "-c <cmd_string>" do
