@@ -2,7 +2,7 @@ require "bundler/gem_tasks"
 require "rake/clean"
 require "erb"
 
-CLEAN += %w[docs pkg]
+CLEAN << %w[docs pkg]
 
 task :default => %i[msh build install spec mruby]
 
@@ -38,3 +38,18 @@ task :lint do
 end
 
 Dir["lib/tasks/*.rake"].each(&method(:load))
+
+desc "install tar v1.32 (needed for pkg)"
+task :tar => "third_party/tar-1.32" do
+  Dir.chdir "third_party/tar-1.32" do
+    sh "./configure && sudo make && sudo make install"
+  end
+end
+file "third_party/tar-1.32.tar.gz" do
+  sh "wget https://ftp.gnu.org/gnu/tar/tar-1.32.tar.gz -P third_party"
+end
+file "third_party/tar-1.32" => "third_party/tar-1.32.tar.gz" do
+  Dir.chdir "third_party" do
+    sh "tar xzvf tar-1.32.tar.gz"
+  end
+end
