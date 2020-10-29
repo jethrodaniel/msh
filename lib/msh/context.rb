@@ -1,12 +1,18 @@
 require "English" unless RUBY_ENGINE == "mruby"
 
 module Msh
+  # In msh, you're always accompanied by Ruby's `self`.
+  # When you use interpolation, you use use this instance.
+  # Functions and aliases are just methods on this instance.
+  #
+  # What we want is a blank object, with no methods or anything. However, we
+  # have to have a few for sanity's sake.
   class Context
     NEEDED = [
       # to see if our context can handle this, or should we call an executable?
       :respond_to?,
 
-      # I assume we need these for sanity reasons?
+      # Assuming we need all of these
       #
       #     BasicObject.instance_methods
       #     #=> [:__send__, :!, :==, :!=, :equal?, :__id__, :instance_eval, :instance_exec]
