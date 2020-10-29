@@ -56,7 +56,7 @@ end
 desc "creates an executable with MRuby"
 task :mruby => ["mrblib/msh.rb", "mrblib"] do
   Dir.chdir "third_party/mruby" do
-    make_file "target/msh.rb", BUILD_CONFIG
+    # make_file "target/msh.rb", BUILD_CONFIG
     make_file "build_config.rb", BUILD_CONFIG
     # sh "TARGET=msh rake clean all"
     sh "rake clean all"
