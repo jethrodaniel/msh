@@ -5,7 +5,6 @@ lib/**/*.rb
 --output-dir docs
 --main       readme.md
 --no-cache
---plugin     yard-doctest
 
 -
 
