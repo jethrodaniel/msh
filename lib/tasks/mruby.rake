@@ -33,8 +33,8 @@ def make_file name, source
   File.open(name, "w") { |f| f.puts source }
 end
 
-# directory "mrblib"
-# CLEAN << "mrblib" << "msh"
+directory "mrblib"
+CLEAN << "mrblib" << "msh.rb" << "msh"
 
 desc 'consolidate msh into a single executable script'
 task :consolidate => 'msh.rb'
@@ -48,8 +48,9 @@ file 'msh.rb' => 'lib/msh.rb' do |t|
   sh "chmod u+x #{t.name}"
 end
 
+directory 'mrblib'
 desc 'creates an executable with MRuby'
-task :mruby => :consolidate do
+task :mruby => [:consolidate, 'mrblib'] do
   sh 'mkdir -p mrblib'
   sh 'cp msh.rb mrblib/'
   Dir.chdir "third_party/mruby" do

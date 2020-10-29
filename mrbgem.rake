@@ -11,9 +11,9 @@ MRuby::Gem::Specification.new("mruby-bin-#{msh.name}") do |spec|
   # spec.rbfiles = %w[mrblib/msh.rb]
 
   {
-    "errno"   => "iij",
+    # "errno"   => "iij",
     "process" => "iij",
-    "exec"    => "haconiwa"
+    # "exec"    => "haconiwa"
   }.each do |gem, author|
     spec.add_dependency "mruby-#{gem}", :github => "#{author}/mruby-#{gem}"
   end
@@ -32,12 +32,9 @@ MRuby::Gem::Specification.new("mruby-bin-#{msh.name}") do |spec|
     method
     numeric-ext
     object-ext
-    print
     string-ext
     struct
     toplevel-ext
-
-    require
 
     bin-mirb
     bin-mruby

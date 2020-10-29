@@ -2,7 +2,7 @@
 
 if RUBY_ENGINE == "mruby"
   $CHILD_STATUS = $? # rubocop:disable Style/SpecialGlobalVars
-  $LOAD_PATH    = $: # rubocop:disable Style/SpecialGlobalVars
+  # $LOAD_PATH    = $: # rubocop:disable Style/SpecialGlobalVars
 
   module Kernel
     def puts obj

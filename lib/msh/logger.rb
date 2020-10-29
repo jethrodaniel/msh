@@ -34,8 +34,9 @@ module Msh
     # Access a logger, to stdout (for now).
     #
     # Uses logging level ENV['MSH_LOG'], which can be WARN, INFO, etc
+    puts LEVELS.inspect
     def log
-      logger = ::Logger.new $stdout
+      logger = ::Logger.new STDOUT
 
       logger.formatter = FORMATTER
       logger.level = log_level
