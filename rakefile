@@ -30,9 +30,4 @@ task :test do
   sh "bundle exec bench #{Dir["test/**/*_test.rb"].join(' ')}"
 end
 
-desc 'consolidate msh into a single executable script'
-task :consolidate do
-  sh "gem consolidate ./lib/msh.rb --footer='Msh.start' --header='#!/usr/bin/env ruby' 1>msh && chmod u+x msh"
-end
-
 Dir["lib/tasks/*.rake"].each(&method(:load))

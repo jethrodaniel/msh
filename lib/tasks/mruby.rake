@@ -1,6 +1,6 @@
-DEV_CONF = <<~'RB'.freeze
+DEV_CONF = <<-'RB'.freeze
   # Turn on `enable_debug` for better debugging
-  enable_debug
+  conf.enable_debug
 
   # mrbc settings
   conf.mrbc do |mrbc|
@@ -19,7 +19,7 @@ BUILD_CONFIG = <<~RB.freeze
   MRuby::Build.new do |conf|
     toolchain :gcc
 
-    conf.gem  "../.."
+    conf.gem  "../../.."
 
     #{DEV_CONF unless ENV['RELEASE']}
 
@@ -36,14 +36,26 @@ end
 # directory "mrblib"
 # CLEAN << "mrblib" << "msh"
 
+desc 'consolidate msh into a single executable script'
+task :consolidate => 'msh.rb'
+file 'msh.rb' => 'lib/msh.rb' do |t|
+  sh "gem consolidate #{t.source} --footer='Msh.start' > #{t.name}"
+  sh "mv #{t.name} z"
+  sh "echo '#!/usr/bin/env ruby' > #{t.name}"
+  sh "cat lib/msh/mruby.rb >> #{t.name}"
+  sh "cat z >> #{t.name}"
+  sh "rm z"
+  sh "chmod u+x #{t.name}"
+end
+
 desc 'creates an executable with MRuby'
-task :mruby do
+task :mruby => :consolidate do
+  sh 'mkdir -p mrblib'
+  sh 'cp msh.rb mrblib/'
   Dir.chdir "third_party/mruby" do
-    # sh "git checkout -- ."
-    make_file "build_config.rb", BUILD_CONFIG
-    sh "make clean all"
+    make_file "target/msh.rb", BUILD_CONFIG
+    sh "TARGET=msh rake clean all"
     sh "strip -s -R .comment -R .gnu.version --strip-unneeded ./bin/msh" if ENV["RELEASE"]
     sh "cp -v bin/msh ../../"
-    # sh "git checkout -- ."
   end
 end

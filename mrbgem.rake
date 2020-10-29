@@ -5,10 +5,10 @@ rescue LoadError => e
   abort e.message
 end
 
-MRuby::Gem::Specification.new("mruby-bin-#{msh.name}") do |spec| # rubocop:disable Metrics/BlockLength
+MRuby::Gem::Specification.new("mruby-bin-#{msh.name}") do |spec|
   %i[license author summary version].each { |attr| spec.send("#{attr}=", msh.send(attr)) }
-  spec.bins = msh.executables # = ["msh"]
-  # spec.rbfiles += Dir.glob("lib/**/*.rb")
+  spec.bins = %w[msh]
+  # spec.rbfiles = %w[mrblib/msh.rb]
 
   {
     "errno"   => "iij",
