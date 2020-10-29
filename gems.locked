@@ -107,7 +107,6 @@ DEPENDENCIES
   bundler
   fpm
   gem-consolidate!
-  json (~> 1.8)
   msh!
   parser
   pry
