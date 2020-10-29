@@ -226,7 +226,7 @@ module Msh
           return
         else
           begin
-            puts Msh::Lexer.new(line).tokens.map(&:to_s)
+            puts Msh::Lexer.new(line).tokens.map(&:to_s).join("\n")
           rescue Errors::LexerError => e
             puts e.message
           end
