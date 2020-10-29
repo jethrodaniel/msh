@@ -10,10 +10,8 @@ module Msh
   #
   module AST
     class Node
-      attr_reader :type, :children
+      attr_reader :type, :children, :line, :column
       alias to_a children
-
-      attr_reader :line, :column
 
       def initialize type, children, **opts
         @type = type

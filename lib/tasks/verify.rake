@@ -1,6 +1,6 @@
 directory "certs"
 
-CHECKSUMS = "certs/msh.sha512"
+CHECKSUMS = "certs/msh.sha512".freeze
 
 task :checksums => "checksums:dump"
 

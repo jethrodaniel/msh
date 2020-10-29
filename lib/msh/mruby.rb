@@ -2,7 +2,7 @@
 
 if RUBY_ENGINE == "mruby"
   $CHILD_STATUS = $? # rubocop:disable Style/SpecialGlobalVars
-  ARGV        ||= []
+  ARGV        ||= [].freeze
 
   module Kernel
     def puts obj

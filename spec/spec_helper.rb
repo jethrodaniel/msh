@@ -13,7 +13,6 @@ require "tempfile"
 require "tmpdir"
 require "yaml"
 
-
 require "msh"
 
 def with_80_columns

@@ -150,10 +150,11 @@ module Msh
       when "1".."9"
         advance while DIGITS.include?(@scanner.current_char)
 
-        if @scanner.current_char == ">"
+        case @scanner.current_char
+        when ">"
           advance
           consume_redir_right
-        elsif @scanner.current_char == "<"
+        when "<"
           advance
           consume_redir_left
         else

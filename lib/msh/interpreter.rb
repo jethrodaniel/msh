@@ -247,7 +247,7 @@ module Msh
     def on_VAR node
       var = node.children.first[1..-1]
 
-      local_value = local_sh_variables.dig(var)
+      local_value = local_sh_variables[var]
       return local_value if local_value
 
       ENV[var].to_s
@@ -356,7 +356,7 @@ module Msh
     def setup_manpath!
       manpaths = ENV["MANPATH"].to_s.split(File::PATH_SEPARATOR)
       manpaths << File.join(Msh.root, "man").to_s
-      ENV["MANPATH"] = manpaths.compact.join(File::PATH_SEPARATOR) + "::"
+      ENV["MANPATH"] = "#{manpaths.compact.join(File::PATH_SEPARATOR)}::"
     end
   end
 end

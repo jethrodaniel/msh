@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/jethrodaniel/gem-consolidate.git
-  revision: db220a5794ff547016e5b8004c992797c7934d39
+  revision: 7ba090fe9354b82a71136ac88fe9dcfd8c97ab7f
   specs:
-    gem-consolidate (0.1.0)
+    gem-consolidate (0.1.2)
       parser
 
 PATH
@@ -18,14 +18,14 @@ GEM
       cabin (> 0)
     asciidoctor (2.0.10)
     ast (2.4.1)
-    backports (3.18.1)
+    backports (3.18.2)
     byebug (11.1.3)
     cabin (0.9.0)
     childprocess (0.9.0)
       ffi (~> 1.0, >= 1.0.11)
     clamp (1.0.1)
     coderay (1.1.3)
-    diff-lcs (1.3)
+    diff-lcs (1.4.4)
     dotenv (2.7.6)
     ffi (1.13.1)
     fpm (1.11.0)
@@ -44,10 +44,9 @@ GEM
     io-like (0.3.1)
     json (1.8.6)
     method_source (1.0.0)
-    minitest (5.14.1)
     mustache (0.99.8)
-    parallel (1.19.1)
-    parser (2.7.1.4)
+    parallel (1.19.2)
+    parser (2.7.2.0)
       ast (~> 2.4.1)
     pleaserun (0.0.31)
       cabin (> 0)
@@ -64,47 +63,41 @@ GEM
       pry (~> 0.13.0)
     rainbow (3.0.0)
     rake (13.0.1)
-    regexp_parser (1.7.1)
-    reline (0.1.4)
+    regexp_parser (1.8.2)
+    reline (0.1.6)
       io-console (~> 0.5)
     rexml (3.2.4)
     rspec (3.9.0)
       rspec-core (~> 3.9.0)
       rspec-expectations (~> 3.9.0)
       rspec-mocks (~> 3.9.0)
-    rspec-core (3.9.2)
+    rspec-core (3.9.3)
       rspec-support (~> 3.9.3)
-    rspec-expectations (3.9.2)
+    rspec-expectations (3.9.3)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.9.0)
     rspec-mocks (3.9.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.9.0)
-    rspec-support (3.9.3)
-    rubocop (0.85.1)
+    rspec-support (3.9.4)
+    rubocop (1.0.0)
       parallel (~> 1.10)
-      parser (>= 2.7.0.1)
+      parser (>= 2.7.1.5)
       rainbow (>= 2.2.2, < 4.0)
-      regexp_parser (>= 1.7)
+      regexp_parser (>= 1.8)
       rexml
-      rubocop-ast (>= 0.0.3)
+      rubocop-ast (>= 0.6.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 1.4.0, < 2.0)
-    rubocop-ast (0.0.3)
-      parser (>= 2.7.0.1)
+    rubocop-ast (1.1.0)
+      parser (>= 2.7.1.5)
     ruby-progressbar (1.10.1)
     ruby-xz (0.2.3)
       ffi (~> 1.9)
       io-like (~> 0.3)
     stud (0.0.23)
-    test_bench (1.2.0.5)
-      test_bench-fixture (>= 1.0.0.0)
-    test_bench-fixture (1.3.1.0)
     unicode-display_width (1.7.0)
     yard (0.9.25)
-    yard-doctest (0.1.17)
-      minitest
-      yard
 
 PLATFORMS
   ruby
@@ -114,6 +107,7 @@ DEPENDENCIES
   bundler
   fpm
   gem-consolidate!
+  json (~> 1.8)
   msh!
   parser
   pry
@@ -121,9 +115,7 @@ DEPENDENCIES
   rake
   rspec
   rubocop
-  test_bench
   yard
-  yard-doctest
 
 BUNDLED WITH
    2.1.4

@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require "msh/lexer"
 
 def it_lexes code, tokens
@@ -14,9 +12,9 @@ describe Msh::Lexer do
   # @todo smaller test here
   describe "incremental lexing" do
     def t type, value, line, column
-      Msh::Token.new :type => type,
-                     :value => value,
-                     :line => line,
+      Msh::Token.new :type   => type,
+                     :value  => value,
+                     :line   => line,
                      :column => column
     end
 
@@ -229,13 +227,13 @@ describe "Lexer smoke tests" do
       '[1:6-16][INTERP, "\#{Math::PI}"]',
       '[1:17-17][EOF, "\u0000"]'
     ]
-    it_lexes 'a#{#{:b}#{:c}}d', [
+    it_lexes "a\#{\#{:b}\#{:c}}d", [
       '[1:1-1][WORD, "a"]',
       '[1:2-14][INTERP, "\#{\#{:b}\#{:c}}"]',
       '[1:15-15][WORD, "d"]',
       '[1:16-16][EOF, "\u0000"]'
     ]
-    it_lexes 'echo a#{:b}c#{:d}e a#{:b} #{:c}d #{1}#{2}', [
+    it_lexes "echo a\#{:b}c\#{:d}e a\#{:b} \#{:c}d \#{1}\#{2}", [
       '[1:1-4][WORD, "echo"]',
       '[1:5-5][SPACE, " "]',
       '[1:6-6][WORD, "a"]',

@@ -4,6 +4,8 @@ AllCops:
   TargetRubyVersion: 2.5
   Exclude:
     - 'third_party/**/*'
+    - 'msh.rb'
+    - 'mrblib/msh.rb'
 
 # mruby doesn't have squiggly here-docs :(
 Layout/HeredocIndentation:
@@ -24,14 +26,12 @@ Style/FrozenStringLiteralComment:
 Layout/HashAlignment:
   EnforcedHashRocketStyle: table
 
-Layout/EmptyLinesAroundAttributeAccessor:
-  Enabled: true
-
 # Spec DSL creates large blocks, especially when nesting; gemspecs are pretty long as well
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*_spec.rb'
     - '**/*.gemspec'
+    - 'mrbgem.rake'
 
 # `while line = gets` is idiomatic
 Lint/AssignmentInCondition:
@@ -78,20 +78,20 @@ Style/RescueStandardError:
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
-# # Default of 15 is a bit low
-# Metrics/AbcSize:
-#   Max: 20
+# π ≈ 3.14159
+Style/AsciiComments:
+  Enabled: false
 
-# # Default method length of 10 lines is a bit low
-# Metrics/MethodLength:
-#   Max: 30
-
-# # Why can't we use pretty unicode?
-# Style/AsciiComments:
-#   Enabled: false
-
-# 6 is a bit restrictive
-# Metrics/CyclomaticComplexity:
-#   Max: 8
-
-
+# Disable assorted things from specs
+Style/MixinUsage:
+  Exclude:
+    - 'spec/**/*_spec.rb'
+Lint/MissingCopEnableDirective:
+  Exclude:
+    - 'spec/**/*_spec.rb'
+Lint/LiteralInInterpolation:
+  Exclude:
+    - 'spec/**/*_spec.rb'
+Metrics/MethodLength:
+  Exclude:
+    - 'spec/**/*_spec.rb'

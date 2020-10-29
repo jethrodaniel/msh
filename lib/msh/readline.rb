@@ -35,11 +35,9 @@ module Msh
 
     def self.readline prompt, keep_history = true, &block
       if Object.const_defined? :Reline
-        if block_given?
-          return ::Reline.readmultiline(prompt, keep_history, &block)
-        else
-          return ::Reline.readline(prompt, keep_history)
-        end
+        return ::Reline.readmultiline(prompt, keep_history, &block) if block_given?
+
+        return ::Reline.readline(prompt, keep_history)
       end
 
       print prompt
@@ -78,5 +76,3 @@ unless RUBY_ENGINE == "mruby"
   #   Msh::Readline::SyntaxHighlighter.new(output).code
   # end
 end
-
-

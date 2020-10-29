@@ -37,9 +37,9 @@ end
 directory "mrblib"
 CLEAN << "mrblib" << "msh.rb" << "msh"
 
-desc 'consolidate msh into a single executable script'
-task :consolidate => 'msh.rb'
-file 'msh.rb' => 'lib/msh.rb' do |t|
+desc "consolidate msh into a single executable script"
+task :consolidate => "msh.rb"
+file "msh.rb" => "lib/msh.rb" do |t|
   sh "gem consolidate #{t.source} --no-stdlib --footer='Msh.start' > #{t.name}"
   sh "mv #{t.name} z"
   sh "echo '#!/usr/bin/env ruby' > #{t.name}"
@@ -49,12 +49,12 @@ file 'msh.rb' => 'lib/msh.rb' do |t|
   sh "chmod u+x #{t.name}"
 end
 
-directory 'mrblib'
-file 'mrblib/msh.rb' => %w[msh.rb mrblib] do |t|
+directory "mrblib"
+file "mrblib/msh.rb" => %w[msh.rb mrblib] do |t|
   sh "cp #{t.source} #{t.name}"
 end
-desc 'creates an executable with MRuby'
-task :mruby => ['mrblib/msh.rb', 'mrblib'] do
+desc "creates an executable with MRuby"
+task :mruby => ["mrblib/msh.rb", "mrblib"] do
   Dir.chdir "third_party/mruby" do
     make_file "target/msh.rb", BUILD_CONFIG
     make_file "build_config.rb", BUILD_CONFIG
