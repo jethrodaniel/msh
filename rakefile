@@ -1,10 +1,10 @@
-require "erb"
 require "bundler/gem_tasks"
 require "rake/clean"
+require "erb"
 
-CLEAN << "docs" << "pkg"
+CLEAN += %w[docs pkg]
 
-task :default => %i[msh build install spec]
+task :default => %i[msh build install spec mruby]
 
 desc "build everything and run msh"
 task :run => :msh do
@@ -25,9 +25,16 @@ file "readme.md" do |t|
   File.open(t.name, "w") { |f| f.puts erb_string }
 end
 
-desc 'run the tests'
-task :test do
-  sh "bundle exec bench #{Dir["test/**/*_test.rb"].join(' ')}"
+%i[lexer parser].each do |cmd|
+  desc "run the #{cmd}"
+  task cmd do
+    sh "bundle exec msh -c #{cmd}"
+  end
+end
+
+desc "runs the linter"
+task :lint do
+  sh "bundle exec rubocop"
 end
 
 Dir["lib/tasks/*.rake"].each(&method(:load))

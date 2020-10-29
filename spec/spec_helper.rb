@@ -1,39 +1,20 @@
-require "pty"
-require "expect"
-require "yaml"
+require "rspec"
+
+RSpec.configure do |c|
+  c.expect_with :rspec do |e|
+    e.syntax = :expect
+    e.max_formatted_output_length = ENV["VERBOSE"] ? 1_000 : 100
+  end
+end
+
+require "fileutils"
 require "stringio"
 require "tempfile"
 require "tmpdir"
-require "fileutils"
+require "yaml"
 
-require "bundler/setup"
-require "rspec"
 
 require "msh"
-require "msh/backports"
-
-RSpec.configure do |config|
-  # expect().to be_true
-  config.expect_with :rspec do |c|
-    c.syntax = :expect
-    c.max_formatted_output_length = ENV["VERBOSE"] ? 1_000 : 100
-  end
-
-  # Disable RSpec exposing methods globally on `Module` and `main`
-  # config.disable_monkey_patching!
-end
-
-# ENV["INPUTRC"] = "/dev/null"
-
-# @example
-#   run_iteractively "msh" do
-#     expect(input).to eq("interpreter> ")
-#     type "hist"
-#     expect(output).to eq("...")
-#   end
-#
-# def run_iteractively cmd
-# end
 
 def with_80_columns
   return yield unless $stdout.isatty
