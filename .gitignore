@@ -16,6 +16,8 @@
 
 /tmp/
 
-# msh
+msh
+msh.rb
+mrblib
 
 man/**/*.gz
