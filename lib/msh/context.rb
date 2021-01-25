@@ -49,7 +49,8 @@ module Msh
       :exec,
       :abort,
       :warn,
-      :exit!
+      :exit!,
+      :exit
     ].freeze
 
     HIDDEN = instance_methods - NEEDED
@@ -110,7 +111,7 @@ module Msh
         begin
           @_ = instance_eval(line)
         rescue => e
-          puts e.message
+          puts e.class, e.message
           next
         end
         puts "=> #{_.inspect}"

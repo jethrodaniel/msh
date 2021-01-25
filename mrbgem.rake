@@ -22,6 +22,7 @@ MRuby::Gem::Specification.new("mruby-bin-#{msh.name}") do |spec|
     enum-ext
     env
     eval
+    exit
     hash-ext
     io
     kernel-ext
