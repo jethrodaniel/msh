@@ -128,7 +128,7 @@ module Msh
     end
 
     # alias _exit exit
-    def quit code = 1
+    def quit code = 0
       puts "goodbye! <3"
       exit! code
     end
