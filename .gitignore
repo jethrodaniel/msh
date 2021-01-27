@@ -15,9 +15,8 @@
 .ruby-version
 
 /tmp/
-
-msh
-msh.rb
-mrblib
-third_party/tar-1.32*
 man/**/*.gz
+
+/mrblib/
+/msh.rb
+/msh
