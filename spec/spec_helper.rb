@@ -36,16 +36,16 @@ module Minitest
     end
 
     private def git_diff expected, actual
-      Dir.mktmpdir do |_dir|
-        file1 = File.open("expected", "w").tap do |f|
+      Dir.mktmpdir do |dir|
+        file1 = File.open(File.join(dir, "expected"), "w").tap do |f|
           f.write expected
           f.close
         end
-        file2 = File.open("actual", "w").tap do |f|
+        file2 = File.open(File.join(dir, "actual"), "w").tap do |f|
           f.write actual
           f.close
         end
-        return `git --no-pager diff --no-index --color=always #{file1.path} #{file2.path} 2>&1`
+        `git --no-pager diff --no-index --color=always #{file1.path} #{file2.path} 2>&1`
       end
     end
   end

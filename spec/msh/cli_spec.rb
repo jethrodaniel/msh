@@ -36,11 +36,13 @@ describe "msh" do
 
   describe "[file]..." do
     it "runs [files]... as shell scripts" do
-      Dir.mktmpdir do
-        File.open("test.msh", "w") { |f| f.puts "echo such wow" }
-        _(sh("msh test.msh")).must_equal <<~SH
-          such wow
-        SH
+      Dir.mktmpdir do |dir|
+        Dir.chdir dir do
+          File.open("test.msh", "w") { |f| f.puts "echo such wow" }
+          _(sh("msh test.msh")).must_equal <<~SH
+            such wow
+          SH
+        end
       end
     end
 
