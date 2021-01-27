@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   }
   s.files = %w[
     readme.md
-    msh.gems
+    msh.gemspec
     license.txt
   ] + Dir.glob("man/man1/*") + Dir.glob("lib/**/*.rb") + Dir.glob("exe/*")
 
@@ -33,11 +33,12 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.required_ruby_version = ">= 2.5"
 
-  s.add_dependency "reline", "~> 0.1.4"
+  s.add_dependency "reline", "~> 0.1.6"
 
   s.add_development_dependency "asciidoctor"
   s.add_development_dependency "bundler"
   s.add_development_dependency "fpm"
+  s.add_development_dependency "minitest", "~> 5.14"
   s.add_development_dependency "parser"
   s.add_development_dependency "rake"
   s.add_development_dependency "rs"
