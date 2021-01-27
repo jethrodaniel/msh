@@ -55,6 +55,7 @@ describe Msh::Interpreter do
     describe "help" do
       it "shows `msh` when called with no args" do
         man = File.read(File.join(Msh.root, "spec/fixtures/help/msh.txt"))
+        skip "use `info` or plain text, not `man`"
         _(sh("MANPAGER=cat msh -c help")).must_equal_with_diff man
       end
 
