@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+opts, files = ARGV.partition { |arg| arg.match? /\A-/ }
+files.map! { |f| File.absolute_path(f) }
+
+Dir.chdir File.dirname(__dir__) do
+  puts Dir.pwd
+  exec "bundle", *%w[exec ruby -I lib:spec], *files, "--documentation", *opts
+end

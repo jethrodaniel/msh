@@ -39,6 +39,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "bundler"
   s.add_development_dependency "fpm"
   s.add_development_dependency "minitest", "~> 5.14"
+  s.add_development_dependency "minitest-documentation", "~> 1.0"
   s.add_development_dependency "parser"
   s.add_development_dependency "rake"
   s.add_development_dependency "rs"

@@ -1,20 +1,3 @@
-require "rspec"
-
-RSpec.configure do |c|
-  c.expect_with :rspec do |e|
-    e.syntax = :expect
-    e.max_formatted_output_length = ENV["VERBOSE"] ? 1_000 : 100
-  end
-end
-
-require "fileutils"
-require "stringio"
-require "tempfile"
-require "tmpdir"
-require "yaml"
-
-require "msh"
-
 def with_80_columns
   return yield unless $stdout.isatty
 
@@ -29,55 +12,47 @@ def with_80_columns
   out
 end
 
-# Run a command, return combined std err and std out.
+# When we need tests that check stderr/stdout separately
 #
-# @note sets terminal display to 80 col width
-#
-# @param command_string [String]
-# @return [String]
-def sh command_string
+# ```
+# Output = Struct.new(:stdin, :stderr, :keyword_init => true)
+# ```
+def sh line
   with_80_columns do
-    `2>&1 #{command_string}`
+    `#{line} 2>&1`
   end
 end
 
-# https://github.com/seattlerb/minitest/blob/6257210b7accfeb218b4388aaa36d3d45c5c41a5/lib/minitest/assertions.rb#L546
-#
-def capture_subprocess_io
-  captured_stdout = Tempfile.new("out")
-  captured_stderr = Tempfile.new("err")
+require "minitest/assertions"
+require "minitest/spec"
 
-  orig_stdout = $stdout.dup
-  orig_stderr = $stderr.dup
-  $stdout.reopen captured_stdout
-  $stderr.reopen captured_stderr
+module Minitest
+  module Assertions
+    # Fails with a diff unless `expected` and `actual` have the same content
+    #
+    # Inspired by https://github.com/mint-lang/mint/blob/7634a96b39a20b2b107420d0dc2c301a31095446/spec/spec_helper.cr#L30
+    def assert_equal_with_diff expected, actual
+      assert expected == actual, git_diff(expected, actual)
+    end
 
-  yield
+    private def git_diff expected, actual
+      Dir.mktmpdir do |_dir|
+        file1 = File.open("expected", "w").tap do |f|
+          f.write expected
+          f.close
+        end
+        file2 = File.open("actual", "w").tap do |f|
+          f.write actual
+          f.close
+        end
+        return `git --no-pager diff --no-index --color=always #{file1.path} #{file2.path} 2>&1`
+      end
+    end
+  end
 
-  $stdout.rewind
-  $stderr.rewind
-
-  [captured_stdout.read, captured_stderr.read]
-ensure
-  captured_stdout.unlink
-  captured_stderr.unlink
-  $stdout.reopen orig_stdout
-  $stderr.reopen orig_stderr
+  module Expectations
+    Enumerable.infect_an_assertion :assert_equal_with_diff, :must_equal_with_diff
+  end
 end
 
-def with_temp_files
-  temp = Dir.mktmpdir
-  pwd = Dir.pwd
-  Dir.chdir temp
-  yield
-  Dir.chdir pwd
-  FileUtils.rm_f temp
-end
-
-def file name, content
-  File.open(name, "w") { |f| f.puts content }
-end
-
-def expect_file name, content
-  expect(File.read(name)).to eq content
-end
+require "minitest/autorun"

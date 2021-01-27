@@ -1,15 +1,14 @@
+require "spec_helper"
 require "msh/token"
 
 describe Msh::Token do
-  subject do
-    Msh::Token.new :type   => :WORD,
-                   :value  => "echo",
-                   :line   => 6,
-                   :column => 2
-  end
-
-  let :other do
-    Msh::Token.new.tap do |t|
+  attr_accessor :subject, :other
+  def setup
+    @subject = Msh::Token.new :type   => :WORD,
+                              :value  => "echo",
+                              :line   => 6,
+                              :column => 2
+    @other = Msh::Token.new.tap do |t|
       t.type = :WORD
       t.value = "echo"
       t.line = 6
@@ -18,26 +17,26 @@ describe Msh::Token do
   end
 
   it ".type" do
-    expect(subject.type).to eq(:WORD)
+    _(subject.type).must_equal :WORD
   end
 
   it ".value" do
-    expect(subject.value).to eq("echo")
+    _(subject.value).must_equal "echo"
   end
 
   it ".line" do
-    expect(subject.line).to eq(6)
+    _(subject.line).must_equal 6
   end
 
   it ".column" do
-    expect(subject.column).to eq(2)
+    _(subject.column).must_equal 2
   end
 
   it ".to_s" do
-    expect(subject.to_s).to eq('[6:2-5][WORD, "echo"]')
+    _(subject.to_s).must_equal '[6:2-5][WORD, "echo"]'
   end
 
   it ".==" do
-    expect(subject).to eq(other)
+    _(subject).must_equal other
   end
 end

@@ -1,10 +1,10 @@
+require "spec_helper"
 require "msh/lexer"
 
 def it_lexes code, tokens
-  it code do
+  it code.inspect do
     expected = Msh::Lexer.new(code).tokens.map(&:to_s)
-
-    expect(expected).to eq tokens
+    _(expected).must_equal tokens
   end
 end
 
@@ -21,21 +21,21 @@ describe Msh::Lexer do
     it "lexes one token at a time" do
       lex = Msh::Lexer.new "fortune | cowsay\n"
 
-      expect(lex.next?).to be true
-      expect(lex.current_token).to be nil
+      _(lex.next?).must_equal true
+      _(lex.current_token).must_be_nil
 
-      expect(lex.next_token).to eq t(:WORD, "fortune", 1, 1)
-      expect(lex.next_token).to eq t(:SPACE, " ", 1, 8)
-      expect(lex.next_token).to eq t(:PIPE, "|", 1, 9)
-      expect(lex.next_token).to eq t(:SPACE, " ", 1, 10)
-      expect(lex.next_token).to eq t(:WORD, "cowsay", 1, 11)
-      expect(lex.next_token).to eq t(:NEWLINE, "\n", 1, 17)
-      expect(lex.next?).to be true
-      expect(lex.next_token).to eq t(:EOF, "\u0000", 2, 1)
-      expect(lex.next?).to be false
+      _(lex.next_token).must_equal t(:WORD, "fortune", 1, 1)
+      _(lex.next_token).must_equal t(:SPACE, " ", 1, 8)
+      _(lex.next_token).must_equal t(:PIPE, "|", 1, 9)
+      _(lex.next_token).must_equal t(:SPACE, " ", 1, 10)
+      _(lex.next_token).must_equal t(:WORD, "cowsay", 1, 11)
+      _(lex.next_token).must_equal t(:NEWLINE, "\n", 1, 17)
+      _(lex.next?).must_equal true
+      _(lex.next_token).must_equal t(:EOF, "\u0000", 2, 1)
+      _(lex.next?).must_equal false
 
       # err = "error at line 2, column 2: out of input"
-      # expect do
+      # _ do
       #   lex.next_token
       # end.to raise_error(Msh::Lexer::Error, err)
     end

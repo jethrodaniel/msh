@@ -44,6 +44,8 @@ GEM
     json (1.8.6)
     method_source (1.0.0)
     minitest (5.14.3)
+    minitest-documentation (1.0.0)
+      minitest (~> 5.2)
     mustache (0.99.8)
     parallel (1.19.2)
     parser (2.7.2.0)
@@ -96,6 +98,7 @@ DEPENDENCIES
   fpm
   gem-consolidate!
   minitest (~> 5.14)
+  minitest-documentation (~> 1.0)
   msh!
   parser
   pry

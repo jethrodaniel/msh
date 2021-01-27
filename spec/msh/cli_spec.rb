@@ -1,6 +1,8 @@
+require "spec_helper"
+
 describe "msh" do
   it "-h, --help" do
-    expect(sh("msh -h")).to eq <<~MSG
+    _(sh("msh -h")).must_equal <<~MSG
       Usage:
           msh [options]... [file]...
 
@@ -9,45 +11,45 @@ describe "msh" do
           -c, --command  runs a string as shell input
           -h, --help     print this help
     MSG
-    expect(sh("msh -h")).to eq `msh --help`
+    _(sh("msh -h")).must_equal `msh --help`
   end
 
   it "-V, --version" do
     msg = "msh v#{Msh::VERSION}"
-    expect(sh("msh --version")).to include msg
+    _(sh("msh --version")).must_include msg
   end
 
   describe "-c <cmd_string>" do
     it "runs the command string as shell input" do
-      expect(sh("msh -c ./spec/fixtures/stdout_and_stderr.rb")).to eq(<<~SH)
+      _(sh("msh -c ./spec/fixtures/stdout_and_stderr.rb")).must_equal <<~SH
         this goes to std err
         and this goes to std out
       SH
     end
 
-    context "when missing a string" do
+    describe "when missing a string" do
       it "aborts with an error message" do
-        expect(sh("msh -c")).to eq("missing argument: -c\n")
+        _(sh("msh -c")).must_equal "missing argument: -c\n"
       end
     end
   end
 
   describe "[file]..." do
     it "runs [files]... as shell scripts" do
-      with_temp_files do
-        file "test.msh", "echo such wow"
-        expect(sh("msh test.msh")).to eq(<<~SH)
+      Dir.mktmpdir do
+        File.open("test.msh", "w") { |f| f.puts "echo such wow" }
+        _(sh("msh test.msh")).must_equal <<~SH
           such wow
         SH
       end
     end
 
-    context "when no files are supplied" do
+    describe "when no files are supplied" do
       # it "runs interactively" do
       #   # skip "intermittent failures on CI (TODO: fix this)" if ENV["CI"]
       #   PTY.spawn("msh") do |read, write, _pid|
-      #     read.expect(/interpreter> /, 1) do |msg|
-      #       expect(msg).to eq(["interpreter> "])
+      #     read._(/interpreter> /, 1) do |msg|
+      #       _(msg).to eq(["interpreter> "])
       #     end
       #   end
       # end

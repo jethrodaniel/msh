@@ -1,18 +1,14 @@
-require "ast"
+require "spec_helper"
 require "msh/parser"
 
-include AST::Sexp
+include Msh::AST::Sexp
 
 def it_parses code, ast
-  it code do
+  it code.inspect do
     expected = Msh::Parser.new(code).parse
-    expect(expected).to eq ast
+    _(expected).must_equal ast
   end
 end
-
-# describe Msh::Parser do
-#   subject { Msh::Parser.new }
-# end
 
 describe "Parser smoke tests" do
   describe "basics" do
@@ -103,7 +99,7 @@ describe "Parser smoke tests" do
                         s(:LIT, "-l"))))))
   end
   describe "|&" do
-    skip
+    # skip
     # it_parses "fortune |& cowsay",
   end
   describe "redirections" do
@@ -162,7 +158,7 @@ describe "Parser smoke tests" do
                       s(:LIT, "fortune")))))
   end
   describe "job control" do
-    skip # it_parses "a &"
+    # skip # it_parses "a &"
   end
   describe "newlines" do
     code = <<~L
@@ -236,6 +232,6 @@ describe "Parser smoke tests" do
         echo b
       end
     L
-    skip # it_parses code,
+    # skip # it_parses code,
   end
 end
