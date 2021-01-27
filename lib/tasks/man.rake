@@ -1,3 +1,16 @@
+## TODO: change from man to `.texinfo`, or just plaintext if that's not available
+#
+# see
+#   - https://www.reddit.com/r/emacs/comments/iygs13/collection_of_texinfo_documentation/?utm_source=share&utm_medium=web2x&context=3
+#   - https://github.com/cadadr/vendored-elisp/blob/master/docs/onlisp.texi
+#   - https://github.com/cadadr/vendored-elisp/blob/master/docs/r5rs.info
+#   - https://github.com/golang/go/issues/101
+#
+# TODO: remove `yard` dependency and remove bundled manpages by directly
+# inputing the docs we need, then extracting and creating dynamically
+#
+# TODO: figure out how to do the above in the binary (MRuby) version
+
 require "yard"
 require "asciidoctor"
 
