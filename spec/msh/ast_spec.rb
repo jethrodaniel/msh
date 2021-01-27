@@ -1,12 +1,12 @@
+require "spec_helper"
 require "msh/ast"
 
 describe Msh::AST do
-  subject do
-    Msh::AST::Node.new :WORD, s(:LIT, "wow"), :line => 1, :column => 2
-  end
+  include Msh::AST::Sexp
 
   it "#line, #column" do
-    expect(subject.line).to eq 1
-    expect(subject.column).to eq 2
+    node = s(s(:LIT, "wow"), :line => 1, :column => 2)
+    _(node.line).must_equal 1
+    _(node.column).must_equal 2
   end
 end

@@ -13,10 +13,10 @@ module Msh
       attr_reader :type, :children, :line, :column
       alias to_a children
 
-      def initialize type, children, **opts
+      def initialize type, children, **meta
         @type = type
         @children = children
-        opts.each { |k, v| instance_variable_set :"@#{k}", v }
+        meta.each { |k, v| instance_variable_set :"@#{k}", v }
       end
 
       def inspect indent = 0
@@ -42,8 +42,8 @@ module Msh
     end
 
     module Sexp
-      def s type, *children
-        Node.new type, children
+      def s type, *children, **meta
+        Node.new type, children, **meta
       end
     end
   end
