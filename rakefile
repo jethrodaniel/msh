@@ -55,22 +55,5 @@ RuboCop::RakeTask.new :lint do |t|
   t.options = %w[--display-cop-names -c.rubocop.yml]
 end
 
-##-- Etc
-
-desc "install tar v1.32 (needed for pkg)"
-task :tar => "third_party/tar-1.32" do
-  Dir.chdir "third_party/tar-1.32" do
-    sh "./configure && sudo make && sudo make install"
-  end
-end
-file "third_party/tar-1.32.tar.gz" do
-  sh "wget https://ftp.gnu.org/gnu/tar/tar-1.32.tar.gz -P third_party"
-end
-file "third_party/tar-1.32" => "third_party/tar-1.32.tar.gz" do
-  Dir.chdir "third_party" do
-    sh "tar xzvf tar-1.32.tar.gz"
-  end
-end
-
 ##-- Additional tasks
 Dir["lib/tasks/*.rake"].each(&method(:load))
