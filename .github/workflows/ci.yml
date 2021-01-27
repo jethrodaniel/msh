@@ -30,7 +30,7 @@ jobs:
     - name: do it
       run: |
         bundle exec rake mruby
-        ./msh -V
+        ./msh # -V
 
   ruby:
     runs-on: ubuntu-latest
