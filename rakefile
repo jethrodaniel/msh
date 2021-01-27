@@ -29,10 +29,17 @@ end
 
 ##-- Testing
 
-require "rspec/core/rake_task"
+require "rake/testtask"
 
-task :test => :spec
-RSpec::Core::RakeTask.new :spec
+task :spec => :test
+Rake::TestTask.new(:test) do |t|
+  t.libs << "spec"
+  t.libs << "lib"
+  t.test_files = FileList["spec/**/*_spec.rb"]
+end
+
+task :default => :test
+
 
 ##-- Tools
 
