@@ -85,7 +85,7 @@ module Msh
       return if node.nil?
 
       meth = :"on_#{node.type}"
-      return send(meth, node) if respond_to?(meth)
+      return send(meth, node) || 0 if respond_to?(meth)
 
       handler_missing node
     end

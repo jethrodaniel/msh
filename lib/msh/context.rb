@@ -79,8 +79,17 @@ module Msh
       @aliases = {}
       @commands = {}
 
-      command :hi, "hi [NAME]", "say hi to NAME" do |name|
+      command :hi,     "hi     [NAME]", "say hi to NAME" do |name|
         puts "hello, #{name}"
+      end
+      command :alias,  "alias  [ALIAS] [CMD]", "alias ALIAS to CMD" do |cmd, *args|
+        @aliases[cmd] = *args
+      end
+      command :parser, "parser [FILE]...", "run msh's parser, on files or interactively" do |*files|
+        Msh::Parser.start files
+      end
+      command :lexer,  "lexer  [FILE]...", "run msh's lexer, on files or interactively" do |*files|
+        Msh::Lexer.start files
       end
     end
 
@@ -91,22 +100,12 @@ module Msh
       cmd
     end
 
-    # ```
-    # # `alias ls='ls --color -F'
-    # alias ls ls --color -F
-    # ```
-    def alias cmd, *args
-      @aliases[cmd.to_sym] = *args
-    end
-
     def prompt
-      # "$ "
-      # "#{_ || '?'} " + Dir.pwd.gsub(ENV["HOME"], "~").green + " λ ".magenta.bold
       Dir.pwd.gsub(ENV["HOME"], "~").green + " λ ".magenta.bold
     end
 
     def run cmd, *args
-      if alias_value = @aliases[cmd.to_sym]
+      if alias_value = @aliases[cmd]
         cmd, *args = *alias_value
       end
 
@@ -144,16 +143,6 @@ module Msh
       end
     end
 
-    def parser *files
-      Msh::Parser.start files
-      0
-    end
-
-    def lexer *files
-      Msh::Lexer.start files
-      0
-    end
-
     # alias _exit exit
     def quit code = 0
       puts "goodbye! <3"
@@ -188,15 +177,16 @@ module Msh
           These shell commands are defined internally.
           Type `help` to see this list.
         HELP
-        max_usage_len = @commands.values.max { |c| c.usage.size }.usage.size
-        max_desc_len = @commands.values.max { |c| c.desc.size }.desc.size
+        max_usage_len = @commands.values.sort_by { |c| c.usage.size }.last.usage.size
+        max_desc_len = @commands.values.sort_by { |c| c.desc.size }.last.desc.size
 
         @commands.values.map do |cmd|
-          print "\t#{cmd.usage.ljust(max_usage_len, ' ')}"
-          puts "\t#{cmd.desc.ljust(max_desc_len, ' ')}"
+          puts "  #{cmd.usage.ljust(max_usage_len)}    #{cmd.desc.ljust(max_desc_len)}"
         end
-      elsif cmd = @commands[topic&.to_sym]
+        0
+      elsif cmd = @commands[topic.to_sym]
         puts cmd.desc
+        0
       else
         warn "no help available for command `#{topic}`."
       end
