@@ -78,26 +78,65 @@ module Msh
     def initialize
       @aliases = {}
       @commands = {}
+      self.class.commands.each do |name, cmd|
+        @commands[name] = cmd
+        define_singleton_method cmd.name, cmd.block
+      end
 
-      command :hi,     "hi     [NAME]", "say hi to NAME" do |name|
-        puts "hello, #{name}"
-      end
-      command :alias,  "alias  [ALIAS] [CMD]", "alias ALIAS to CMD" do |cmd, *args|
-        @aliases[cmd] = *args
-      end
-      command :parser, "parser [FILE]...", "run msh's parser, on files or interactively" do |*files|
-        Msh::Parser.start files
-      end
-      command :lexer,  "lexer  [FILE]...", "run msh's lexer, on files or interactively" do |*files|
-        Msh::Lexer.start files
-      end
+      # custom, testing
+      send :alias, *%w[ls ls -lrth --color]
     end
 
+    # Define new commands, i.e, methods with `help` descriptions
     def command name, *args, &block
       cmd = Command.new(name, *args, &block)
       @commands[name] = cmd
       define_singleton_method cmd.name, cmd.block
       cmd
+    end
+    @commands = {}
+    class << self
+      attr_accessor :commands
+    end
+    # `#command`, but at the class level for convinience of notation
+    def self.command name, *args, &block
+      @commands[name] = Command.new(name, *args, &block)
+    end
+
+    command :hi,     "hi     <NAME>", "say hi to NAME" do |name|
+      puts "hello, #{name}"
+    end
+
+    command :alias,  "alias  <ALIAS> [CMD]", "alias ALIAS to CMD" do |cmd, *args|
+      @aliases[cmd] = *args
+    end
+
+    command :cd,      "cd     [DIR|-]", "change directory to DIR (if present), $OLDPWD (if `-`), or $HOME (DIR not present)" do |dir = nil|
+      last = ENV["OLDPWD"]
+      ENV["OLDPWD"] = Dir.pwd
+      case dir
+      when "-"
+        unless last
+          puts "`OLDPWD` not yet set!"
+          return 1
+        end
+
+        Dir.chdir last
+      when nil
+        Dir.chdir ENV["HOME"]
+      else
+        Dir.chdir dir
+      end
+      ENV["PWD"] = Dir.pwd
+      0
+    end
+
+    command :parser, "parser [FILE]...", "run msh's parser, on FILEs or interactively" do |*files|
+      Msh::Parser.start files
+    end
+
+    command :lexer,  "lexer  [FILE]...", "run msh's lexer, on FILEs or interactively" do |*files|
+      Msh::Lexer.start files
     end
 
     def prompt
@@ -150,26 +189,6 @@ module Msh
     end
     alias exit quit
     alias q quit
-
-    def cd dir = nil
-      last = ENV["OLDPWD"]
-      ENV["OLDPWD"] = Dir.pwd
-      case dir
-      when "-"
-        unless last
-          puts "`OLDPWD` not yet set!"
-          return 1
-        end
-
-        Dir.chdir last
-      when nil
-        Dir.chdir ENV["HOME"]
-      else
-        Dir.chdir dir
-      end
-      ENV["PWD"] = Dir.pwd
-      0
-    end
 
     def help topic = nil
       if topic.nil?
