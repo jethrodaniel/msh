@@ -1,8 +1,8 @@
 require "English" unless RUBY_ENGINE == "mruby"
 
 module Msh
-  # In msh, you're always accompanied by Ruby's `self`.
-  # When you use interpolation, you use use this instance.
+  # In msh, you're always accompanied by Ruby's `self`, which serves as context.
+  #
   # Functions and aliases are just methods on this instance.
   #
   # What we want is a blank object, with no methods or anything. However, we
