@@ -61,12 +61,12 @@ module Msh
       @aliases = {}
     end
 
-    # not really `alias` support, more like default arguments
-    #
-    #     alias ls --color -F # `alias ls='ls --color -F'
-    #
+    # ```
+    # # `alias ls='ls --color -F'
+    # alias ls ls --color -F
+    # ```
     def alias cmd, *args
-      @aliases[cmd.to_sym] = args
+      @aliases[cmd.to_sym] = *args
     end
 
     def hi name
@@ -80,8 +80,8 @@ module Msh
     end
 
     def run cmd, *args
-      if aliased_args = @aliases[cmd.to_sym]
-        args += aliased_args
+      if alias_value = @aliases[cmd.to_sym]
+        cmd, *args = *alias_value
       end
 
       pid = fork do
