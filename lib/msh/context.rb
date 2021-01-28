@@ -1,6 +1,21 @@
 require "English" unless RUBY_ENGINE == "mruby"
 
 module Msh
+  class Command
+    attr_reader :name, :usage, :desc, :block
+
+    def initialize name, usage, desc, &block
+      @name = name
+      @usage = usage
+      @desc = desc
+      @block = block
+    end
+
+    def run(...)
+      block.call(...)
+    end
+  end
+
   # In msh, you're always accompanied by Ruby's `self`, which serves as context.
   #
   # Functions and aliases are just methods on this instance.
@@ -40,6 +55,9 @@ module Msh
       :to_s,
       :class,
 
+      # for creating commands
+      :define_singleton_method,
+
       # Useful stuff
       :puts,
       :print,
@@ -59,6 +77,18 @@ module Msh
 
     def initialize
       @aliases = {}
+      @commands = {}
+
+      command :hi, "hi [NAME]", "say hi to NAME" do |name|
+        puts "hello, #{name}"
+      end
+    end
+
+    def command name, *args, &block
+      cmd = Command.new(name, *args, &block)
+      @commands[name] = cmd
+      define_singleton_method cmd.name, cmd.block
+      cmd
     end
 
     # ```
@@ -67,10 +97,6 @@ module Msh
     # ```
     def alias cmd, *args
       @aliases[cmd.to_sym] = *args
-    end
-
-    def hi name
-      puts "hello, #{name}"
     end
 
     def prompt
@@ -156,22 +182,24 @@ module Msh
       0
     end
 
-    def help *topics
-      cmd = if topics.empty?
-              %w[man msh]
-            else
-              %w[man] + topics.map { |t| "msh-#{t}" }
-            end
+    def help topic = nil
+      if topic.nil?
+        puts <<~HELP
+          These shell commands are defined internally.
+          Type `help` to see this list.
+        HELP
+        max_usage_len = @commands.values.max { |c| c.usage.size }.usage.size
+        max_desc_len = @commands.values.max { |c| c.desc.size }.desc.size
 
-      pid = fork do
-        exec(*cmd)
-      rescue Errno::ENOENT => e # No such file or directory
-        abort e.message
+        @commands.values.map do |cmd|
+          print "\t#{cmd.usage.ljust(max_usage_len, ' ')}"
+          puts "\t#{cmd.desc.ljust(max_desc_len, ' ')}"
+        end
+      elsif cmd = @commands[topic&.to_sym]
+        puts cmd.desc
+      else
+        warn "no help available for command `#{topic}`."
       end
-
-      Process.wait pid
-
-      $?.exitstatus # rubocop:disable Style/SpecialGlobalVars
     end
     alias_method :'?', :help # rubocop:disable Style/Alias (ruby can't parse this)
   end
