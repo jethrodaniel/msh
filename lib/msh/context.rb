@@ -11,8 +11,8 @@ module Msh
       @block = block
     end
 
-    def run(...)
-      block.call(...)
+    def run *args
+      block.call(*args)
     end
   end
 
@@ -84,7 +84,7 @@ module Msh
       end
 
       # custom, testing
-      send :alias, *%w[ls ls -lrth --color]
+      send :alias, "ls", "ls", "-lrth", "--color"
     end
 
     # Define new commands, i.e, methods with `help` descriptions
@@ -103,15 +103,25 @@ module Msh
       @commands[name] = Command.new(name, *args, &block)
     end
 
-    command :hi,     "hi     <NAME>", "say hi to NAME" do |name|
+    command :hi, "hi <NAME>", "say hi to NAME" do |name|
       puts "hello, #{name}"
     end
 
-    command :alias,  "alias  <ALIAS> [CMD]", "alias ALIAS to CMD" do |cmd, *args|
-      @aliases[cmd] = *args
+    command :alias, "alias <ALIAS> [CMD]", "alias ALIAS to CMD" do |cmd = nil, *args|
+      @aliases[cmd] = *args if cmd && args.size.positive?
+
+      raise "missing expansion for alias `#{cmd}`" if cmd && args.size.zero?
+
+      return unless @aliases.size.positive?
+
+      max_alias_len = @aliases.keys.sort_by(&:size).take(1).size
+      @aliases.each do |a, expanded|
+        puts "alias #{a.ljust(max_alias_len)} #{expanded.join(' ')}"
+      end
+      0
     end
 
-    command :cd,      "cd     [DIR|-]", "change directory to DIR (if present), $OLDPWD (if `-`), or $HOME (DIR not present)" do |dir = nil|
+    command :cd, "cd [DIR|-]", "change directory to DIR (if present), $OLDPWD (if `-`), or $HOME (DIR not present)" do |dir = nil|
       last = ENV["OLDPWD"]
       ENV["OLDPWD"] = Dir.pwd
       case dir
@@ -135,7 +145,7 @@ module Msh
       Msh::Parser.start files
     end
 
-    command :lexer,  "lexer  [FILE]...", "run msh's lexer, on FILEs or interactively" do |*files|
+    command :lexer, "lexer [FILE]...", "run msh's lexer, on FILEs or interactively" do |*files|
       Msh::Lexer.start files
     end
 
@@ -143,7 +153,7 @@ module Msh
       Dir.pwd.gsub(ENV["HOME"], "~").green + " λ ".magenta.bold
     end
 
-    def run cmd, *args
+    command :run, "run <CMD>", "run CMD with alias expansion" do |cmd, *args|
       if alias_value = @aliases[cmd]
         cmd, *args = *alias_value
       end
@@ -196,8 +206,8 @@ module Msh
           These shell commands are defined internally.
           Type `help` to see this list.
         HELP
-        max_usage_len = @commands.values.sort_by { |c| c.usage.size }.last.usage.size
-        max_desc_len = @commands.values.sort_by { |c| c.desc.size }.last.desc.size
+        max_usage_len = @commands.values.max_by { |c| c.usage.size }.usage.size
+        max_desc_len = @commands.values.max_by { |c| c.desc.size }.desc.size
 
         @commands.values.map do |cmd|
           puts "  #{cmd.usage.ljust(max_usage_len)}    #{cmd.desc.ljust(max_desc_len)}"
