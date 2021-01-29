@@ -112,7 +112,7 @@ module Msh
 
       raise "missing expansion for alias `#{cmd}`" if cmd && args.size.zero?
 
-      return unless @aliases.size.positive?
+      return unless @aliases.size.positive? && args.size.zero?
 
       max_alias_len = @aliases.keys.sort_by(&:size).take(1).size
       @aliases.each do |a, expanded|

@@ -58,3 +58,23 @@ describe "msh" do
     end
   end
 end
+
+describe "builtins" do
+  describe "alias" do
+    it "shows all aliases when ran without args" do
+      _(sh("msh -c alias")).must_equal <<~MSG
+        alias ls ls -lrth --color
+      MSG
+    end
+    it "errors if an alias name is present, but no args" do
+      _(sh("msh -c alias foo")).must_include <<~MSG
+        missing expansion for alias `foo` (RuntimeError)
+      MSG
+    end
+    it "creates an alias for a series of words" do
+      _(sh("msh -c 'alias foo bar; foo'")).must_include <<~MSG
+        No such file or directory - bar
+      MSG
+    end
+  end
+end
