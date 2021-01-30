@@ -54,7 +54,7 @@ file "mrblib/msh.rb" => %w[msh.rb mrblib] do |t|
   sh "cp #{t.source} #{t.name}"
 end
 desc "creates an executable with MRuby"
-task :mruby => ["mrblib/msh.rb", "mrblib"] do
+task :mruby => "mrblib/msh.rb" do
   Dir.chdir "third_party/mruby" do
     # make_file "target/msh.rb", BUILD_CONFIG
     make_file "build_config.rb", BUILD_CONFIG

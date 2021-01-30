@@ -63,6 +63,7 @@ task :man => ["man:msh", *BUILTIN_FILES.map(&:to_s)]
 task :yard do
   sh "yard"
 end
+CLEAN << "docs"
 
 namespace :man do
   task :msh => :yard do

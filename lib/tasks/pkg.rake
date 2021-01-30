@@ -42,6 +42,7 @@ namespace :pkg do
     sh "cp ./msh pkg/msh-#{Msh::VERSION}"
   end
   task :all => %i[deb rpm bin]
+  CLEAN << "pkg"
 
   namespace :install do
     task :deb do

@@ -2,8 +2,6 @@ require "bundler/gem_tasks"
 require "rake/clean"
 require "erb"
 
-CLEAN << %w[docs pkg]
-
 task :default => %i[msh build install spec mruby]
 
 ##-- Build
@@ -38,17 +36,7 @@ Rake::TestTask.new(:test) do |t|
   t.test_files = FileList["spec/**/*_spec.rb"]
 end
 
-task :default => :test
-
-
 ##-- Tools
-
-%i[lexer parser].each do |cmd|
-  desc "run the #{cmd}"
-  task cmd do
-    sh "bundle exec msh -c #{cmd}"
-  end
-end
 
 require "rubocop/rake_task"
 RuboCop::RakeTask.new :lint do |t|
