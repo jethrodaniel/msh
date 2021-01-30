@@ -202,10 +202,8 @@ module Msh
 
     def help topic = nil
       if topic.nil?
-        puts <<~HELP
-          These shell commands are defined internally.
-          Type `help` to see this list.
-        HELP
+        puts "These shell commands are defined internally.\n" \
+             "Type `help` to see this list."
         max_usage_len = @commands.values.max_by { |c| c.usage.size }.usage.size
         max_desc_len = @commands.values.max_by { |c| c.desc.size }.desc.size
 
