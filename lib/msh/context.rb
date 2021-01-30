@@ -80,7 +80,7 @@ module Msh
       @commands = {}
       self.class.commands.each do |name, cmd|
         @commands[name] = cmd
-        define_singleton_method cmd.name, cmd.block
+        define_singleton_method cmd.name, &cmd.block
       end
 
       # custom, testing
@@ -91,7 +91,7 @@ module Msh
     def command name, *args, &block
       cmd = Command.new(name, *args, &block)
       @commands[name] = cmd
-      define_singleton_method cmd.name, cmd.block
+      define_singleton_method cmd.name, &cmd.block
       cmd
     end
     @commands = {}
