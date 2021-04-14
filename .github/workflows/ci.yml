@@ -1,68 +1,26 @@
 name: ci
-
-on: [push]
-
+on: [push, pull_request]
 jobs:
-  mruby:
-    runs-on: ubuntu-latest
-    env:
-      CI: true
-
-    steps:
-    - uses: actions/checkout@v1
-      with:
-        submodules: true
-
-    - name: apt dependencies
-      run: sudo apt install -y gperf bison gcc g++
-
-    - name: set up ruby for building
-      uses: actions/setup-ruby@v1
-      with:
-        ruby-version: '2.7'
-
-    - name: setup bundler, gems for building
-      run: |
-        gem install bundler
-        bundle update --bundler
-        bundle install
-
-    - name: do it
-      run: |
-        bundle exec rake mruby
-        ./msh # -V
-
-  ruby:
-    runs-on: ubuntu-latest
+  ci:
     strategy:
+      fail-fast: false
       matrix:
-        ruby: ['2.5.x', '2.6.x', '2.7.x', '3.0.x']
-    env:
-      CI: true
-
+        os: [ubuntu-latest, macos-latest]
+        # Due to https://github.com/actions/runner/issues/849, we have to use quotes for '3.0'
+        #ruby: [2.5, 2.6, 2.7, '3.0', head, jruby, jruby-head, truffleruby, truffleruby-head]
+        ruby: [2.5, 2.6, 2.7, '3.0', head]
+    runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v1
+    - name: install dependencies
+      run: sudo apt install -y gperf bison gcc g++
+    - uses: actions/checkout@v2
       with:
         submodules: true
-
-    - name: set up ruby
-      uses: actions/setup-ruby@v1
+    - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby }}
-
-    - name: setup bundler, gems
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+    - name: build and test
       run: |
-        gem install bundler
-        bundle update --bundler
-        bundle install
-
-    # - name: Setup tmate session
-      # uses: mxschmitt/action-tmate@v2
-
-    - name: run specs
-      run: |
-        # These specs require a tty.
-        #
-        # See https://stackoverflow.com/a/32981392/7132678
-        #
+        bundle exec rake
         faketty() { script -qfec "$(printf "%q " "$@")"; }; faketty bundle exec rake spec
