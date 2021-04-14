@@ -1,22 +1,28 @@
 # standard bundle/gem things
+#
 /.bundle/
 /pkg/
 
-# yard doc
+# yard documentation
+#
 /.yardoc
 /_yardoc/
 /doc/
 /docs/
 
 # rubocop
+#
 .rubocop-https---*
 
 # the gemspec is for this
+#
 .ruby-version
+gems.locked
 
-/tmp/
-man/**/*.gz
+# MRuby temp files
+#
+/mruby/mrblib/
 
-/mrblib/
-/msh.rb
-/msh
+# Executables
+#
+/bin/

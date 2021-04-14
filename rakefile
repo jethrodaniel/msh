@@ -2,6 +2,9 @@ require "bundler/gem_tasks"
 require "rake/clean"
 require "erb"
 
+require_relative "lib/tasks/mruby"
+require_relative "lib/tasks/consolidate"
+
 task :default => %i[msh build install spec mruby]
 
 ##-- Build

@@ -1,10 +1,11 @@
 require "English" unless RUBY_ENGINE == "mruby"
 require "pathname" unless RUBY_ENGINE == "mruby"
 
-require_relative "msh/backports"
-require_relative "msh/core_extensions"
-require_relative "msh/cli"
-require_relative "msh/repl"
+require "msh/mruby"
+require "msh/backports"
+require "msh/core_extensions"
+require "msh/cli"
+require "msh/repl"
 
 # == name
 #
