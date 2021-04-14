@@ -1,6 +1,3 @@
-# lib = File.expand_path("lib", __dir__)
-# $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-
 require_relative "lib/msh/version"
 
 Gem::Specification.new do |s|
@@ -26,14 +23,16 @@ Gem::Specification.new do |s|
     readme.md
     msh.gemspec
     license.txt
-  ] + Dir.glob("man/man1/*") + Dir.glob("lib/**/*.rb") + Dir.glob("exe/*")
+  ] + Dir.glob("lib/**/*.rb") +
+      Dir.glob("man/man1/*") +
+      Dir.glob("exe/*")
 
   s.bindir        = "exe"
   s.executables   = s.files.grep(%r{^exe/}) { |f| File.basename(f) }
   s.require_paths = ["lib"]
   s.required_ruby_version = ">= 2.5"
 
-  s.add_dependency "reline", "~> 0.1.6"
+  s.add_dependency "reline", "~> 0.2.5"
 
   s.add_development_dependency "asciidoctor"
   s.add_development_dependency "bundler"
@@ -42,7 +41,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "minitest-documentation", "~> 1.0"
   s.add_development_dependency "parser"
   s.add_development_dependency "rake"
-  s.add_development_dependency "rs"
   s.add_development_dependency "rubocop"
   s.add_development_dependency "yard"
 

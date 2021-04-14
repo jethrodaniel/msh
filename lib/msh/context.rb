@@ -1,21 +1,6 @@
 require "English" unless RUBY_ENGINE == "mruby"
 
 module Msh
-  class Command
-    attr_reader :name, :usage, :desc, :block
-
-    def initialize name, usage, desc, &block
-      @name = name
-      @usage = usage
-      @desc = desc
-      @block = block
-    end
-
-    def run *args
-      block.call(*args)
-    end
-  end
-
   # In msh, you're always accompanied by Ruby's `self`, which serves as context.
   #
   # Functions and aliases are just methods on this instance.
@@ -77,37 +62,16 @@ module Msh
 
     def initialize
       @aliases = {}
-      @commands = {}
-      self.class.commands.each do |name, cmd|
-        @commands[name] = cmd
-        define_singleton_method cmd.name, &cmd.block
-      end
 
       # custom, testing
       send :alias, "ls", "ls", "-lrth", "--color"
     end
 
-    # Define new commands, i.e, methods with `help` descriptions
-    def command name, *args, &block
-      cmd = Command.new(name, *args, &block)
-      @commands[name] = cmd
-      define_singleton_method cmd.name, &cmd.block
-      cmd
-    end
-    @commands = {}
-    class << self
-      attr_accessor :commands
-    end
-    # `#command`, but at the class level for convinience of notation
-    def self.command name, *args, &block
-      @commands[name] = Command.new(name, *args, &block)
-    end
-
-    command :hi, "hi <NAME>", "say hi to NAME" do |name|
+    def hi name
       puts "hello, #{name}"
     end
 
-    command :alias, "alias <ALIAS> [CMD]", "alias ALIAS to CMD" do |cmd = nil, *args|
+    def alias cmd = nil, *args
       @aliases[cmd] = *args if cmd && args.size.positive?
 
       raise "missing expansion for alias `#{cmd}`" if cmd && args.size.zero?
@@ -121,31 +85,11 @@ module Msh
       0
     end
 
-    command :cd, "cd [DIR|-]", "change directory to DIR (if present), $OLDPWD (if `-`), or $HOME (DIR not present)" do |dir = nil|
-      last = ENV["OLDPWD"]
-      ENV["OLDPWD"] = Dir.pwd
-      case dir
-      when "-"
-        unless last
-          puts "`OLDPWD` not yet set!"
-          return 1
-        end
-
-        Dir.chdir last
-      when nil
-        Dir.chdir ENV["HOME"]
-      else
-        Dir.chdir dir
-      end
-      ENV["PWD"] = Dir.pwd
-      0
-    end
-
-    command :parser, "parser [FILE]...", "run msh's parser, on FILEs or interactively" do |*files|
+    def parser *files
       Msh::Parser.start files
     end
 
-    command :lexer, "lexer [FILE]...", "run msh's lexer, on FILEs or interactively" do |*files|
+    def lexer *files
       Msh::Lexer.start files
     end
 
@@ -153,7 +97,7 @@ module Msh
       Dir.pwd.gsub(ENV["HOME"], "~").green + " λ ".magenta.bold
     end
 
-    command :run, "run <CMD>", "run CMD with alias expansion" do |cmd, *args|
+    def run cmd, *args
       if alias_value = @aliases[cmd]
         cmd, *args = *alias_value
       end
@@ -200,23 +144,29 @@ module Msh
     alias exit quit
     alias q quit
 
-    def help topic = nil
-      if topic.nil?
-        puts "These shell commands are defined internally.\n" \
-             "Type `help` to see this list."
-        max_usage_len = @commands.values.max_by { |c| c.usage.size }.usage.size
-        max_desc_len = @commands.values.max_by { |c| c.desc.size }.desc.size
-
-        @commands.values.map do |cmd|
-          puts "  #{cmd.usage.ljust(max_usage_len)}    #{cmd.desc.ljust(max_desc_len)}"
+    def cd dir = nil
+      last = ENV["OLDPWD"]
+      ENV["OLDPWD"] = Dir.pwd
+      case dir
+      when "-"
+        unless last
+          puts "`OLDPWD` not yet set!"
+          return 1
         end
-        0
-      elsif cmd = @commands[topic.to_sym]
-        puts cmd.desc
-        0
+
+        Dir.chdir last
+      when nil
+        Dir.chdir ENV["HOME"]
       else
-        warn "no help available for command `#{topic}`."
+        Dir.chdir dir
       end
+      ENV["PWD"] = Dir.pwd
+      0
+    end
+
+    def help topic = nil
+      warn "help not supported yet"
+      return 1
     end
     alias_method :'?', :help # rubocop:disable Style/Alias (ruby can't parse this)
   end
