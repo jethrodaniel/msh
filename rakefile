@@ -4,6 +4,7 @@ require "erb"
 
 require_relative "lib/tasks/mruby"
 require_relative "lib/tasks/consolidate"
+require_relative "lib/tasks/man"
 
 task :default => %i[msh build install spec mruby]
 
@@ -17,21 +18,10 @@ end
 desc "build everything"
 task :msh => :man
 
-desc "generates readme.md from ERB"
-task :readme => [:msh, "readme.md"]
-
-file "readme.md" do |t|
-  template = File.read "#{t.name}.erb"
-  puts "#{t.name}.erb -> #{t.name}"
-  # trim mode of `<>` removes newlines and blank lines
-  erb_string = ERB.new(template, nil, :trim_mode => "-").result
-  File.open(t.name, "w") { |f| f.puts erb_string }
-end
-
 ##-- Testing
 
 require "rake/testtask"
-
+desc 'Run the tests'
 task :spec => :test
 Rake::TestTask.new(:test) do |t|
   t.libs << "spec"
@@ -39,12 +29,9 @@ Rake::TestTask.new(:test) do |t|
   t.test_files = FileList["spec/**/*_spec.rb"]
 end
 
-##-- Tools
+##-- Linting
 
 require "rubocop/rake_task"
 RuboCop::RakeTask.new :lint do |t|
   t.options = %w[--display-cop-names -c.rubocop.yml]
 end
-
-##-- Additional tasks
-Dir["lib/tasks/*.rake"].each(&method(:load))
