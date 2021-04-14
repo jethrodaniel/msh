@@ -15,7 +15,7 @@ module Msh
 
     begin
       path = Gem::Specification.find_by_name("msh").gem_dir
-    rescue Gem::MissingSpecError => e
+    rescue Gem::MissingSpecError
       warn "`msh` not installed. Assuming root dir is the current dir"
     end
     Pathname.new(path)
