@@ -1,22 +1,11 @@
-require "bundler/gem_tasks"
 require "rake/clean"
-require "erb"
+require "bundler/gem_tasks"
 
 require_relative "lib/tasks/mruby"
 require_relative "lib/tasks/consolidate"
 require_relative "lib/tasks/man"
 
-task :default => %i[msh build install spec mruby]
-
-##-- Build
-
-desc "build everything and run msh"
-task :run => :msh do
-  sh "bundle exec ruby exe/msh"
-end
-
-desc "build everything"
-task :msh => :man
+task :default => %i[man spec build install mruby]
 
 ##-- Testing
 
