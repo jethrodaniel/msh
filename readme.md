@@ -12,7 +12,7 @@ msh is a Ruby shell.
 
 ```
 $ msh
-Welcome to msh v0.3.0 (`?` for help)
+Welcome to msh v0.4.0 (`?` for help)
 ~/msh λ echo pi is #{Math::PI} | cowsay
  _________________________
 < pi is 3.141592653589793 >
@@ -33,27 +33,34 @@ enter some ruby (sorry, no multiline)
 LIVE IN A WORLD OF YOUR OWN, BUT ALWAYS WELCOME VISITORS.
 ```
 
-See the main [manpage](man/msh.1.adoc).
+See the main [manpage](man/msh.adoc).
 
 ## installation
 
-Msh is available as
+Build everything
 
-- `deb` and `rpm` packages via `rake pkg:all`
-- a Ruby gem (`gem install msh` once this is pushed, clone and run `rake` until then)
-- a single script via `rake consolidate`
+```
+git clone --recursive https://github.com/jethrodaniel/msh
+cd msh
+bundle
+bundle exec rake
+```
 
-Check out the [releases page](https://github.com/jethrodaniel/msh/releases) for pre-built packages.
+At that point, you have the following executables
+
+- `bin/msh` - single executable, uses MRuby
+- `bin/msh.rb` - single ruby script
 
 ## development
 
 ```
-git clone --recursive https://github.com/jethrodaniel/msh
+bundle exec rake mruby
+bundle exec rake test
 ```
 
-See `rake -T`.
-
-Check out [the CI](https://github.com/jethrodaniel/msh/actions/) to see the specs' lastest executions 🔪.
+We're using Github Actions to do that automatically - check out [the
+CI](https://github.com/jethrodaniel/msh/actions/) to see the specs' lastest
+executions 🔪.
 
 ## contributing
 
@@ -65,7 +72,7 @@ Bug reports and pull requests are welcome on [GitHub](https://github.com/jethrod
 
 MIT, see the [license file](license.txt).
 
-## some alternative shells
+## alternative shells
 
 - https://github.com/bminor/bash
 - https://github.com/zsh-users/zsh

@@ -20,7 +20,7 @@ namespace :pkg do
 
   file man => man_dir do
     sh "cp -r ./man/man* #{man_dir}"
-    sh "gzip -9 #{man_dir}/**/*.[1-9]"
+    # sh "gzip -9 #{man_dir}/**/*.[1-9]"
   end
 
   opts =  " --force"
@@ -38,10 +38,6 @@ namespace :pkg do
     end
   end
 
-  task :bin do
-    sh "cp ./msh pkg/msh-#{Msh::VERSION}"
-  end
-  task :all => %i[deb rpm bin]
   CLEAN << "pkg"
 
   namespace :install do
