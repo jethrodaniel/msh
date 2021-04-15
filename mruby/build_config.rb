@@ -12,8 +12,8 @@ MRuby::Build.new do |conf|
   end
 
   # reduce binary size somewhat
-  conf.linker.flags << "-Wl,--gc-sections"
-  conf.cc.flags << "-Os" << "-ffunction-sections -fdata-sections"
+  # conf.linker.flags << "-Wl,--gc-sections"
+  # conf.cc.flags << "-Os" << "-ffunction-sections -fdata-sections"
 
   conf.enable_bintest
 end
