@@ -61,7 +61,9 @@ if RUBY_ENGINE == "mruby"
     alias to_h to_hash
   end
 
-  def __main__ argv
+  def __main__(argv)
+    $stdout.puts "ARGV: #{argv.inspect}"
+    $stdout.puts ">>>"
     Msh.start(argv)
   end
 end
