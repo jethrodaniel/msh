@@ -12,8 +12,9 @@ module Msh
 
         mruby_rake :all, :test
 
-        sh "strip -s -R .comment -R .gnu.version " \
-           "--strip-unneeded #{EXECUTABLE}"
+        # sh "strip -s -R .comment -R .gnu.version " \
+        #    "--strip-unneeded #{EXECUTABLE}"
+        sh "strip #{EXECUTABLE}"
 
         FileUtils.mkdir_p "bin"
         FileUtils.cp EXECUTABLE, "bin/", verbose: true
