@@ -5,15 +5,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # os: [ubuntu-latest, macos-latest]
         os: [ubuntu-latest]
-        # Due to https://github.com/actions/runner/issues/849, we have to use quotes for '3.0'
-        #ruby: [2.5, 2.6, 2.7, '3.0', head, jruby, jruby-head, truffleruby, truffleruby-head]
         ruby: [2.5, 2.6, 2.7, '3.0', head]
     runs-on: ${{ matrix.os }}
     steps:
-    - name: install dependencies
-      run: sudo apt install -y gperf bison gcc g++
     - uses: actions/checkout@v2
       with:
         submodules: true
@@ -21,7 +16,9 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-    - name: build and test
+    - name: msh on CRuby build and test
       run: |
-        bundle exec rake
         faketty() { script -qfec "$(printf "%q " "$@")"; }; faketty bundle exec rake spec
+    - name: msh on MRuby build and test
+      run: |
+        bundle exec rake mruby

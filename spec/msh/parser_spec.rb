@@ -232,6 +232,6 @@ describe "Parser smoke tests" do
         echo b
       end
     L
-    # skip # it_parses code,
+    # it_parses code, s(:prog)
   end
 end

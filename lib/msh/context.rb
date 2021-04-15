@@ -94,6 +94,8 @@ module Msh
     end
 
     def prompt
+      return " λ " if ENV['MSH_TEST']
+
       Dir.pwd.gsub(ENV["HOME"], "~").green + " λ ".magenta.bold
     end
 
