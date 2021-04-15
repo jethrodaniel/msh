@@ -3,6 +3,6 @@ require "msh/version"
 
 describe Msh do
   it "has a version number" do
-    _(Msh::VERSION).must_equal "0.3.0"
+    _(Msh::VERSION).must_match /\d.\d.\d/
   end
 end

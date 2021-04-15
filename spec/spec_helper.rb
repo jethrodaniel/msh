@@ -57,5 +57,6 @@ end
 
 require "minitest/autorun"
 
+ENV['MSH_TEST'] = 'true'
 ENV['MSH_ENGINE'] = 'ruby'
 $mrbtest_verbose = true
