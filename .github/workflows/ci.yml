@@ -18,7 +18,7 @@ jobs:
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
     - name: msh on CRuby build and test
       run: |
-        faketty() { script -qfec "$(printf "%q " "$@")"; }; faketty bundle exec rake spec
+        bundle exec rake test
     - name: msh on MRuby build and test
       run: |
         bundle exec rake mruby
