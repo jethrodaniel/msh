@@ -3,20 +3,22 @@ require_relative "task"
 module Msh
   module Tasks
     class MRuby < Task
-      EXECUTABLE = 'third_party/mruby/bin/msh'
+      EXECUTABLE = 'third_party/mruby/build/host/bin/msh'
       CLEAN << EXECUTABLE << 'mruby/mrblib' << 'bin'
 
       def setup!
         FileUtils.mkdir_p "./mruby/mrblib/"
         FileUtils.cp Consolidate::EXECUTABLE, "./mruby/mrblib/", verbose: true
 
-        mruby_rake :clean, :all
+        mruby_rake :all
 
         sh "strip -s -R .comment -R .gnu.version " \
            "--strip-unneeded #{EXECUTABLE}"
 
         FileUtils.mkdir_p "bin"
         FileUtils.cp EXECUTABLE, "bin/", verbose: true
+
+        sh "./bin/msh -c 'hi there!'"
       end
 
       private

@@ -5,7 +5,7 @@
 #include <mruby.h>
 #include <mruby/array.h>
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
   mrb_state *mrb;
   mrb_value ARGV;
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
   }
 
   ARGV = mrb_ary_new_capa(mrb, argc);
-  for (i = 0; i < argc; i++) {
+  for (i = 1; i < argc; i++) {
     char* utf8 = mrb_utf8_from_locale(argv[i], -1);
     if (utf8) {
       mrb_ary_push(mrb, ARGV, mrb_str_new_cstr(mrb, utf8));
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
   // call `__main__`
   //
-  /* mrb_funcall(mrb, mrb_top_self(mrb), "__main__", 1, NULL); */
+  mrb_funcall(mrb, mrb_top_self(mrb), "__main__", 1, ARGV);
 
   return_value = EXIT_SUCCESS;
 

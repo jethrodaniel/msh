@@ -62,8 +62,6 @@ if RUBY_ENGINE == "mruby"
   end
 
   def __main__(argv)
-    $stdout.puts "ARGV: #{argv.inspect}"
-    $stdout.puts ">>>"
     Msh.start(argv)
   end
 end

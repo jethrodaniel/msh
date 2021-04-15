@@ -1,9 +1,9 @@
 require "English" unless RUBY_ENGINE == "mruby"
 require "pathname" unless RUBY_ENGINE == "mruby"
 
-require "msh/mruby"
 require "msh/backports"
 require "msh/core_extensions"
+require "msh/mruby"
 require "msh/cli"
 require "msh/repl"
 

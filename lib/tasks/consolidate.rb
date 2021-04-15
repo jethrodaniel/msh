@@ -10,7 +10,7 @@ module Msh
         FileUtils.mkdir_p "bin"
         sh "gem consolidate lib/msh.rb " \
            "--no-stdlib " \
-           "--footer='Msh.start' " \
+           "--footer='Msh.start unless RUBY_ENGINE == \"mruby\"' " \
            "--header='#!/usr/bin/env ruby'" \
            "> #{EXECUTABLE}"
         sh "chmod u+x #{EXECUTABLE}"

@@ -4,7 +4,7 @@ MRuby::Build.new do |conf|
   conf.gem  "."
 
   # Turn on `enable_debug` for better debugging
-  conf.enable_debug
+  enable_debug
 
   conf.mrbc do |mrbc|
     # The -g option is required for line numbers

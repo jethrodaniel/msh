@@ -33,14 +33,10 @@ MRuby::Gem::Specification.new("mruby-bin-#{msh.name}") do |spec|
     numeric-ext
     object-ext
     print
+    require
     string-ext
     struct
     toplevel-ext
-    require
-
-    bin-mirb
-    bin-mruby
-    bin-strip
   ].each do |gem|
     spec.add_dependency "mruby-#{gem}"
   end
