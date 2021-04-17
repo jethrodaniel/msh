@@ -1,4 +1,5 @@
 require_relative "task"
+require_relative "consolidate"
 
 module Msh
   module Tasks

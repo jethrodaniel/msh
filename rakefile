@@ -1,11 +1,12 @@
 require "rake/clean"
 require "bundler/gem_tasks"
 
+CLEAN << 'pkg'
+
 require_relative "lib/tasks/mruby"
-require_relative "lib/tasks/consolidate"
 require_relative "lib/tasks/man"
 
-task :default => %i[man spec build install mruby]
+task :default => %i[spec install mruby]
 
 ##-- Testing
 
