@@ -1,8 +1,8 @@
 require "English" unless RUBY_ENGINE == "mruby"
 
 require_relative "logger"
-require_relative "errors"
 require_relative "config"
+require_relative "errors"
 require_relative "evaluator"
 require_relative "lexer"
 require_relative "parser"
@@ -103,7 +103,10 @@ module Msh
     def initialize
       @evaluator = Evaluator.new
       @local_sh_variables = {}
-      Config.load!
+
+      @config = Config.new
+      interpret @config.config_text
+
       setup_manpath! unless RUBY_ENGINE == "mruby"
     end
 

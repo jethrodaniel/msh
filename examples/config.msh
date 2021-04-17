@@ -1,0 +1,15 @@
+# example msh config
+
+# In order to **not** run a command, but just add methods, we
+# have to explicity end interpolation with a `nil` or `''`.
+
+#{
+  def b cmd, *args
+    run cmd, *args
+  end
+
+  nil
+}
+
+alias ls ls -lrth --color
+alias dir tree -L 1 --dirsfirst -C

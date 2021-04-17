@@ -33,8 +33,7 @@ module Msh
       @repl = :irb # :pry
     end
 
-    # Load first config file with `load`
-    def self.load!
+    def config_text
       paths = []
 
       paths << File.join(ENV["XDG_CONFIG_HOME"], "msh/config.rb") if ENV.key? "XDG_CONFIG_HOME"
@@ -44,7 +43,7 @@ module Msh
         File.join(Dir.home, ".config/msh/config.rb")
       ]
 
-      load @file if @file = paths.find { |p| File.exist? p }
+      paths.select { |p| File.exist?(p) }.map { |f| File.read(f) }.join("\n")
     end
   end
 

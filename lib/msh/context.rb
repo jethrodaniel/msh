@@ -62,9 +62,6 @@ module Msh
 
     def initialize
       @aliases = {}
-
-      # custom, testing
-      send :alias, "ls", "ls", "-lrth", "--color"
     end
 
     def hi name
