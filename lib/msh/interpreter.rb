@@ -104,8 +104,7 @@ module Msh
       @evaluator = Evaluator.new
       @local_sh_variables = {}
 
-      @config = Config.new
-      interpret @config.config_text
+      interpret Config.config_text
 
       setup_manpath! unless RUBY_ENGINE == "mruby"
     end
