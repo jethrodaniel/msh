@@ -1,4 +1,4 @@
-require "English" unless RUBY_ENGINE == "mruby"
+uequire "English" unless RUBY_ENGINE == "mruby"
 
 require_relative "logger"
 require_relative "config"
@@ -105,8 +105,6 @@ module Msh
       @local_sh_variables = {}
 
       interpret Config.config_text
-
-      setup_manpath! unless RUBY_ENGINE == "mruby"
     end
 
     # @param code [String]
@@ -350,15 +348,6 @@ module Msh
     # @param msg [String]
     def error msg
       raise Errors::InterpreterError, msg
-    end
-
-    # Add Msh's manpages to the current MANPATH
-    #
-    # @todo: what the "::" means (need it to work)
-    def setup_manpath!
-      manpaths = ENV["MANPATH"].to_s.split(File::PATH_SEPARATOR)
-      manpaths << File.join(Msh.root, "man").to_s
-      ENV["MANPATH"] = "#{manpaths.compact.join(File::PATH_SEPARATOR)}::"
     end
   end
 end
