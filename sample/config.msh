@@ -8,8 +8,12 @@
     run cmd, *args
   end
 
+  def upcase
+    ARGF.each_line { |l| puts l.upcase }
+  end
+
   nil
 }
 
-alias ls ls -lrth --color
+alias ls ls -lrth #--color
 alias dir tree -L 1 --dirsfirst -C

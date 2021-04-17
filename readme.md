@@ -10,28 +10,7 @@
 
 msh is a Ruby shell.
 
-```
-$ msh
-Welcome to msh v0.4.0 (`?` for help)
-~/msh λ echo pi is #{Math::PI} | cowsay
- _________________________
-< pi is 3.141592653589793 >
- -------------------------
-        \   ^__^
-         \  (oo)\_______
-            (__)\       )\/\
-                ||----w |
-                ||     ||
-~/msh λ repl
-enter some ruby (sorry, no multiline)
-> def upcase; ARGF.each_line { |l| puts l.upcase }; end
-=> :upcase
-> def prompt; "% "; end
-=> :prompt
-^D
-% fortune | upcase
-LIVE IN A WORLD OF YOUR OWN, BUT ALWAYS WELCOME VISITORS.
-```
+## about
 
 See the main [manpage](man/msh.adoc).
 
@@ -51,11 +30,13 @@ At that point, you have the following executables
 - `bin/msh` - single executable, uses MRuby
 - `bin/msh.rb` - single ruby script
 
+You can also build and install as a `.deb` or `.rpm` using `rake pkg:deb`
+or `pkg:rpm` - this means you get the manpages installed as well.
+
 ## development
 
 ```
-bundle exec rake mruby
-bundle exec rake test
+bundle exec rake
 ```
 
 We're using Github Actions to do that automatically - check out [the
@@ -74,11 +55,11 @@ MIT, see the [license file](license.txt).
 
 ## alternative shells
 
-- https://github.com/bminor/bash
-- https://github.com/zsh-users/zsh
-- https://github.com/nushell/nushell
-- https://github.com/fish-shell/fish-shell
-- https://github.com/PowerShell/PowerShell
 - https://elv.sh/
+- https://github.com/ChrisPritchard/FSH
+- https://github.com/PowerShell/PowerShell
+- https://github.com/bminor/bash
 - https://github.com/dundalek/closh
-- https://github.com/bsutton/dshell
+- https://github.com/fish-shell/fish-shell
+- https://github.com/nushell/nushell
+- https://github.com/zsh-users/zsh

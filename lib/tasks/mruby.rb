@@ -8,15 +8,15 @@ module Msh
       CLEAN << EXECUTABLE << 'mruby/mrblib' << 'bin'
 
       def setup!
-        FileUtils.mkdir_p "./mruby/mrblib/"
-        FileUtils.cp Consolidate::EXECUTABLE, "./mruby/mrblib/", verbose: true
+        mkdir_p "./mruby/mrblib/"
+        cp Consolidate::EXECUTABLE, "./mruby/mrblib/"
 
         mruby_rake :all, :test
 
         sh "strip #{EXECUTABLE}"
 
-        FileUtils.mkdir_p "bin"
-        FileUtils.cp EXECUTABLE, "bin/", verbose: true
+        mkdir_p "bin"
+        cp EXECUTABLE, "bin/"
 
         msh "echo hi there, the time is now #{Time.now}"
       end

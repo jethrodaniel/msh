@@ -164,8 +164,8 @@ module Msh
     end
 
     def help topic = nil
-      warn "help not supported yet"
-      return 1
+      cmd = topic.nil? ? "msh" : "msh-#{topic}"
+      run "man", cmd
     end
     alias_method :'?', :help # rubocop:disable Style/Alias (ruby can't parse this)
   end

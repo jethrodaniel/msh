@@ -3,8 +3,7 @@ require "bundler/gem_tasks"
 
 CLEAN << 'pkg'
 
-require_relative "lib/tasks/mruby"
-require_relative "lib/tasks/man"
+Dir.glob("lib/tasks/*.rb").each { |task| require_relative task }
 
 task :default => %i[spec install mruby]
 

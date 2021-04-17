@@ -8,7 +8,7 @@ module Msh
       CLEAN << 'man/man1'
 
       def setup!
-        FileUtils.mkdir_p "man/man1"
+        mkdir_p "man/man1"
 
         Dir.glob("man/*.adoc").each do |adoc|
           create_manpage!(adoc)
@@ -47,6 +47,12 @@ module Msh
         MAN
       end
     end
+  end
+end
+
+namespace :man do
+  task :install => :man do
+    sh "sudo cp -rav man/man1/* /usr/share/man/man1/"
   end
 end
 
