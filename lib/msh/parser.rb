@@ -325,9 +325,9 @@ module Msh
 
     # @return [AST]
     def _redirect
-      # r = consume(:REDIRECT_OUT, "expected a redirection operator")
-      r = consume(*REDIRECTS, "expected a redirection operator")
-      n = r.value.match(/\A(\d+)/)&.captures&.first&.to_i
+      r = consume(REDIRECTS, "expected a redirection operator")
+      nums = r.value.chars.take_while { |c| ('0'..'9').include?(c) }
+      n = nums.empty? ? nil : nums.join.to_i
 
       _skip_whitespace
 
