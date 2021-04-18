@@ -1,7 +1,7 @@
 ---
-mruby_version:
-  version: 2.1.2
-  release_no: 20102
+mruby:
+  version: 3.0.0
+  release_no: 30000
 builds:
   host:
     https://github.com/iij/mruby-errno.git:

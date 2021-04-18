@@ -39,6 +39,4 @@ MRuby::Gem::Specification.new("mruby-bin-#{msh.name}") do |spec|
   ].each do |gem|
     spec.add_dependency "mruby-#{gem}"
   end
-
-  spec.add_dependency "mruby-require"
 end

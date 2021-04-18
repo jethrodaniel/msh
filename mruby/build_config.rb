@@ -16,4 +16,5 @@ MRuby::Build.new do |conf|
   # conf.cc.flags << "-Os" << "-ffunction-sections -fdata-sections"
 
   conf.enable_bintest
+  conf.enable_test # needed to fix build error, see mruby#5416
 end
