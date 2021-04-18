@@ -47,7 +47,7 @@ class Pipeline
 
       cmd.in.close  if cmd.close_in?
       cmd.out.close if cmd.close_out?
-      cmd.status = $CHILD_STATUS&.exitstatus || exit_code
+      cmd.status = $?&.exitstatus || exit_code
     end
   end
 end

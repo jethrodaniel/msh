@@ -152,14 +152,14 @@ module Msh
       p = Pipeline.new node.children
       p.run { |c| process c.cmd }
 
-      $CHILD_STATUS.exitstatus
+      $?.exitstatus
     end
 
     # @param node [Msh::AST::Node] :OR
     # @return [Integer] exit status
     def on_OR node
       process node.children.first
-      return $CHILD_STATUS if $CHILD_STATUS.exitstatus.zero?
+      return $? if $?.exitstatus.zero?
 
       process node.children.last
     end
@@ -168,7 +168,7 @@ module Msh
     # @return [Integer] exit status
     def on_AND node
       process node.children.first
-      return $CHILD_STATUS unless $CHILD_STATUS.exitstatus.zero?
+      return $? unless $?.exitstatus.zero?
 
       process node.children.last
     end

@@ -1,9 +1,6 @@
 # Extensions to make MRuby _compatible_ with CRuby
 
 if RUBY_ENGINE == "mruby"
-  $CHILD_STATUS = $? # rubocop:disable Style/SpecialGlobalVars
-  ARGV        ||= [].freeze
-
   module Kernel
     def puts obj
       $stdout.puts obj
