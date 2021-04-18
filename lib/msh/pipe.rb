@@ -25,8 +25,6 @@ class Pipeline
   end
 
   def run
-    abort "IO#reopen is not available on MRuby" if RUBY_ENGINE == "mruby"
-
     pids = []
     exit_code = nil
 
