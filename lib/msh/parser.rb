@@ -127,7 +127,7 @@ module Msh
 
     WORDS = [
       :WORD,        # echo
-      :TIME,        # time echo
+      :TIME,        # echo time
       :VAR,         # $USER
       :INTERP,      # echo the time is #{Time.now}
       :LAST_STATUS  # $?
@@ -255,20 +255,12 @@ module Msh
     def _command
       cmd_parts = []
 
-      while match?(WORDS, REDIRECTS)
-        # if match?(REDIRECTS) && match?(WORDS)
-        if match?(WORDS) && match?(REDIRECTS)
-          p current_token.type
-          p WORDS
-          # p REDIRECTS
-          error "current token is both a redirect and a word?\n" \
-                "curr: #{current_token}\n" \
-                "This only happens on MRuby?"
-        end
+      while match?(*WORDS, *REDIRECTS)
+        error "current token is both a redrect and a word? #{current_token}" if match?(*REDIRECTS) && match?(*WORDS)
 
-        if match?(WORDS)
+        if match?(*WORDS)
           cmd_parts << _word
-        elsif match?(REDIRECTS)
+        elsif match?(*REDIRECTS)
           cmd_parts << _redirect
         end
         _skip_ignored_no_newline
@@ -279,14 +271,14 @@ module Msh
         consume :EQ, "expected an `=`"
         _skip_whitespace
 
-        error "missing value for variable assignment" unless match?(WORDS)
+        error "missing value for variable assignment" unless match?(*WORDS)
 
         cmd_parts << s(:ASSIGN, cmd_parts.pop, _word)
         _skip_whitespace
 
         break if eof? || match?(:NEWLINE)
 
-        error "expected a word, got #{current_token}" unless match?(WORDS, REDIRECTS)
+        error "expected a word, got #{current_token}" unless match?(*WORDS, *REDIRECTS)
       end
 
       error "expected a word or redirect" if cmd_parts.empty?
@@ -296,11 +288,12 @@ module Msh
 
     # @return [AST] :WORD
     def _word
-      log.debug { ":#{__method__}: #{current_token} | match?(WORDS): #{match?(WORDS)} | match?(REDIRECTS): #{match?(REDIRECTS)}" }
+      log.debug { ":#{__method__}: #{current_token} | match?(*WORDS): #{match?(*WORDS)} | match?(*REDIRECTS): #{match?(*REDIRECTS)}" }
 
       word_pieces = []
 
-      while match?(WORDS)
+      # somehow mruby is matching redirects **and** words..
+      while match?(*WORDS)
         c = current_token
         case c.type
         when :WORD, :TIME
@@ -359,7 +352,7 @@ module Msh
 
         _skip_ignored
 
-        if match?(WORDS, REDIRECTS)
+        if match?(*WORDS, *REDIRECTS)
           commands << _command
         else
           error "expected a command after `|`"
