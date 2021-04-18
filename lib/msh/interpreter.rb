@@ -1,4 +1,4 @@
-uequire "English" unless RUBY_ENGINE == "mruby"
+require "English" unless RUBY_ENGINE == "mruby"
 
 require_relative "logger"
 require_relative "config"
