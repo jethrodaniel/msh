@@ -8,7 +8,7 @@ module Msh
 
       def setup!
         FileUtils.mkdir_p "bin"
-        sh "gem consolidate lib/msh.rb " \
+        sh "bundle exec gem consolidate lib/msh.rb " \
            "--no-stdlib " \
            "--footer='Msh.start unless RUBY_ENGINE == \"mruby\"' " \
            "--header='#!/usr/bin/env ruby'" \
@@ -21,4 +21,4 @@ end
 
 Msh::Tasks::Consolidate.new \
   "consolidate",
-  "Compile single-file `msh` script"
+  "Compile a single-file `msh` script"

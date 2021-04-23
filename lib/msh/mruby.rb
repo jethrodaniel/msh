@@ -58,7 +58,7 @@ if RUBY_ENGINE == "mruby"
     alias to_h to_hash
   end
 
-  def __main__(argv)
+  def __main__ argv
     Msh.start(argv)
   end
 end

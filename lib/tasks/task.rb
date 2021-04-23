@@ -3,9 +3,9 @@ module Msh
     class Task
       include Rake::DSL
 
-      def initialize(name, description, *preqs)
-        desc(description)
-        task(name => preqs) do
+      def initialize name, description, *preqs
+        desc description
+        task name => preqs do
           puts "=== rake #{name} ==="
           setup!
           puts "=== done ==="
