@@ -1,0 +1,7 @@
+task :default do
+  config = File.absolute_path('build_config.rb')
+  Dir.chdir "../../../third_party/mruby/" do
+    sh "MRUBY_CONFIG=#{config} rake test"
+  end
+end
+
