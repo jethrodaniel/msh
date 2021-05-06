@@ -13,6 +13,11 @@
 # ```
 #
 module Kernel
+  $: = $LOAD_PATH = []
+
+  class LoadError < StandardError
+  end
+
   # # Kernel#load
   #
   # (from ruby core)
@@ -45,13 +50,14 @@ module Kernel
   # loaded file be propagated to the loading environment.
   #
   def load file, wrap = false
-    file = if ['/', './', '../'].any? { |s| file.start_with?(s) }
+    file = if ['/', './', '../'].any? { |s| file[0] == s }
              file
            else
-             dir = $:.find do |dir|
+             dir = $:.select do |dir|
                f = File.join(dir, file)
                File.exist?(f)
-             end
+             end.first # TODO: array `find`?, or just `each`?
+
              dir ? File.join(dir, file) : file
            end
 
@@ -67,7 +73,7 @@ module Kernel
 
     true
   end
-end
+end if RUBY_ENGINE == "mruby"
 
 ##
 
