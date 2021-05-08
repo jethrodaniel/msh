@@ -34,3 +34,13 @@ builds:
       branch: HEAD
       commit: b2b95a27b8658c46c5cb05abd168e77a12aef2a4
       version: 0.0.0
+    https://github.com/jethrodaniel/mruby-require-rb.git:
+      url: https://github.com/jethrodaniel/mruby-require-rb.git
+      branch: HEAD
+      commit: bf4dbc6fa1e51ff932e2b66ec3c33c86d936abd3
+      version: 0.0.0
+    https://github.com/iij/mruby-dir.git:
+      url: https://github.com/iij/mruby-dir.git
+      branch: HEAD
+      commit: 89dceefa1250fb1ae868d4cb52498e9e24293cd1
+      version: 0.0.0
