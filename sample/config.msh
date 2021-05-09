@@ -1,7 +1,9 @@
 # example msh config
 
-# In order to **not** run a command, but just add methods, we
+# In order to **not** run a command, but just some Ruby, we
 # have to explicity end interpolation with a `nil` or `''`.
+#
+# We're effectively running an empty string as input.
 
 #{
   def b cmd, *args
@@ -10,6 +12,10 @@
 
   def upcase
     ARGF.each_line { |l| puts l.upcase }
+  end
+
+  def prompt
+    "#{Time.now.strftime('%H:%M')}$ "
   end
 
   nil
