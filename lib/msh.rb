@@ -1,5 +1,5 @@
-require "English" unless RUBY_ENGINE == "mruby"
-require "pathname" unless RUBY_ENGINE == "mruby"
+require "English"
+require "pathname"
 
 require "msh/backports"
 require "msh/core_extensions"

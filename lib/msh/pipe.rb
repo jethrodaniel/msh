@@ -1,4 +1,4 @@
-require "English" unless RUBY_ENGINE == "mruby"
+require "English"
 
 # @example
 #   commands = %w[fortune cowsay]

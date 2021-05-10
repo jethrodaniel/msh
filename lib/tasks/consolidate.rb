@@ -1,4 +1,5 @@
 require_relative "task"
+require "tempfile"
 
 module Msh
   module Tasks
@@ -8,11 +9,16 @@ module Msh
 
       def setup!
         FileUtils.mkdir_p "bin"
-        sh "bundle exec gem consolidate lib/msh.rb " \
-           "--no-stdlib " \
-           "--footer='Msh.start unless RUBY_ENGINE == \"mruby\"' " \
-           "--header='#!/usr/bin/env ruby'" \
-           "> #{EXECUTABLE}"
+        script = Tempfile.new
+        script.puts <<~'BASH'
+          set -ex
+
+          cat <(echo '#!/usr/bin/env ruby') \
+              <(gem consolidate msh) \
+              <(echo 'Msh.start unless RUBY_ENGINE == "mruby"')
+        BASH
+        script.close
+        sh "bash #{script.path} > #{EXECUTABLE}"
         sh "chmod u+x #{EXECUTABLE}"
       end
     end
