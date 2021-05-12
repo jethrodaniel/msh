@@ -107,12 +107,10 @@ module Msh
         abort e.message
       end
       Process.wait pid
-      $?.exitstatus # rubocop:disable Style/SpecialGlobalVars
+      $?.exitstatus
     end
 
     attr_reader :_
-
-    # alias :$? _
 
     def repl
       puts "Enter some ruby (sorry, no multiline). ^D to exit."
