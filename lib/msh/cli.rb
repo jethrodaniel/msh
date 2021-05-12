@@ -4,11 +4,11 @@ require_relative "../msh/interpreter"
 
 module Msh
   module CLI
-    BANNER = <<-B.freeze
-Usage:
-    msh [options]... [file]...
+    BANNER = <<~B.freeze
+      Usage:
+          msh [options]... [file]...
 
-Options:
+      Options:
     B
 
     # @return [OptionParser]
