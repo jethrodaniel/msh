@@ -28,19 +28,19 @@ assert '`msh -h/--help` shows usage information', 'CLI' do
 
   %w[-h --help].each do |flag|
     o, s = Open3.capture2(msh(flag))
-    assert_equal o, expected
+    assert_equal expected, o
   end
 end
 
 assert '`msh -c <cmd_string>` runs a command string', 'CLI' do
   o, s = Open3.capture2(msh('-c hi there'))
-  assert_equal o, "hello, there\n"
+  assert_equal "hello, there\n", o
 end
 
 assert '`msh -c` aborts when missing <cmd_string>', 'CLI' do
   o, e, s = Open3.capture3(msh('-c'))
-  assert_equal o, ""
-  assert_equal e, "missing argument: -c\n"
+  assert_equal "", o
+  assert_equal "missing argument: -c\n", e
 end
 
 assert '`msh [file]...` runs [file]... as msh scripts', 'CLI' do
@@ -53,7 +53,7 @@ assert '`msh [file]...` runs [file]... as msh scripts', 'CLI' do
   script2.flush
 
   o, s = Open3.capture2(msh("#{script1.path} #{script2.path}"))
-  assert_equal o, "When in doubt,\nUse brute force.\n"
+  assert_equal "When in doubt,\nUse brute force.\n", o
 end
 
 assert '`msh` runs interactively', 'CLI' do
@@ -65,9 +65,9 @@ assert '`msh` runs interactively', 'CLI' do
   MSH
 
   o, e, s = Open3.capture3(msh, :stdin_data => input)
-  assert_equal o,
+  assert_equal \
     "msh v#{Msh::VERSION} running on mruby v2.0 (`?` for help)\n" \
     " λ π is 3.141592653589793\n" \
     " λ 𝜏 is 6.283185307179586\n" \
-    " λ "
+    " λ ", o
 end
