@@ -1,5 +1,3 @@
-require "English"
-
 # @example
 #   commands = %w[fortune cowsay]
 #   p = Pipeline.new commands

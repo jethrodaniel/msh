@@ -1,5 +1,3 @@
-require "English"
-
 require_relative "logger"
 require_relative "config"
 require_relative "errors"

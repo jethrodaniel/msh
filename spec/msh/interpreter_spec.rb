@@ -54,7 +54,7 @@ describe Msh::Interpreter do
 
     describe "help" do
       it "shows `msh` when called with no args" do
-        man = File.read(File.join(Msh.root, "spec/fixtures/help/msh.txt"))
+        man = File.read(File.join("spec/fixtures/help/msh.txt"))
         skip "use `info` or plain text, not `man`"
         _(sh("MANPAGER=cat msh -c help")).must_equal_with_diff man
       end
@@ -73,7 +73,7 @@ describe Msh::Interpreter do
         repl
       ].each do |topic|
         it topic do
-          man = File.read(Msh.root + "spec/fixtures/help/#{topic}.txt")
+          man = File.read(File.join("spec/fixtures/help/#{topic}.txt"))
           skip "need to get in-file manpages for these again, or some kind of dsl"
           _(sh("MANPAGER=cat msh -c 'help #{topic}'")).must_equal_with_diff man
         end

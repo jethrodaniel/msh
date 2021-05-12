@@ -1,4 +1,4 @@
-require "English"
+
 
 module Msh
   # In msh, you're always accompanied by Ruby's `self`, which serves as context.
