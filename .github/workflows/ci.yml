@@ -5,7 +5,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest] # windows-latest
         ruby: [2.5, 2.6, 2.7, '3.0', head]
     runs-on: ${{ matrix.os }}
     steps:
@@ -16,9 +16,12 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-    - name: msh on CRuby build and test
-      run: |
-        bundle exec rake test
+
     - name: msh on MRuby build and test
       run: |
         bundle exec rake mruby
+
+    - name: msh on CRuby build and test
+      run: |
+        bundle exec rake test
+
