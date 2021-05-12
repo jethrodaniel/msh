@@ -13,7 +13,6 @@ MRuby::Gem::Specification.new("mruby-bin-#{msh.name}") do |spec|
     "errno"   => "iij",
     "process" => "iij",
     "exec"    => "haconiwa",
-    "require-rb" => "jethrodaniel",
   }.each do |gem, author|
     spec.add_dependency "mruby-#{gem}", :github => "#{author}/mruby-#{gem}"
   end
