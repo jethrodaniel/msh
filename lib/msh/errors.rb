@@ -5,6 +5,5 @@ module Msh
     class InterpreterError < Error; end
     class LexerError       < Error; end
     class ReplError        < Error; end
-    class LoggerError      < Error; end
   end
 end

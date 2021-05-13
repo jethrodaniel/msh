@@ -1,32 +1,22 @@
-begin
-  require "msh/version"
-  msh = Gem::Specification.find_by_name("msh")
-rescue LoadError => e
-  abort e.message
-end
+msh = Gem::Specification.find_by_name("msh")
 
 MRuby::Gem::Specification.new("mruby-bin-#{msh.name}") do |spec|
-  %i[license author summary version].each { |attr| spec.send("#{attr}=", msh.send(attr)) }
   spec.bins = msh.executables
-
-  {
-    "errno"   => "iij",
-    "process" => "iij",
-    "exec"    => "haconiwa",
-  }.each do |gem, author|
-    spec.add_dependency "mruby-#{gem}", :github => "#{author}/mruby-#{gem}"
-  end
+  %i[
+    license
+    author
+    summary
+    version
+  ].each { |attr| spec.send("#{attr}=", msh.send(attr)) }
 
   %w[
     array-ext
     enum-ext
-    env
     eval
     exit
     hash-ext
     io
     kernel-ext
-    logger
     math
     metaprog
     method
@@ -35,8 +25,21 @@ MRuby::Gem::Specification.new("mruby-bin-#{msh.name}") do |spec|
     print
     string-ext
     struct
-    toplevel-ext
+  ].each do |gem|
+    spec.add_dependency "mruby-#{gem}", :core => "mruby-#{gem}"
+  end
+
+  %w[
+    env
   ].each do |gem|
     spec.add_dependency "mruby-#{gem}"
+  end
+
+  {
+    "errno"   => "iij",
+    "exec"    => "haconiwa",
+    "process" => "iij"
+  }.each do |gem, author|
+    spec.add_dependency "mruby-#{gem}", :github => "#{author}/mruby-#{gem}"
   end
 end

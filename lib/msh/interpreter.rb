@@ -1,4 +1,3 @@
-require_relative "logger"
 require_relative "config"
 require_relative "errors"
 require_relative "evaluator"
@@ -67,8 +66,6 @@ module Msh
   # aren't matched, then the command is unresolved, or _not found_.
   #
   class Interpreter
-    include Msh::Logger
-
     # `AST::Processor::Mixin` defines the following for us
     #
     # ```

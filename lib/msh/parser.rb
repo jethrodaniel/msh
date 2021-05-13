@@ -3,7 +3,6 @@ require_relative "readline"
 require_relative "errors"
 require_relative "ast"
 require_relative "lexer"
-require_relative "logger"
 
 module Msh
   # The parser converts a series of tokens into an abstract syntax tree (AST).
@@ -112,8 +111,6 @@ module Msh
   #
   # Note: Parse methods here use are underscore-prefixed.
   class Parser
-    include Msh::Logger
-
     REDIRECTS = [
       :REDIRECT_OUT,         # [n]>
       :REDIRECT_IN,          # [n]<
@@ -288,11 +285,8 @@ module Msh
 
     # @return [AST] :WORD
     def _word
-      log.debug { ":#{__method__}: #{current_token} | match?(*WORDS): #{match?(*WORDS)} | match?(*REDIRECTS): #{match?(*REDIRECTS)}" }
-
       word_pieces = []
 
-      # somehow mruby is matching redirects **and** words..
       while match?(*WORDS)
         c = current_token
         case c.type
