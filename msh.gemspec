@@ -29,25 +29,25 @@ Gem::Specification.new do |s|
 
   s.bindir        = "exe"
   s.executables   = s.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  s.require_paths = ["lib"]
+  s.require_paths = %w[lib]
   s.required_ruby_version = ">= 2.5"
 
   s.add_dependency "reline", "~> 0.2.5"
 
-  s.add_development_dependency "asciidoctor"
-  s.add_development_dependency "bundler"
-  s.add_development_dependency "fpm"
-  s.add_development_dependency "minitest", "~> 5.14"
-  s.add_development_dependency "minitest-documentation", "~> 1.0"
-  s.add_development_dependency "parser"
-  s.add_development_dependency "rake"
-  s.add_development_dependency "rubocop"
-  s.add_development_dependency "yard"
-
-  if RUBY_ENGINE == "ruby"
-    s.add_development_dependency "pry"
-    s.add_development_dependency "pry-byebug"
-  end
+  %w[
+    asciidoctor
+    bundler
+    fpm
+    minitest
+    minitest-documentation
+    parser
+    pry-byebug
+    rake
+    rubocop
+    yamatanooroti
+    yard
+    vterm
+  ].each { |dep| s.add_development_dependency(dep) }
 
   # s.post_install_message <<~MSG
   # MSG
