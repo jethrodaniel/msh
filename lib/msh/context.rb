@@ -114,8 +114,18 @@ module Msh
 
     def repl
       puts "Enter some ruby (sorry, no multiline). ^D to exit."
+
       loop do
-        print "> "
+        # MRuby bug?
+        #
+        # ```
+        # [2] msh/mruby/mrblib/msh.rb:356:in _call
+        # [1] msh/mruby/mrblib/msh.rb:292:in repl
+        # msh/third_party/mruby/mrbgems/mruby-print/mrblib/print.rb:28:in print: undefined method '__printstr__' (NoMethodError)
+        # ```
+        #
+        Kernel.print "> "
+
         line = gets&.chomp
 
         if line.nil? || line == ""
@@ -126,9 +136,10 @@ module Msh
         begin
           @_ = instance_eval(line)
         rescue => e
-          puts e.class, e.message
+          puts "#{e.class}: #{e.message}"
           next
         end
+
         puts "=> #{_.inspect}"
       end
     end

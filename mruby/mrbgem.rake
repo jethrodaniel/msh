@@ -25,6 +25,7 @@ MRuby::Gem::Specification.new("mruby-bin-#{msh.name}") do |spec|
     print
     string-ext
     struct
+    toplevel-ext
   ].each do |gem|
     spec.add_dependency "mruby-#{gem}", :core => "mruby-#{gem}"
   end
