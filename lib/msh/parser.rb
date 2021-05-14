@@ -1,4 +1,3 @@
-require_relative "core_extensions"
 require_relative "readline"
 require_relative "errors"
 require_relative "ast"
@@ -134,6 +133,12 @@ module Msh
 
     def initialize code
       @lexer = Msh::Lexer.new(code).tap(&:next_token)
+    end
+
+    def self.delegate meth, obj, via: nil
+      define_method meth do
+        send(obj).send(via || meth)
+      end
     end
 
     delegate :current_token, :lexer
