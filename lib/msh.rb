@@ -1,5 +1,4 @@
 require "msh/backports"
-require "msh/core_extensions"
 require "msh/mruby"
 require "msh/cli"
 require "msh/repl"
