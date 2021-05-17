@@ -1,24 +1,18 @@
-== name
+== NAME
 
 msh - a ruby shell
 
-== synopsis
+== SYNOPSIS
 
 **msh** [_options_]... [_file_]...
 
-== options
+== OPTIONS
 
-*-V, --version*::
-  Show the version.
+*-V, --version*:: Show the version.
+*-c <command>*:: Run a command string as input.
+*-h, --help*:: Show usage information.
 
-*-c <command>*::
-  Run a command string as input.
-
-*-h, --help*::
-  Show usage information.
-
-
-== description
+== DESCRIPTION
 
 **msh** is a **bash**-like language implemented in Ruby.
 
@@ -71,14 +65,13 @@ joy when they can concentrate on the creative side of programming, So Ruby
 is designed to make programmers happy.
 ____
 
-== Config
+== CONFIG
 
 **msh** loads each of these it can find on startup
 
 - `~/.mshrc`
 - `~/config/msh/config.msh`
 - `$XDG_CONFIG_HOME/msh/config.msh`
-
 
 == Comparison/Features
 
