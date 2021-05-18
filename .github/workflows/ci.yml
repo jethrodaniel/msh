@@ -17,6 +17,10 @@ jobs:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
 
+    - name: install dependencies
+      run: |
+        sudo apt install -y libvterm-dev # for yamatanooroti
+
     - name: msh on MRuby build and test
       run: |
         bundle exec rake mruby
