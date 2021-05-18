@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
     "homepage_uri"      => s.homepage
   }
   s.files = %w[
-    readme.md
+    readme.adoc
     msh.gemspec
     license.txt
   ] + Dir.glob("lib/**/*.rb") +
