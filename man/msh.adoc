@@ -26,7 +26,7 @@ msh - A ruby shell
 
 **Portability**::
   The primary implementation targets MRuby, in order to be distributed
-  as a single binary executable.
+  as a _single_ binary executable.
 
 === Example
 
