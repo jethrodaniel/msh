@@ -15,7 +15,13 @@
   end
 
   def prompt
-    "#{Time.now.strftime('%H:%M')}$ "
+    "$ "
+  end
+
+  # Not quite the ^L we want, this requires an <enter> afterwards...
+  #
+  define_singleton_method "" do
+    run 'clear'
   end
 
   nil
