@@ -1,0 +1,118 @@
+![](https://github.com/jethrodaniel/msh/workflows/ci/badge.svg)
+![](https://img.shields.io/github/license/jethrodaniel/msh.svg)
+![](https://img.shields.io/github/stars/jethrodaniel/msh?style=social)
+
+**NOTE**: not finished, breaking changes until `v1.0.0`, stay tuned.
+
+== Name
+
+msh - A ruby shell
+
+== Synopsis
+
+**msh** [-V,--version] [-h,--help] [-c command] [--] [program_file]...
+
+== Description
+
+**msh** is a bash/sh-like language implemented in Ruby.
+
+== Features
+
+**Interpolation**::
+  Use `#{}` to interpolate Ruby code anywhere.
+
+**Interpreter**::
+  Access the current Ruby interpreter using `#{self}`, or via an
+  interactive REPL, all on that same instance.
+
+**Methods / Functions**::
+  The `alias -> function -> exe` lookup of **sh** is now
+  `alias -> method -> exe`, which means functions are just
+  _methods_ on our `#{self}`.
+
+**Portability**::
+  The primary implementation targets MRuby, in order to be distributed
+  as a single binary executable.
+
+=== Example
+
+```
+$ msh
+msh v0.4.1 running on mruby v3.0 (`?` for help)
+$ echo π ≈ #{Math::PI}
+π ≈ 3.141592653589793
+$ echo #{self}
+#<Msh::Context:0x55ce381c2240>
+$ repl
+Enter some ruby (sorry, no multiline). ^D to exit.
+> def prompt = 'λ '
+=> :prompt
+> def hi name; puts "hello, there #{name}"; end
+=> :hi
+>
+λ hi y'all
+hello, there y'all
+λ
+```
+
+== Documentation
+
+msh intends to be self-documenting via manpages, similar to git(1).
+
+```
+msh help [topic]
+man msh-<topic>
+```
+
+For info on where to go from here, or a list of the available topics,
+see msh-help(1).
+
+== Development
+
+Source code, issue tracker, and releases can be found at
+https://github.com/jethrodaniel/msh.
+
+To clone, build, install, and test
+
+```
+git clone --recursive https://github.com/jethrodaniel/msh
+cd msh
+bundle
+bundle exec rake
+```
+
+== Alternatives
+
+- https://elv.sh/
+- https://github.com/ChrisPritchard/FSH
+- https://github.com/PowerShell/PowerShell
+- https://github.com/bminor/bash
+- https://github.com/dundalek/closh
+- https://github.com/fish-shell/fish-shell
+- https://github.com/nushell/nushell
+- https://github.com/zsh-users/zsh
+
+== Copyright
+
+The MIT License (MIT)
+
+Copyright (c) 2020 Mark Delk
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
