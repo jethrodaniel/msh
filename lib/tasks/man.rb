@@ -36,11 +36,12 @@ module Msh
       def setup!
         mkdir_p "man/man1"
 
+        create_readme!
+        create_license!
+
         Dir.glob("man/*.adoc").each do |adoc|
           create_manpage!(adoc)
         end
-
-        create_readme!
       end
 
       private
@@ -61,9 +62,9 @@ module Msh
       def create_readme!
         File.open('readme.adoc', 'w') do |f|
           f.puts <<~T
-            ![](https://github.com/jethrodaniel/msh/workflows/ci/badge.svg)
-            ![](https://img.shields.io/github/license/jethrodaniel/msh.svg)
-            ![](https://img.shields.io/github/stars/jethrodaniel/msh?style=social)
+            image:https://github.com/jethrodaniel/msh/workflows/ci/badge.svg[]
+            image:https://img.shields.io/github/license/jethrodaniel/msh.svg[]
+            image:https://img.shields.io/github/stars/jethrodaniel/msh?style=social[]
 
             **NOTE**: not finished, breaking changes until `v1.0.0`, stay tuned.
 
@@ -71,6 +72,35 @@ module Msh
           f.puts erb('man/msh.adoc')
         end
         puts "-> readme.adoc"
+      end
+
+      def create_license!
+        File.open('license.txt', 'w') do |f|
+          f.puts <<~T
+            The MIT License (MIT)
+
+            Copyright (c) #{Time.now.year} #{`git config --global --get user.name`}
+
+            Permission is hereby granted, free of charge, to any person obtaining a copy
+            of this software and associated documentation files (the "Software"), to deal
+            in the Software without restriction, including without limitation the rights
+            to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+            copies of the Software, and to permit persons to whom the Software is
+            furnished to do so, subject to the following conditions:
+
+            The above copyright notice and this permission notice shall be included in
+            all copies or substantial portions of the Software.
+
+            THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+            IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+            FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+            LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+            OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+            THE SOFTWARE.
+          T
+        end
+        puts "-> license.txt"
       end
 
       def manpage_for adoc
