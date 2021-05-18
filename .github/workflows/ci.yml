@@ -9,6 +9,10 @@ jobs:
         ruby: [2.5, 2.6, 2.7, '3.0', head]
     runs-on: ${{ matrix.os }}
     steps:
+    - name: install dependencies
+      run: |
+        sudo apt install -y libvterm-dev # for yamatanooroti
+
     - uses: actions/checkout@v2
       with:
         submodules: true
@@ -16,10 +20,6 @@ jobs:
       with:
         ruby-version: ${{ matrix.ruby }}
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-
-    - name: install dependencies
-      run: |
-        sudo apt install -y libvterm-dev # for yamatanooroti
 
     - name: msh on MRuby build and test
       run: |
