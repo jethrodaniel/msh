@@ -5,13 +5,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest] # , macos-latest] # windows-latest
+        os: [ubuntu-latest, macos-latest] # windows-latest
         ruby: [2.5, 2.6, 2.7, '3.0', head]
     runs-on: ${{ matrix.os }}
     steps:
-    - name: install dependencies
+    - name: install libvterm for tests
       run: |
         sudo apt install -y libvterm-dev # for yamatanooroti
+      if: matrix.os == 'ubuntu-latest'
+
+    - name: install libvterm for tests
+      run: |
+        brew install libvterm
+      if: matrix.os == 'macos-latest'
 
     - uses: actions/checkout@v2
       with:
