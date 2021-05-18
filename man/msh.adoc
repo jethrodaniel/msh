@@ -8,7 +8,7 @@ msh - A ruby shell
 
 == Description
 
-**msh** is a **bash**-like language implemented in Ruby.
+**msh** is a bash/sh-like language implemented in Ruby.
 
 == Features
 
@@ -17,12 +17,16 @@ msh - A ruby shell
 
 **Interpreter**::
   Access the current Ruby interpreter using `#{self}`, or via an
-  interactive REPL on that same instance.
+  interactive REPL, all on that same instance.
 
 **Methods / Functions**::
   The `alias -> function -> exe` lookup of **sh** is now
   `alias -> method -> exe`, which means functions are just
   _methods_ on our `#{self}`.
+
+**Portability**::
+  The primary implementation targets MRuby, in order to be distributed
+  as a single binary executable.
 
 == Example
 
