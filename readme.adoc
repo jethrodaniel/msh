@@ -1,6 +1,6 @@
-![](https://github.com/jethrodaniel/msh/workflows/ci/badge.svg)
-![](https://img.shields.io/github/license/jethrodaniel/msh.svg)
-![](https://img.shields.io/github/stars/jethrodaniel/msh?style=social)
+image:https://github.com/jethrodaniel/msh/workflows/ci/badge.svg[]
+image:https://img.shields.io/github/license/jethrodaniel/msh.svg[]
+image:https://img.shields.io/github/stars/jethrodaniel/msh?style=social[]
 
 **NOTE**: not finished, breaking changes until `v1.0.0`, stay tuned.
 
@@ -42,7 +42,7 @@ msh v0.4.1 running on mruby v3.0 (`?` for help)
 $ echo π ≈ #{Math::PI}
 π ≈ 3.141592653589793
 $ echo #{self}
-#<Msh::Context:0x55ce381c2240>
+#<Msh::Context:0x560637d08240>
 $ repl
 Enter some ruby (sorry, no multiline). ^D to exit.
 > def prompt = 'λ '
