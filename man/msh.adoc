@@ -1,26 +1,35 @@
-== NAME
+== Name
 
-msh - a ruby shell
+msh - A ruby shell
 
-== SYNOPSIS
+== Synopsis
 
-**msh** [_options_]... [_file_]...
+**msh** [-V,--version] [-h,--help] [-c command] [--] [program_file]...
 
-== OPTIONS
-
-*-V, --version*:: Show the version.
-*-c <command>*:: Run a command string as input.
-*-h, --help*:: Show usage information.
-
-== DESCRIPTION
+== Description
 
 **msh** is a **bash**-like language implemented in Ruby.
 
-It's basically just **sh**, but anything in `#{}` is eval'd as Ruby.
+== Features
 
+**Interpolation**::
+  Use `#{}` to interpolate Ruby code anywhere.
+
+**Interpreter**::
+  Access the current Ruby interpreter using `#{self}`, or via an
+  interactive REPL on that same instance.
+
+**Methods / Functions**::
+  The `alias -> function -> exe` lookup of **sh** is now
+  `alias -> method -> exe`, which means functions are just
+  _methods_ on our `#{self}`.
+
+== Example
+
+<%# generate via yamantanooroti %>
 ```
 $ msh
-Welcome to msh v0.4.0 (`?` for help)
+Welcome to msh v<%= Msh::VERSION %> (`?` for help)
 ~/msh λ echo π ≈ #{Math::PI} | cowsay
  _________________________
 < π ≈ 3.141592653589793 . >
@@ -41,105 +50,22 @@ enter some ruby (sorry, no multiline)
 LIVE IN A WORLD OF YOUR OWN, BUT ALWAYS WELCOME VISITORS.
 ```
 
-The underlying Ruby instance is available via the `repl` builtin.
-It's the same context as used during interpolation.
+== Help
+
+msh intends to be self-documenting, similar to git(1).
 
 ```
-$ repl
-enter some ruby (sorry, no multiline)
-> def foo; "bar"; end
-=> :foo
-> ^D
-$ echo foo#{foo}
-foo bar
-$ echo #{self}
-<Msh::Context:0x0000557a7f0b6f68>
+msh help [topic]
+man msh-<topic>
 ```
-
-**msh**'s goal is the same as that of Ruby
-
-[quote, Yukihiro Matsumoto]
-____
-For me the purpose of life is partly to have joy. Programmers often feel
-joy when they can concentrate on the creative side of programming, So Ruby
-is designed to make programmers happy.
-____
-
-== CONFIG
-
-**msh** loads each of these it can find on startup
-
-- `~/.mshrc`
-- `~/config/msh/config.msh`
-- `$XDG_CONFIG_HOME/msh/config.msh`
-
-== Comparison/Features
-
-[cols="l,l,l", caption=""]
-|===
-
-|
-|sh
-|msh
-
-|redirect output
-|a > b
-|"
-
-|append output
-|a >> b
-|"
-
-|redirect input
-|a < b
-|"
-
-|conditionals
-|a \|\| b && c
-|"
-
-|alias
-|alias ls="ls -lrth"
-|alias ls ls -lrth
-
-|===
-
-
-**NOTE**: redirection and pipes won't work in the executable version of msh
-  until MRuby supports `IO#reopen`.
-
-== Examples
-
-Filter commands
-
-```
-$ repl
-enter some ruby (sorry, no multiline)
-> def upcase; ARGF.each_line { |l| puts l.upcase }; end
-=> :upcase
-> ^D
-$ echo hi | upcase
-HI
-```
-
-Changing the prompt
-
-```
-$ repl
-enter some ruby (sorry, no multiline)
-> def prompt; "% "; end
-=> "% "
-> ^D
-%
-```
-
-== Copying
-
-Copyright \(C) 2021 Mark Delk.
-Free use of this software is granted under the terms of the MIT License.
+<%# where to go from here? %>
 
 == Resources
 
 *issue tracker*:: https://github.com/jethrodaniel/msh/issues?q=is%3Aopen.
 *source code*:: https://github.com/jethrodaniel/msh
 *releases*:: https://github.com/jethrodaniel/msh/releases
+
+== Copyright
+
+<%= File.read("license.txt") %>

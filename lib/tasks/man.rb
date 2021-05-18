@@ -1,6 +1,7 @@
 require_relative "task"
 
 require "asciidoctor"
+require "erb"
 
 module Msh
   module Tasks
@@ -35,16 +36,20 @@ module Msh
           = #{File.basename(adoc)}(1)
           :doctype: manpage
           :release-version: #{Msh::VERSION}
-          :man manual: Msh Manual
-          :man source: Msh v#{Msh::VERSION}
-          :page-layout: base
+          :manmanual: Msh Manual
+          :mansource: Msh v#{Msh::VERSION}
 
-          #{File.read(adoc)}
+          #{erb(adoc)}
 
           == msh
 
           Part of msh(1).
         MAN
+      end
+
+      def erb file
+        puts "erb -> #{file}"
+        ERB.new(File.read(file)).result(binding)
       end
     end
   end
