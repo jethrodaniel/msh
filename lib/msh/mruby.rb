@@ -38,13 +38,10 @@ if RUBY_ENGINE == "mruby"
   end
 
   class Dir
-    # mruby-dir doesn't provide this
-    def self.home
-      ENV["HOME"]
-    end
-
-    def self.pwd
-      ENV["PWD"]
+    class << self
+      # mruby-dir doesn't provide this
+      def home = ENV["HOME"]
+      def pwd = getwd
     end
   end
 
