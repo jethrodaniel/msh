@@ -7,6 +7,10 @@ Dir.glob("lib/tasks/*.rb").each { |task| require_relative task }
 
 task :default => %i[install mruby spec]
 
+task :docker do
+  sh "docker build -t msh . && docker run -it msh"
+end
+
 ##-- Testing
 
 require "rake/testtask"
