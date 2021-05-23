@@ -7,7 +7,7 @@ if RUBY_ENGINE == "mruby"
     end
 
     def warn msg
-      $stderr.puts msg # rubocop:disable Style/StderrPuts
+      $stderr.puts msg
     end
 
     def abort msg, exit_code = 1
@@ -40,8 +40,11 @@ if RUBY_ENGINE == "mruby"
   class Dir
     class << self
       # mruby-dir doesn't provide this
-      def home = ENV["HOME"]
-      def pwd = getwd
+      def home
+        ENV["HOME"]
+      end
+
+      alias pwd getwd
     end
   end
 
